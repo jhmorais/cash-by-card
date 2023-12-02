@@ -1,0 +1,1 @@
+CREATE SCHEMA `card-by-cash` DEFAULT CHARACTER SET utf8;
