@@ -7,5 +7,5 @@ import (
 )
 
 type FindClientByIDUseCase interface {
-	Execute(ctx context.Context, deviceID string) (*output.FindClient, error)
+	Execute(ctx context.Context, clientID int) (*output.FindClient, error)
 }

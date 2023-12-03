@@ -8,5 +8,5 @@ import (
 )
 
 type CreateClientUseCase interface {
-	Execute(ctx context.Context, createDevice *input.CreateClient) (*output.CreateClient, error)
+	Execute(ctx context.Context, createClient *input.CreateClient) (*output.CreateClient, error)
 }

@@ -7,7 +7,6 @@ import (
 	"github.com/jhmorais/cash-by-card/internal/contracts"
 	"github.com/jhmorais/cash-by-card/internal/ports/output"
 	"github.com/jhmorais/cash-by-card/internal/repositories"
-	"github.com/jhmorais/cash-by-card/internal/usecases/validator"
 )
 
 type findClientByIDUseCase struct {
@@ -21,11 +20,7 @@ func NewFindClientByIDUseCase(clientRepository repositories.ClientRepository) co
 	}
 }
 
-func (c *findClientByIDUseCase) Execute(ctx context.Context, clientID string) (*output.FindClient, error) {
-
-	if err := validator.ValidateUUId(clientID, true, "clientId"); err != nil {
-		return nil, err
-	}
+func (c *findClientByIDUseCase) Execute(ctx context.Context, clientID int) (*output.FindClient, error) {
 
 	clientEntity, err := c.clientRepository.FindClientByID(ctx, clientID)
 	if err != nil {

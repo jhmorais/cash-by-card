@@ -7,7 +7,6 @@ import (
 	"github.com/jhmorais/cash-by-card/internal/contracts"
 	"github.com/jhmorais/cash-by-card/internal/ports/output"
 	"github.com/jhmorais/cash-by-card/internal/repositories"
-	"github.com/jhmorais/cash-by-card/internal/usecases/validator"
 )
 
 type deleteClientUseCase struct {
@@ -21,11 +20,7 @@ func NewDeleteClientUseCase(clientRepository repositories.ClientRepository) cont
 	}
 }
 
-func (c *deleteClientUseCase) Execute(ctx context.Context, clientID string) (*output.DeleteClient, error) {
-
-	if err := validator.ValidateUUId(clientID, true, "clientId"); err != nil {
-		return nil, err
-	}
+func (c *deleteClientUseCase) Execute(ctx context.Context, clientID int) (*output.DeleteClient, error) {
 
 	clientEntity, err := c.clientRepository.FindClientByID(ctx, clientID)
 	if err != nil {

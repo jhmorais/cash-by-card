@@ -37,7 +37,7 @@ func (d *clientRepository) DeleteClient(ctx context.Context, entity *entities.Cl
 		Error
 }
 
-func (d *clientRepository) FindClientByID(ctx context.Context, id string) (*entities.Client, error) {
+func (d *clientRepository) FindClientByID(ctx context.Context, id int) (*entities.Client, error) {
 	var entity *entities.Client
 
 	err := d.db.

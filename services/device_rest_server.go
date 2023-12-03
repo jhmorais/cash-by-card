@@ -9,13 +9,13 @@ import (
 )
 
 type Handler struct {
-	WorkerPort               string
-	CreateClientUseCase      contracts.CreateClientUseCase
-	DeleteClientUseCase      contracts.DeleteClientUseCase
-	FindClientByBrandUseCase contracts.FindClientByNameUseCase
-	FindClientByIDUseCase    contracts.FindClientByIDUseCase
-	ListClientUseCase        contracts.ListClientUseCase
-	UpdateClientUseCase      contracts.UpdateClientUseCase
+	WorkerPort              string
+	CreateClientUseCase     contracts.CreateClientUseCase
+	DeleteClientUseCase     contracts.DeleteClientUseCase
+	FindClientByNameUseCase contracts.FindClientByNameUseCase
+	FindClientByIDUseCase   contracts.FindClientByIDUseCase
+	ListClientUseCase       contracts.ListClientUseCase
+	UpdateClientUseCase     contracts.UpdateClientUseCase
 }
 
 func NewHTTPRouterClient(
@@ -28,19 +28,19 @@ func NewHTTPRouterClient(
 ) *mux.Router {
 	router := mux.NewRouter()
 	handler := Handler{
-		CreateClientUseCase:      createClientUseCase,
-		DeleteClientUseCase:      deleteClientUseCase,
-		FindClientByIDUseCase:    findClientByIDUseCase,
-		FindClientByBrandUseCase: findClientByBrandUseCase,
-		ListClientUseCase:        listClientUseCase,
-		UpdateClientUseCase:      updateClientUseCase,
+		CreateClientUseCase:     createClientUseCase,
+		DeleteClientUseCase:     deleteClientUseCase,
+		FindClientByIDUseCase:   findClientByIDUseCase,
+		FindClientByNameUseCase: findClientByBrandUseCase,
+		ListClientUseCase:       listClientUseCase,
+		UpdateClientUseCase:     updateClientUseCase,
 	}
 	router.UseEncodedPath()
 	router.Use(utils.CommonMiddleware)
 
 	router.HandleFunc("/clients", handler.ListClients).Methods(http.MethodGet)
 	router.HandleFunc("/clients/{id}", handler.GetClientByID).Methods(http.MethodGet)
-	router.HandleFunc("/devices/brand/{brand}", handler.GetClient).Methods(http.MethodGet)
+	router.HandleFunc("/clients/name/{name}", handler.GetClient).Methods(http.MethodGet)
 	router.HandleFunc("/clients/{id}", handler.DeleteClient).Methods(http.MethodDelete)
 	router.HandleFunc("/clients", handler.CreateClient).Methods(http.MethodPost)
 	router.HandleFunc("/clients/{id}", handler.UpdateClient).Methods(http.MethodPut)

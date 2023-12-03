@@ -7,5 +7,5 @@ import (
 )
 
 type DeleteClientUseCase interface {
-	Execute(ctx context.Context, deviceID string) (*output.DeleteClient, error)
+	Execute(ctx context.Context, clientID int) (*output.DeleteClient, error)
 }

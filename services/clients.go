@@ -24,7 +24,7 @@ func (h *Handler) ListClients(w http.ResponseWriter, r *http.Request) {
 	jsonResponse, err := json.Marshal(response)
 	if err != nil {
 		utils.WriteErrModel(w, http.StatusInternalServerError,
-			utils.NewErrorResponse("Failed to marshal device response"))
+			utils.NewErrorResponse("Failed to marshal client response"))
 		return
 	}
 
@@ -40,17 +40,23 @@ func (h *Handler) GetClientByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response, err := h.FindClientByIDUseCase.Execute(ctx, id)
+	idInt, err := strconv.Atoi(id)
+	if err != nil {
+		utils.WriteErrModel(w, http.StatusBadRequest, utils.NewErrorResponse("error cast id to int"))
+		return
+	}
+
+	response, err := h.FindClientByIDUseCase.Execute(ctx, idInt)
 	if err != nil {
 		utils.WriteErrModel(w, http.StatusNotFound,
-			utils.NewErrorResponse(fmt.Sprintf("failed to find device, error: '%s'", err.Error())))
+			utils.NewErrorResponse(fmt.Sprintf("failed to find client, error: '%s'", err.Error())))
 		return
 	}
 
 	jsonResponse, err := json.Marshal(response)
 	if err != nil {
 		utils.WriteErrModel(w, http.StatusInternalServerError,
-			utils.NewErrorResponse("Failed to marshal device response"))
+			utils.NewErrorResponse("Failed to marshal client response"))
 		return
 	}
 
@@ -60,23 +66,23 @@ func (h *Handler) GetClientByID(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) GetClient(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
-	brand, err := utils.RetrieveParam(r, "brand")
+	name, err := utils.RetrieveParam(r, "name")
 	if err != nil {
-		utils.WriteErrModel(w, http.StatusBadRequest, utils.NewErrorResponse("error reading brand"))
+		utils.WriteErrModel(w, http.StatusBadRequest, utils.NewErrorResponse("error reading name"))
 		return
 	}
 
-	response, err := h.FindClientByBrandUseCase.Execute(ctx, brand)
+	response, err := h.FindClientByNameUseCase.Execute(ctx, name)
 	if err != nil {
 		utils.WriteErrModel(w, http.StatusNotFound,
-			utils.NewErrorResponse(fmt.Sprintf("failed to find device, error: '%s'", err.Error())))
+			utils.NewErrorResponse(fmt.Sprintf("failed to find client, error: '%s'", err.Error())))
 		return
 	}
 
 	jsonResponse, err := json.Marshal(response)
 	if err != nil {
 		utils.WriteErrModel(w, http.StatusInternalServerError,
-			utils.NewErrorResponse("Failed to marshal device response"))
+			utils.NewErrorResponse("Failed to marshal client response"))
 		return
 	}
 
@@ -98,30 +104,30 @@ func (h *Handler) UpdateClient(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	device := input.UpdateClient{}
-	err = json.Unmarshal(body, &device)
+	client := input.UpdateClient{}
+	err = json.Unmarshal(body, &client)
 	if err != nil {
 		utils.WriteErrModel(w, http.StatusBadRequest, utils.NewErrorResponse("failed to parse request body"))
 		return
 	}
 
-	device.ID, err = strconv.Atoi(id)
+	client.ID, err = strconv.Atoi(id)
 	if err != nil {
 		utils.WriteErrModel(w, http.StatusBadRequest, utils.NewErrorResponse("failed to parse param id to int"))
 		return
 	}
 
-	response, err := h.UpdateClientUseCase.Execute(ctx, &device)
+	response, err := h.UpdateClientUseCase.Execute(ctx, &client)
 	if err != nil {
 		utils.WriteErrModel(w, http.StatusBadRequest,
-			utils.NewErrorResponse(fmt.Sprintf("failed to update device, error:'%s'", err.Error())))
+			utils.NewErrorResponse(fmt.Sprintf("failed to update client, error:'%s'", err.Error())))
 		return
 	}
 
 	jsonResponse, err := json.Marshal(response)
 	if err != nil {
 		utils.WriteErrModel(w, http.StatusInternalServerError,
-			utils.NewErrorResponse("Failed to marshal device response"))
+			utils.NewErrorResponse("Failed to marshal client response"))
 		return
 	}
 
@@ -137,17 +143,23 @@ func (h *Handler) DeleteClient(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response, err := h.DeleteClientUseCase.Execute(ctx, id)
+	idInt, err := strconv.Atoi(id)
+	if err != nil {
+		utils.WriteErrModel(w, http.StatusBadRequest, utils.NewErrorResponse("error cast id to int"))
+		return
+	}
+
+	response, err := h.DeleteClientUseCase.Execute(ctx, idInt)
 	if err != nil {
 		utils.WriteErrModel(w, http.StatusBadRequest,
-			utils.NewErrorResponse(fmt.Sprintf("failed to delete device, error: '%s'", err.Error())))
+			utils.NewErrorResponse(fmt.Sprintf("failed to delete client, error: '%s'", err.Error())))
 		return
 	}
 
 	jsonResponse, err := json.Marshal(response)
 	if err != nil {
 		utils.WriteErrModel(w, http.StatusInternalServerError,
-			utils.NewErrorResponse("Failed to marshal device response"))
+			utils.NewErrorResponse("Failed to marshal client response"))
 		return
 	}
 
@@ -165,24 +177,24 @@ func (h *Handler) CreateClient(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	device := input.CreateClient{}
-	err = json.Unmarshal(body, &device)
+	client := input.CreateClient{}
+	err = json.Unmarshal(body, &client)
 	if err != nil {
 		utils.WriteErrModel(w, http.StatusBadRequest, utils.NewErrorResponse("failed to parse request body"))
 		return
 	}
 
-	response, err := h.CreateClientUseCase.Execute(ctx, &device)
+	response, err := h.CreateClientUseCase.Execute(ctx, &client)
 	if err != nil {
 		utils.WriteErrModel(w, http.StatusNotFound,
-			utils.NewErrorResponse(fmt.Sprintf("failed to create device, error: '%s'", err.Error())))
+			utils.NewErrorResponse(fmt.Sprintf("failed to create client, error: '%s'", err.Error())))
 		return
 	}
 
 	jsonResponse, err := json.Marshal(response)
 	if err != nil {
 		utils.WriteErrModel(w, http.StatusInternalServerError,
-			utils.NewErrorResponse("Failed to marshal device response"))
+			utils.NewErrorResponse("Failed to marshal client response"))
 		return
 	}
 

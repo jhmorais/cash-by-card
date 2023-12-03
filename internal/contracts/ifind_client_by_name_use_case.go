@@ -7,5 +7,5 @@ import (
 )
 
 type FindClientByNameUseCase interface {
-	Execute(ctx context.Context, brand string) (*output.ListClient, error)
+	Execute(ctx context.Context, name string) (*output.ListClient, error)
 }

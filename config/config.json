@@ -1,6 +1,6 @@
 {
-    "MYSQL_CONNECTION_STRING":"tcp(mysqlcontainer)/device-manager?charset=utf8&parseTime=True&loc=Local",
+    "MYSQL_CONNECTION_STRING":"tcp(mysqlcontainer)/cashbycard?charset=utf8&parseTime=True&loc=Local",
     "MYSQL_USER":"root",
     "MYSQL_PASSWORD":"root",
-    "SERVER_PORT": "8080"
+    "SERVER_PORT": "8081"
 }

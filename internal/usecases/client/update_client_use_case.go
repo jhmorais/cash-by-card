@@ -55,6 +55,9 @@ func (c *updateClientUseCase) Execute(ctx context.Context, updateClient *input.U
 	clientEntity := &entities.Client{
 		ID:        updateClient.ID,
 		Name:      updateClient.Name,
+		PixType:   updateClient.PixType,
+		PixKey:    updateClient.PixKey,
+		PartnerID: updateClient.PartnerID,
 		CreatedAt: time.Now(),
 	}
 
