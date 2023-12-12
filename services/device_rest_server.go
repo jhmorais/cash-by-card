@@ -6,6 +6,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/jhmorais/cash-by-card/internal/contracts"
 	"github.com/jhmorais/cash-by-card/utils"
+	"github.com/rs/cors"
 )
 
 type Handler struct {
@@ -37,6 +38,12 @@ func NewHTTPRouterClient(
 	}
 	router.UseEncodedPath()
 	router.Use(utils.CommonMiddleware)
+
+	corsHandler := cors.New(cors.Options{
+		AllowedOrigins: []string{"*"},
+		AllowedMethods: []string{"GET", "POST", "PUT", "DELETE"},
+	})
+	router.Use(corsHandler.Handler)
 
 	router.HandleFunc("/clients", handler.ListClients).Methods(http.MethodGet)
 	router.HandleFunc("/clients/{id}", handler.GetClientByID).Methods(http.MethodGet)
