@@ -1,14 +1,6 @@
 version: '3.7'
 
 services:
-  mysqladmin:
-    image: adminer
-    restart: "always"
-    ports:
-        - 8080:8080
-    networks:
-      - cashbycard-compose-network
-
   mysql:
     image: mysql:5.7
     container_name: mysqlcontainer
@@ -25,17 +17,28 @@ services:
     networks:
       - cashbycard-compose-network
 
-  app:
+  cashbycard:
     build:
-      context: . 
-      dockerfile: Dockerfile
-    restart: unless-stopped
-    depends_on:
-      - mysql
+        context: .
+        dockerfile: Dockerfile
+    image: cashbycard
+    environment:
+        MYSQL_CONNECTION_STRING: "tcp(localhost:3306)/cashbycard?charset=utf8&parseTime=True&loc=Local"
+        MYSQL_USER: "root"
+        MYSQL_PASSWORD: "password"
+    container_name: cashbycard
+    command: /bin/bash
+    tty: true
     ports:
-      - 3000:3000
+        - 3000:3000
+    volumes:
+        - .:/cashbycard
+    depends_on:
+        - mysql
+    external_links:
+        - mysqlsrv
     networks:
-      - cashbycard-compose-network
+        - cashbycard-compose-network
 
 networks:
   cashbycard-compose-network:

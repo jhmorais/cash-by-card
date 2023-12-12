@@ -7,9 +7,9 @@ RUN apt-get install -y curl
 RUN apt-get install -y zip
 
 RUN cd /tmp
-RUN wget https://go.dev/dl/go1.18.linux-amd64.tar.gz
-RUN tar -C /usr/lib -xzf go1.18.linux-amd64.tar.gz
-RUN rm -rf go1.18.linux-amd64.tar.gz
+RUN wget https://go.dev/dl/go1.20.linux-amd64.tar.gz
+RUN tar -C /usr/lib -xzf go1.20.linux-amd64.tar.gz
+RUN rm -rf go1.20.linux-amd64.tar.gz
 
 ENV APP_HOME /cashbycard
 
@@ -24,4 +24,7 @@ RUN go mod download
 
 COPY . /cashbycard
 
-CMD ["/bin/bash"]
+RUN go build -o cashbycard ./cmd/restserver
+RUN chmod +x cashbycard
+
+CMD ["./cashbycard"]

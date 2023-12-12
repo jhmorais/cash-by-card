@@ -1,6 +1,8 @@
 package di
 
 import (
+	"fmt"
+
 	"github.com/jhmorais/cash-by-card/config"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -10,12 +12,12 @@ import (
 func InitGormMysqlDB() (*gorm.DB, error) {
 	config.LoadServerEnvironmentVars()
 
-	// dsn := fmt.Sprintf("%s:%s@%s", config.GetMysqlUser(), config.GetMysqlPassword(), config.GetMysqlConnectionString())
-	dsn := "root:password@tcp(localhost:3306)/database?charset=utf8&parseTime=True&loc=Local"
+	dsn := fmt.Sprintf("%s:%s@%s", config.GetMysqlUser(), config.GetMysqlPassword(), config.GetMysqlConnectionString())
+	// dsn := "root:password@tcp(localhost:3306)/database?charset=utf8&parseTime=True&loc=Local"
 
 	mysqlDb, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
 		NamingStrategy: schema.NamingStrategy{
-			TablePrefix:   "cardbycash.", // schema name
+			TablePrefix:   "cashby87_cash_by_card.", // schema name
 			SingularTable: true,
 		},
 	})
