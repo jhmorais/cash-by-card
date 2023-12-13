@@ -41,7 +41,8 @@ func NewHTTPRouterClient(
 
 	corsHandler := cors.New(cors.Options{
 		AllowedOrigins: []string{"*"},
-		AllowedMethods: []string{"GET", "POST", "PUT", "DELETE"},
+		AllowedMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders: []string{"cash-control", "content-type", "x-xsrf-token"},
 	})
 	router.Use(corsHandler.Handler)
 
