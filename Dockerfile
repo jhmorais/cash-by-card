@@ -22,9 +22,9 @@ ADD . $APP_HOME
 RUN echo $PATH
 RUN go mod download
 
-COPY . /cashbycard
-
 RUN go build -o cashbycard ./cmd/restserver
 RUN chmod +x cashbycard
+
+COPY . /cashbycard
 
 CMD ["./cashbycard"]
