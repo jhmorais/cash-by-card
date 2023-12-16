@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/jhmorais/cash-by-card/internal/domain/entities"
-	"github.com/jhmorais/cash-by-card/internal/repositories"
+	repositories "github.com/jhmorais/cash-by-card/internal/repositories/client"
 	"gorm.io/gorm"
 )
 

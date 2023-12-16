@@ -6,7 +6,7 @@ import (
 
 	"github.com/jhmorais/cash-by-card/internal/contracts"
 	"github.com/jhmorais/cash-by-card/internal/ports/output"
-	"github.com/jhmorais/cash-by-card/internal/repositories"
+	repositories "github.com/jhmorais/cash-by-card/internal/repositories/client"
 )
 
 type deleteClientUseCase struct {
@@ -24,7 +24,7 @@ func (c *deleteClientUseCase) Execute(ctx context.Context, clientID int) (*outpu
 
 	clientEntity, err := c.clientRepository.FindClientByID(ctx, clientID)
 	if err != nil {
-		return nil, fmt.Errorf("failed to find client '%s' at database: '%v'", clientID, err)
+		return nil, fmt.Errorf("failed to find client '%d' at database: '%v'", clientID, err)
 	}
 
 	if clientEntity == nil || clientEntity.ID == 0 {
@@ -33,7 +33,7 @@ func (c *deleteClientUseCase) Execute(ctx context.Context, clientID int) (*outpu
 
 	err = c.clientRepository.DeleteClient(ctx, clientEntity)
 	if err != nil {
-		return nil, fmt.Errorf("failed to delete client '%s'", clientEntity.ID)
+		return nil, fmt.Errorf("failed to delete client '%d'", clientEntity.ID)
 	}
 
 	output := &output.DeleteClient{

@@ -6,7 +6,7 @@ import (
 
 	"github.com/jhmorais/cash-by-card/internal/contracts"
 	"github.com/jhmorais/cash-by-card/internal/ports/output"
-	"github.com/jhmorais/cash-by-card/internal/repositories"
+	repositories "github.com/jhmorais/cash-by-card/internal/repositories/client"
 )
 
 type findClientUseCase struct {
@@ -27,7 +27,7 @@ func (c *findClientUseCase) Execute(ctx context.Context, partnerID int, name str
 
 	clientEntity, err := c.clientRepository.FindClientByPartnerID(ctx, partnerID, name)
 	if err != nil {
-		return nil, fmt.Errorf("erro to find client with brand: '%s' at database: '%v'", partnerID, err)
+		return nil, fmt.Errorf("erro to find client with brand: '%d' at database: '%v'", partnerID, err)
 	}
 
 	if len(clientEntity) == 0 || clientEntity[0].ID == 0 {

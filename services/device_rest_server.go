@@ -17,6 +17,7 @@ type Handler struct {
 	FindClientByIDUseCase   contracts.FindClientByIDUseCase
 	ListClientUseCase       contracts.ListClientUseCase
 	UpdateClientUseCase     contracts.UpdateClientUseCase
+	ListPartnerUseCase      contracts.ListPartnerUseCase
 }
 
 func NewHTTPRouterClient(
@@ -26,6 +27,7 @@ func NewHTTPRouterClient(
 	findClientByBrandUseCase contracts.FindClientByNameUseCase,
 	listClientUseCase contracts.ListClientUseCase,
 	updateClientUseCase contracts.UpdateClientUseCase,
+	listPartnerUseCase contracts.ListPartnerUseCase,
 ) *mux.Router {
 	router := mux.NewRouter()
 	handler := Handler{
@@ -35,6 +37,7 @@ func NewHTTPRouterClient(
 		FindClientByNameUseCase: findClientByBrandUseCase,
 		ListClientUseCase:       listClientUseCase,
 		UpdateClientUseCase:     updateClientUseCase,
+		ListPartnerUseCase:      listPartnerUseCase,
 	}
 	router.UseEncodedPath()
 	router.Use(utils.CommonMiddleware)
@@ -52,6 +55,8 @@ func NewHTTPRouterClient(
 	router.HandleFunc("/clients/{id}", handler.DeleteClient).Methods(http.MethodDelete)
 	router.HandleFunc("/clients", handler.CreateClient).Methods(http.MethodPost)
 	router.HandleFunc("/clients/{id}", handler.UpdateClient).Methods(http.MethodPut)
+
+	router.HandleFunc("/partners", handler.ListPartners).Methods(http.MethodGet)
 
 	return router
 }

@@ -4,8 +4,10 @@ import (
 	"log"
 
 	"github.com/jhmorais/cash-by-card/internal/contracts"
-	"github.com/jhmorais/cash-by-card/internal/repositories"
+	repoClient "github.com/jhmorais/cash-by-card/internal/repositories/client"
+	repoPartner "github.com/jhmorais/cash-by-card/internal/repositories/partner"
 	"github.com/jhmorais/cash-by-card/internal/usecases/client"
+	"github.com/jhmorais/cash-by-card/internal/usecases/partner"
 	"gorm.io/gorm"
 )
 
@@ -16,7 +18,8 @@ type DenpencyBuild struct {
 }
 
 type Repositories struct {
-	ClientRepository repositories.ClientRepository
+	ClientRepository  repoClient.ClientRepository
+	PartnerRepository repoPartner.PartnerRepository
 }
 
 type Usecases struct {
@@ -27,6 +30,8 @@ type Usecases struct {
 	FindClientByIDUseCase   contracts.FindClientByIDUseCase
 	ListClientUseCase       contracts.ListClientUseCase
 	UpdateClientUseCase     contracts.UpdateClientUseCase
+
+	ListPartnerUseCase contracts.ListPartnerUseCase
 }
 
 func NewBuild() *DenpencyBuild {
@@ -50,7 +55,9 @@ func (d *DenpencyBuild) buildDB() *DenpencyBuild {
 }
 
 func (d *DenpencyBuild) buildRepositories() *DenpencyBuild {
-	d.Repositories.ClientRepository = repositories.NewClientRepository(d.DB)
+	d.Repositories.ClientRepository = repoClient.NewClientRepository(d.DB)
+	d.Repositories.PartnerRepository = repoPartner.NewPartnerRepository(d.DB)
+
 	return d
 }
 
@@ -62,6 +69,8 @@ func (d *DenpencyBuild) buildUseCases() *DenpencyBuild {
 	d.Usecases.FindClientByIDUseCase = client.NewFindClientByIDUseCase(d.Repositories.ClientRepository)
 	d.Usecases.ListClientUseCase = client.NewListClientUseCase(d.Repositories.ClientRepository)
 	d.Usecases.UpdateClientUseCase = client.NewUpdateClientUseCase(d.Repositories.ClientRepository)
+
+	d.Usecases.ListPartnerUseCase = partner.NewListPartnerUseCase(d.Repositories.PartnerRepository)
 
 	return d
 }
