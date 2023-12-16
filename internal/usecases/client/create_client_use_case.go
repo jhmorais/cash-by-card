@@ -25,18 +25,20 @@ func NewCreateClientUseCase(clientRepository repositories.ClientRepository) cont
 
 func (c *createClientUseCase) Execute(ctx context.Context, createClient *input.CreateClient) (*output.CreateClient, error) {
 
-	//max 250
 	if len(createClient.Name) > 250 {
-		//will discard the rest
 		createClient.Name = createClient.Name[:250]
 	}
 
-	if createClient.Name == "" {
-		return nil, fmt.Errorf("cannot create a client without name")
+	if createClient.Phone == "" {
+		return nil, fmt.Errorf("cannot create a client without phone")
 	}
 
-	if createClient.Name == "" {
-		return nil, fmt.Errorf("cannot create a client without brand")
+	if createClient.CPF == "" {
+		return nil, fmt.Errorf("cannot create a client without cpf")
+	}
+
+	if len(createClient.Documents) > 100 {
+		return nil, fmt.Errorf("cannot have documents greater than 100 characters")
 	}
 
 	client, err := c.clientRepository.FindClientByName(ctx, createClient.Name)
@@ -53,6 +55,9 @@ func (c *createClientUseCase) Execute(ctx context.Context, createClient *input.C
 		PixType:   createClient.PixType,
 		PixKey:    createClient.PixKey,
 		PartnerID: createClient.PartnerID,
+		CPF:       createClient.CPF,
+		Phone:     createClient.Phone,
+		Documents: createClient.Documents,
 		CreatedAt: time.Now(),
 	}
 
