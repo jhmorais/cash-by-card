@@ -12,6 +12,7 @@ type ClientRepository interface {
 	UpdateClient(ctx context.Context, entity *entities.Client) error
 	FindClientByID(ctx context.Context, id int) (*entities.Client, error)
 	FindClientByName(ctx context.Context, name string) ([]*entities.Client, error)
+	FindClientByCPF(ctx context.Context, cpf string) ([]*entities.Client, error)
 	FindClientByPartnerID(ctx context.Context, partnerID int, name string) ([]*entities.Client, error)
 	ListClient(ctx context.Context) ([]*entities.Client, error)
 }

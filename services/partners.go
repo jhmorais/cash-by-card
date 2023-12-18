@@ -8,23 +8,23 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/jhmorais/cash-by-card/internal/ports/input"
+	input "github.com/jhmorais/cash-by-card/internal/ports/input/partner"
 	"github.com/jhmorais/cash-by-card/utils"
 )
 
-func (h *Handler) ListClients(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) ListPartners(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
-	response, err := h.ListClientUseCase.Execute(ctx)
+	response, err := h.ListPartnerUseCase.Execute(ctx)
 	if err != nil {
 		utils.WriteErrModel(w, http.StatusNotFound,
-			utils.NewErrorResponse(fmt.Sprintf("failed to get clients, error: '%s'", err.Error())))
+			utils.NewErrorResponse(fmt.Sprintf("failed to get partners, error: '%s'", err.Error())))
 		return
 	}
 
 	jsonResponse, err := json.Marshal(response)
 	if err != nil {
 		utils.WriteErrModel(w, http.StatusInternalServerError,
-			utils.NewErrorResponse("Failed to marshal client response"))
+			utils.NewErrorResponse("Failed to marshal partner response"))
 		return
 	}
 
@@ -32,7 +32,7 @@ func (h *Handler) ListClients(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, string(jsonResponse))
 }
 
-func (h *Handler) GetClientByID(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) GetPartnerByID(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 	id, err := utils.RetrieveParam(r, "id")
 	if err != nil {
@@ -46,17 +46,17 @@ func (h *Handler) GetClientByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response, err := h.FindClientByIDUseCase.Execute(ctx, idInt)
+	response, err := h.FindPartnerByIDUseCase.Execute(ctx, idInt)
 	if err != nil {
 		utils.WriteErrModel(w, http.StatusNotFound,
-			utils.NewErrorResponse(fmt.Sprintf("failed to find client, error: '%s'", err.Error())))
+			utils.NewErrorResponse(fmt.Sprintf("failed to find partner, error: '%s'", err.Error())))
 		return
 	}
 
 	jsonResponse, err := json.Marshal(response)
 	if err != nil {
 		utils.WriteErrModel(w, http.StatusInternalServerError,
-			utils.NewErrorResponse("Failed to marshal client response"))
+			utils.NewErrorResponse("Failed to marshal partner response"))
 		return
 	}
 
@@ -64,7 +64,7 @@ func (h *Handler) GetClientByID(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, string(jsonResponse))
 }
 
-func (h *Handler) GetClient(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) GetPartner(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 	name, err := utils.RetrieveParam(r, "name")
 	if err != nil {
@@ -72,17 +72,17 @@ func (h *Handler) GetClient(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response, err := h.FindClientByNameUseCase.Execute(ctx, name)
+	response, err := h.FindPartnerByNameUseCase.Execute(ctx, name)
 	if err != nil {
 		utils.WriteErrModel(w, http.StatusNotFound,
-			utils.NewErrorResponse(fmt.Sprintf("failed to find client, error: '%s'", err.Error())))
+			utils.NewErrorResponse(fmt.Sprintf("failed to find partner, error: '%s'", err.Error())))
 		return
 	}
 
 	jsonResponse, err := json.Marshal(response)
 	if err != nil {
 		utils.WriteErrModel(w, http.StatusInternalServerError,
-			utils.NewErrorResponse("Failed to marshal client response"))
+			utils.NewErrorResponse("Failed to marshal partner response"))
 		return
 	}
 
@@ -90,7 +90,7 @@ func (h *Handler) GetClient(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, string(jsonResponse))
 }
 
-func (h *Handler) UpdateClient(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) UpdatePartner(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 	id, err := utils.RetrieveParam(r, "id")
 	if err != nil {
@@ -104,30 +104,30 @@ func (h *Handler) UpdateClient(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	client := input.UpdateClient{}
-	err = json.Unmarshal(body, &client)
+	partner := input.UpdatePartner{}
+	err = json.Unmarshal(body, &partner)
 	if err != nil {
 		utils.WriteErrModel(w, http.StatusBadRequest, utils.NewErrorResponse("failed to parse request body"))
 		return
 	}
 
-	client.ID, err = strconv.Atoi(id)
+	partner.ID, err = strconv.Atoi(id)
 	if err != nil {
 		utils.WriteErrModel(w, http.StatusBadRequest, utils.NewErrorResponse("failed to parse param id to int"))
 		return
 	}
 
-	response, err := h.UpdateClientUseCase.Execute(ctx, &client)
+	response, err := h.UpdatePartnerUseCase.Execute(ctx, &partner)
 	if err != nil {
 		utils.WriteErrModel(w, http.StatusBadRequest,
-			utils.NewErrorResponse(fmt.Sprintf("failed to update client, error:'%s'", err.Error())))
+			utils.NewErrorResponse(fmt.Sprintf("failed to update partner, error:'%s'", err.Error())))
 		return
 	}
 
 	jsonResponse, err := json.Marshal(response)
 	if err != nil {
 		utils.WriteErrModel(w, http.StatusInternalServerError,
-			utils.NewErrorResponse("Failed to marshal client response"))
+			utils.NewErrorResponse("Failed to marshal partner response"))
 		return
 	}
 
@@ -135,7 +135,7 @@ func (h *Handler) UpdateClient(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, string(jsonResponse))
 }
 
-func (h *Handler) DeleteClient(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) DeletePartner(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 	id, err := utils.RetrieveParam(r, "id")
 	if err != nil {
@@ -149,17 +149,17 @@ func (h *Handler) DeleteClient(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response, err := h.DeleteClientUseCase.Execute(ctx, idInt)
+	response, err := h.DeletePartnerUseCase.Execute(ctx, idInt)
 	if err != nil {
 		utils.WriteErrModel(w, http.StatusBadRequest,
-			utils.NewErrorResponse(fmt.Sprintf("failed to delete client, error: '%s'", err.Error())))
+			utils.NewErrorResponse(fmt.Sprintf("failed to delete partner, error: '%s'", err.Error())))
 		return
 	}
 
 	jsonResponse, err := json.Marshal(response)
 	if err != nil {
 		utils.WriteErrModel(w, http.StatusInternalServerError,
-			utils.NewErrorResponse("Failed to marshal client response"))
+			utils.NewErrorResponse("Failed to marshal partner response"))
 		return
 	}
 
@@ -167,7 +167,7 @@ func (h *Handler) DeleteClient(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, string(jsonResponse))
 }
 
-func (h *Handler) CreateClient(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) CreatePartner(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 	defer r.Body.Close()
 
@@ -177,24 +177,24 @@ func (h *Handler) CreateClient(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	client := input.CreateClient{}
-	err = json.Unmarshal(body, &client)
+	partner := input.CreatePartner{}
+	err = json.Unmarshal(body, &partner)
 	if err != nil {
 		utils.WriteErrModel(w, http.StatusBadRequest, utils.NewErrorResponse("failed to parse request body"))
 		return
 	}
 
-	response, err := h.CreateClientUseCase.Execute(ctx, &client)
+	response, err := h.CreatePartnerUseCase.Execute(ctx, &partner)
 	if err != nil {
-		utils.WriteErrModel(w, http.StatusInternalServerError,
-			utils.NewErrorResponse(fmt.Sprintf("failed to create client, error: '%s'", err.Error())))
+		utils.WriteErrModel(w, http.StatusNotFound,
+			utils.NewErrorResponse(fmt.Sprintf("failed to create partner, error: '%s'", err.Error())))
 		return
 	}
 
 	jsonResponse, err := json.Marshal(response)
 	if err != nil {
 		utils.WriteErrModel(w, http.StatusInternalServerError,
-			utils.NewErrorResponse("Failed to marshal client response"))
+			utils.NewErrorResponse("Failed to marshal partner response"))
 		return
 	}
 

@@ -61,6 +61,18 @@ func (d *clientRepository) FindClientByName(ctx context.Context, name string) ([
 	return entity, err
 }
 
+func (d *clientRepository) FindClientByCPF(ctx context.Context, cpf string) ([]*entities.Client, error) {
+	var entity []*entities.Client
+
+	err := d.db.
+		Preload(clause.Associations).
+		Where("cpf = ?", cpf).
+		Limit(100).
+		Find(&entity).Error
+
+	return entity, err
+}
+
 func (d *clientRepository) FindClientByPartnerID(ctx context.Context, partnerID int, name string) ([]*entities.Client, error) {
 	var entity []*entities.Client
 

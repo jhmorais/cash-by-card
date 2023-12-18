@@ -21,7 +21,12 @@ func main() {
 		dependencies.Usecases.FindClientByNameUseCase,
 		dependencies.Usecases.ListClientUseCase,
 		dependencies.Usecases.UpdateClientUseCase,
+		dependencies.Usecases.CreatePartnerUseCase,
+		dependencies.Usecases.DeletePartnerUseCase,
+		dependencies.Usecases.FindPartnerByIDUseCase,
+		dependencies.Usecases.FindPartnerByNameUseCase,
 		dependencies.Usecases.ListPartnerUseCase,
+		dependencies.Usecases.UpdatePartnerUseCase,
 	)
 
 	fmt.Println("Starting SERVER, LISTEN PORT: " + config.GetServerPort())
