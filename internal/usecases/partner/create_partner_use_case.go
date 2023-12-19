@@ -55,6 +55,15 @@ func (c *createPartnerUseCase) Execute(ctx context.Context, createPartner *input
 		CreatedAt: time.Now(),
 	}
 
+	partner, err = c.partnerRepository.FindPartnerByCPF(ctx, createPartner.CPF)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get partner: %v", err)
+	}
+
+	if len(partner) > 0 {
+		return nil, fmt.Errorf("failed, already exists partner with the same cpf")
+	}
+
 	err = c.partnerRepository.CreatePartner(ctx, partnerEntity)
 	if err != nil {
 		return nil, fmt.Errorf("cannot save partner at database: %v", err)

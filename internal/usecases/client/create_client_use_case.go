@@ -50,6 +50,15 @@ func (c *createClientUseCase) Execute(ctx context.Context, createClient *input.C
 		return nil, fmt.Errorf("failed, already exists client with the same name")
 	}
 
+	client, err = c.clientRepository.FindClientByCPF(ctx, createClient.CPF)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get client: %v", err)
+	}
+
+	if len(client) > 0 {
+		return nil, fmt.Errorf("failed, already exists client with the same cpf")
+	}
+
 	clientEntity := &entities.Client{
 		Name:      createClient.Name,
 		PixType:   createClient.PixType,
