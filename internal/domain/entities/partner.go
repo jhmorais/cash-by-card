@@ -9,6 +9,8 @@ type Partner struct {
 	PixKey    string `json:"pixKey"`
 	Telefone  string `json:"phone"`
 	Endereco  string `json:"address"`
+	PixType   int    `json:"pixType"`
+	Email     string `json:"email"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }

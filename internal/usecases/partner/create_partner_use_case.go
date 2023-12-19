@@ -52,6 +52,8 @@ func (c *createPartnerUseCase) Execute(ctx context.Context, createPartner *input
 		CPF:       createPartner.CPF,
 		Telefone:  createPartner.Phone,
 		Endereco:  createPartner.Address,
+		Email:     createPartner.Email,
+		PixType:   createPartner.PixType,
 		CreatedAt: time.Now(),
 	}
 
