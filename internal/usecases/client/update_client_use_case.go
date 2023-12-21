@@ -49,6 +49,7 @@ func (c *updateClientUseCase) Execute(ctx context.Context, updateClient *input.U
 		ID:        updateClient.ID,
 		Name:      updateClient.Name,
 		PixKey:    updateClient.PixKey,
+		PixType:   updateClient.PixType,
 		PartnerID: updateClient.PartnerID,
 		Documents: updateClient.Documents,
 		Phone:     updateClient.Phone,
