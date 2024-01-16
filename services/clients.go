@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/jhmorais/cash-by-card/internal/ports/input"
+	input "github.com/jhmorais/cash-by-card/internal/ports/input/client"
 	"github.com/jhmorais/cash-by-card/utils"
 )
 

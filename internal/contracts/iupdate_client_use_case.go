@@ -3,8 +3,8 @@ package contracts
 import (
 	"context"
 
-	"github.com/jhmorais/cash-by-card/internal/ports/input"
-	"github.com/jhmorais/cash-by-card/internal/ports/output"
+	input "github.com/jhmorais/cash-by-card/internal/ports/input/client"
+	output "github.com/jhmorais/cash-by-card/internal/ports/output/client"
 )
 
 type UpdateClientUseCase interface {

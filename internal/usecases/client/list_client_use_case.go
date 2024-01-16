@@ -6,7 +6,7 @@ import (
 
 	"github.com/jhmorais/cash-by-card/internal/contracts"
 	"github.com/jhmorais/cash-by-card/internal/domain/entities"
-	"github.com/jhmorais/cash-by-card/internal/ports/output"
+	output "github.com/jhmorais/cash-by-card/internal/ports/output/client"
 	repositories "github.com/jhmorais/cash-by-card/internal/repositories/client"
 )
 

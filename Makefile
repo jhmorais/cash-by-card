@@ -21,3 +21,7 @@ create-volume:
 
 remove-volume:
 	docker volume rm mysql_cashbycard_data
+
+build-image:
+	docker rmi cashbycard:1.1
+	docker build -t cashbycard:1.1 .
