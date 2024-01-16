@@ -3,13 +3,13 @@ package entities
 import "time"
 
 type Card struct {
-	ID            string `gorm:"id"`
-	PaymentType   string `gorm:"size:250"`
-	Value         float64
-	Brand         string
-	Installments  int
-	LoanID        int `gorm:"index"`
-	CardMachineID int `gorm:"index"`
+	ID            int     `gorm:"id" json:"id"`
+	PaymentType   string  `gorm:"size:250" json:"paymentType"`
+	Value         float64 `json:"value"`
+	Brand         string  `json:"brand"`
+	Installments  int     `json:"installments"`
+	LoanID        int     `gorm:"index" json:"loanId"`
+	CardMachineID int     `gorm:"index" json:"cardMachineId"`
 	CreatedAt     time.Time
 	UpdatedAt     time.Time
 	Loan          Loan        `gorm:"foreignKey:LoanID"`

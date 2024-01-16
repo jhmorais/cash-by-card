@@ -4,8 +4,10 @@ import (
 	"log"
 
 	"github.com/jhmorais/cash-by-card/internal/contracts"
+	repoCard "github.com/jhmorais/cash-by-card/internal/repositories/card"
 	repoClient "github.com/jhmorais/cash-by-card/internal/repositories/client"
 	repoPartner "github.com/jhmorais/cash-by-card/internal/repositories/partner"
+	"github.com/jhmorais/cash-by-card/internal/usecases/card"
 	"github.com/jhmorais/cash-by-card/internal/usecases/client"
 	"github.com/jhmorais/cash-by-card/internal/usecases/partner"
 	"gorm.io/gorm"
@@ -20,6 +22,7 @@ type DenpencyBuild struct {
 type Repositories struct {
 	ClientRepository  repoClient.ClientRepository
 	PartnerRepository repoPartner.PartnerRepository
+	CardRepository    repoCard.CardRepository
 }
 
 type Usecases struct {
@@ -38,6 +41,13 @@ type Usecases struct {
 	FindPartnerByIDUseCase   contracts.FindPartnerByIDUseCase
 	ListPartnerUseCase       contracts.ListPartnerUseCase
 	UpdatePartnerUseCase     contracts.UpdatePartnerUseCase
+
+	CreateCardUseCase       contracts.CreateCardUseCase
+	DeleteCardUseCase       contracts.DeleteCardUseCase
+	FindCardByIDUseCase     contracts.FindCardByIDUseCase
+	FindCardByLoanIDUseCase contracts.FindCardByLoanIDUseCase
+	UpdateCardUseCase       contracts.UpdateCardUseCase
+	ListCardUseCase         contracts.ListCardUseCase
 }
 
 func NewBuild() *DenpencyBuild {
@@ -63,6 +73,7 @@ func (d *DenpencyBuild) buildDB() *DenpencyBuild {
 func (d *DenpencyBuild) buildRepositories() *DenpencyBuild {
 	d.Repositories.ClientRepository = repoClient.NewClientRepository(d.DB)
 	d.Repositories.PartnerRepository = repoPartner.NewPartnerRepository(d.DB)
+	d.Repositories.CardRepository = repoCard.NewCardRepository(d.DB)
 
 	return d
 }
@@ -83,6 +94,13 @@ func (d *DenpencyBuild) buildUseCases() *DenpencyBuild {
 	d.Usecases.FindPartnerByIDUseCase = partner.NewFindPartnerByIDUseCase(d.Repositories.PartnerRepository)
 	d.Usecases.ListPartnerUseCase = partner.NewListPartnerUseCase(d.Repositories.PartnerRepository)
 	d.Usecases.UpdatePartnerUseCase = partner.NewUpdatePartnerUseCase(d.Repositories.PartnerRepository)
+
+	d.Usecases.CreateCardUseCase = card.NewCreateCardUseCase(d.Repositories.CardRepository)
+	d.Usecases.DeleteCardUseCase = card.NewDeleteCardUseCase(d.Repositories.CardRepository)
+	d.Usecases.FindCardByIDUseCase = card.NewFindCardByIDUseCase(d.Repositories.CardRepository)
+	d.Usecases.FindCardByLoanIDUseCase = card.NewFindCardByLoanIDUseCase(d.Repositories.CardRepository)
+	d.Usecases.ListCardUseCase = card.NewListCardsUseCase(d.Repositories.CardRepository)
+	d.Usecases.UpdateCardUseCase = card.NewUpdateCardUseCase(d.Repositories.CardRepository)
 
 	return d
 }
