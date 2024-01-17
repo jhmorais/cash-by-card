@@ -55,7 +55,6 @@ func (d *cardRepository) FindCardByLoanID(ctx context.Context, LoanID int) ([]*e
 	err := d.db.
 		Preload(clause.Associations).
 		Where("loan_id = ?", LoanID).
-		Limit(1).
 		Find(&entity).Error
 
 	return entity, err

@@ -24,7 +24,7 @@ func (c *findCardByIDUseCase) Execute(ctx context.Context, cardID int) (*output.
 
 	cardEntity, err := c.cardRepository.FindCardByID(ctx, cardID)
 	if err != nil {
-		return nil, fmt.Errorf("erro to find client '%d' at database: '%v'", cardID, err)
+		return nil, fmt.Errorf("erro to find card '%d' at database: '%v'", cardID, err)
 	}
 
 	if cardEntity == nil || cardEntity.ID == 0 {

@@ -33,6 +33,11 @@ func main() {
 		dependencies.Usecases.FindCardByLoanIDUseCase,
 		dependencies.Usecases.UpdateCardUseCase,
 		dependencies.Usecases.ListCardUseCase,
+		dependencies.Usecases.CreateCardMachineUseCase,
+		dependencies.Usecases.DeleteCardMachineUseCase,
+		dependencies.Usecases.FindCardMachineByIDUseCase,
+		dependencies.Usecases.UpdateCardMachineUseCase,
+		dependencies.Usecases.ListCardMachineUseCase,
 	)
 
 	fmt.Println("Starting SERVER, LISTEN PORT: " + config.GetServerPort())

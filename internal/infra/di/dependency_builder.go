@@ -5,9 +5,11 @@ import (
 
 	"github.com/jhmorais/cash-by-card/internal/contracts"
 	repoCard "github.com/jhmorais/cash-by-card/internal/repositories/card"
+	repoCardMachine "github.com/jhmorais/cash-by-card/internal/repositories/cardMachine"
 	repoClient "github.com/jhmorais/cash-by-card/internal/repositories/client"
 	repoPartner "github.com/jhmorais/cash-by-card/internal/repositories/partner"
 	"github.com/jhmorais/cash-by-card/internal/usecases/card"
+	"github.com/jhmorais/cash-by-card/internal/usecases/cardMachine"
 	"github.com/jhmorais/cash-by-card/internal/usecases/client"
 	"github.com/jhmorais/cash-by-card/internal/usecases/partner"
 	"gorm.io/gorm"
@@ -20,9 +22,10 @@ type DenpencyBuild struct {
 }
 
 type Repositories struct {
-	ClientRepository  repoClient.ClientRepository
-	PartnerRepository repoPartner.PartnerRepository
-	CardRepository    repoCard.CardRepository
+	ClientRepository      repoClient.ClientRepository
+	PartnerRepository     repoPartner.PartnerRepository
+	CardRepository        repoCard.CardRepository
+	CardMachineRepository repoCardMachine.CardMachineRepository
 }
 
 type Usecases struct {
@@ -48,6 +51,12 @@ type Usecases struct {
 	FindCardByLoanIDUseCase contracts.FindCardByLoanIDUseCase
 	UpdateCardUseCase       contracts.UpdateCardUseCase
 	ListCardUseCase         contracts.ListCardUseCase
+
+	CreateCardMachineUseCase   contracts.CreateCardMachineUseCase
+	DeleteCardMachineUseCase   contracts.DeleteCardMachineUseCase
+	FindCardMachineByIDUseCase contracts.FindCardMachineByIDUseCase
+	UpdateCardMachineUseCase   contracts.UpdateCardMachineUseCase
+	ListCardMachineUseCase     contracts.ListCardMachineUseCase
 }
 
 func NewBuild() *DenpencyBuild {
@@ -74,6 +83,7 @@ func (d *DenpencyBuild) buildRepositories() *DenpencyBuild {
 	d.Repositories.ClientRepository = repoClient.NewClientRepository(d.DB)
 	d.Repositories.PartnerRepository = repoPartner.NewPartnerRepository(d.DB)
 	d.Repositories.CardRepository = repoCard.NewCardRepository(d.DB)
+	d.Repositories.CardMachineRepository = repoCardMachine.NewCardMachineRepository(d.DB)
 
 	return d
 }
@@ -101,6 +111,12 @@ func (d *DenpencyBuild) buildUseCases() *DenpencyBuild {
 	d.Usecases.FindCardByLoanIDUseCase = card.NewFindCardByLoanIDUseCase(d.Repositories.CardRepository)
 	d.Usecases.ListCardUseCase = card.NewListCardsUseCase(d.Repositories.CardRepository)
 	d.Usecases.UpdateCardUseCase = card.NewUpdateCardUseCase(d.Repositories.CardRepository)
+
+	d.Usecases.CreateCardMachineUseCase = cardMachine.NewCreateCardMachineUseCase(d.Repositories.CardMachineRepository)
+	d.Usecases.DeleteCardMachineUseCase = cardMachine.NewDeleteCardMachineUseCase(d.Repositories.CardMachineRepository)
+	d.Usecases.FindCardMachineByIDUseCase = cardMachine.NewFindCardMachineByIDUseCase(d.Repositories.CardMachineRepository)
+	d.Usecases.ListCardMachineUseCase = cardMachine.NewListCardMachinesUseCase(d.Repositories.CardMachineRepository)
+	d.Usecases.UpdateCardMachineUseCase = cardMachine.NewUpdateCardMachineUseCase(d.Repositories.CardMachineRepository)
 
 	return d
 }

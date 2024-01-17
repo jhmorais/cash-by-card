@@ -31,6 +31,12 @@ type Handler struct {
 	FindCardByLoanIDUseCase contracts.FindCardByLoanIDUseCase
 	UpdateCardUseCase       contracts.UpdateCardUseCase
 	ListCardUseCase         contracts.ListCardUseCase
+
+	CreateCardMachineUseCase   contracts.CreateCardMachineUseCase
+	DeleteCardMachineUseCase   contracts.DeleteCardMachineUseCase
+	FindCardMachineByIDUseCase contracts.FindCardMachineByIDUseCase
+	UpdateCardMachineUseCase   contracts.UpdateCardMachineUseCase
+	ListCardMachineUseCase     contracts.ListCardMachineUseCase
 }
 
 func NewHTTPRouterClient(
@@ -52,27 +58,37 @@ func NewHTTPRouterClient(
 	findCardByLoanIDUseCase contracts.FindCardByLoanIDUseCase,
 	updateCardUseCase contracts.UpdateCardUseCase,
 	listCardUseCase contracts.ListCardUseCase,
+	createCardMachineUseCase contracts.CreateCardMachineUseCase,
+	deleteCardMachineUseCase contracts.DeleteCardMachineUseCase,
+	findCardMachineByIDUseCase contracts.FindCardMachineByIDUseCase,
+	updateCardMachineUseCase contracts.UpdateCardMachineUseCase,
+	listCardMachineUseCase contracts.ListCardMachineUseCase,
 ) *mux.Router {
 	router := mux.NewRouter()
 	handler := Handler{
-		CreateClientUseCase:      createClientUseCase,
-		DeleteClientUseCase:      deleteClientUseCase,
-		FindClientByIDUseCase:    findClientByIDUseCase,
-		FindClientByNameUseCase:  findClientByBrandUseCase,
-		ListClientUseCase:        listClientUseCase,
-		UpdateClientUseCase:      updateClientUseCase,
-		CreatePartnerUseCase:     createPartnerUseCase,
-		DeletePartnerUseCase:     deletePartnerUseCase,
-		FindPartnerByIDUseCase:   findPartnerByIDUseCase,
-		FindPartnerByNameUseCase: findPartnerByBrandUseCase,
-		ListPartnerUseCase:       listPartnerUseCase,
-		UpdatePartnerUseCase:     updatePartnerUseCase,
-		CreateCardUseCase:        createCardUseCase,
-		DeleteCardUseCase:        deleteCardUseCase,
-		FindCardByIDUseCase:      findCardByIDUseCase,
-		FindCardByLoanIDUseCase:  findCardByLoanIDUseCase,
-		UpdateCardUseCase:        updateCardUseCase,
-		ListCardUseCase:          listCardUseCase,
+		CreateClientUseCase:        createClientUseCase,
+		DeleteClientUseCase:        deleteClientUseCase,
+		FindClientByIDUseCase:      findClientByIDUseCase,
+		FindClientByNameUseCase:    findClientByBrandUseCase,
+		ListClientUseCase:          listClientUseCase,
+		UpdateClientUseCase:        updateClientUseCase,
+		CreatePartnerUseCase:       createPartnerUseCase,
+		DeletePartnerUseCase:       deletePartnerUseCase,
+		FindPartnerByIDUseCase:     findPartnerByIDUseCase,
+		FindPartnerByNameUseCase:   findPartnerByBrandUseCase,
+		ListPartnerUseCase:         listPartnerUseCase,
+		UpdatePartnerUseCase:       updatePartnerUseCase,
+		CreateCardUseCase:          createCardUseCase,
+		DeleteCardUseCase:          deleteCardUseCase,
+		FindCardByIDUseCase:        findCardByIDUseCase,
+		FindCardByLoanIDUseCase:    findCardByLoanIDUseCase,
+		UpdateCardUseCase:          updateCardUseCase,
+		ListCardUseCase:            listCardUseCase,
+		CreateCardMachineUseCase:   createCardMachineUseCase,
+		DeleteCardMachineUseCase:   deleteCardMachineUseCase,
+		FindCardMachineByIDUseCase: findCardMachineByIDUseCase,
+		UpdateCardMachineUseCase:   updateCardMachineUseCase,
+		ListCardMachineUseCase:     listCardMachineUseCase,
 	}
 	router.UseEncodedPath()
 	router.Use(utils.CommonMiddleware)
@@ -100,10 +116,16 @@ func NewHTTPRouterClient(
 
 	router.HandleFunc("/cards", handler.ListCards).Methods(http.MethodGet, http.MethodOptions)
 	router.HandleFunc("/cards/{id}", handler.GetCardByID).Methods(http.MethodGet)
-	router.HandleFunc("/cards/{loanId}", handler.GetCardByLoanID).Methods(http.MethodGet)
+	router.HandleFunc("/cards/loan/{loanId}", handler.GetCardByLoanID).Methods(http.MethodGet)
 	router.HandleFunc("/cards/{id}", handler.DeleteCard).Methods(http.MethodDelete)
 	router.HandleFunc("/cards", handler.CreateCard).Methods(http.MethodPost)
 	router.HandleFunc("/cards/{id}", handler.UpdateCard).Methods(http.MethodPut)
+
+	router.HandleFunc("/card-machines", handler.ListCardMachines).Methods(http.MethodGet, http.MethodOptions)
+	router.HandleFunc("/card-machines/{id}", handler.GetCardMachineByID).Methods(http.MethodGet)
+	router.HandleFunc("/card-machines/{id}", handler.DeleteCardMachine).Methods(http.MethodDelete)
+	router.HandleFunc("/card-machines", handler.CreateCardMachine).Methods(http.MethodPost)
+	router.HandleFunc("/card-machines/{id}", handler.UpdateCardMachine).Methods(http.MethodPut)
 
 	return router
 }

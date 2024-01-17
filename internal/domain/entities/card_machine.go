@@ -3,11 +3,11 @@ package entities
 import "time"
 
 type CardMachine struct {
-	ID            string  `gorm:"id"`
-	Brand         string  `gorm:"size:250"`
-	PresentialTax float64 `gorm:"index"`
-	OnlineTax     float64 `gorm:"index"`
-	Installments  int     `gorm:"index"`
+	ID            int     `gorm:"id" json:"id"`
+	Brand         string  `gorm:"size:250" json:"brand"`
+	PresentialTax float64 `gorm:"index" json:"presentialTax"`
+	OnlineTax     float64 `gorm:"index" json:"onlineTax"`
+	Installments  int     `gorm:"index" json:"installments"`
 	CreatedAt     time.Time
 	UpdatedAt     time.Time
 }

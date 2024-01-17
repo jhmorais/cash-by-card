@@ -59,7 +59,7 @@ func (c *updateCardUseCase) Execute(ctx context.Context, updateCard *input.Updat
 
 	errUpdate := c.cardRepository.UpdateCard(ctx, cardEntity)
 	if errUpdate != nil {
-		return nil, fmt.Errorf("cannot update client at database: %v", errUpdate)
+		return nil, fmt.Errorf("cannot update card at database: %v", errUpdate)
 	}
 
 	createCardOutput := &output.CreateCard{
