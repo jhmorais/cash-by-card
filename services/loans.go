@@ -8,23 +8,23 @@ import (
 	"net/http"
 	"strconv"
 
-	input "github.com/jhmorais/cash-by-card/internal/ports/input/card"
+	input "github.com/jhmorais/cash-by-card/internal/ports/input/loan"
 	"github.com/jhmorais/cash-by-card/utils"
 )
 
-func (h *Handler) ListCards(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) ListLoans(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
-	response, err := h.ListCardUseCase.Execute(ctx)
+	response, err := h.ListLoanUseCase.Execute(ctx)
 	if err != nil {
 		utils.WriteErrModel(w, http.StatusNotFound,
-			utils.NewErrorResponse(fmt.Sprintf("failed to get cards, error: '%s'", err.Error())))
+			utils.NewErrorResponse(fmt.Sprintf("failed to get loans, error: '%s'", err.Error())))
 		return
 	}
 
 	jsonResponse, err := json.Marshal(response)
 	if err != nil {
 		utils.WriteErrModel(w, http.StatusInternalServerError,
-			utils.NewErrorResponse("Failed to marshal cards response"))
+			utils.NewErrorResponse("Failed to marshal loans response"))
 		return
 	}
 
@@ -32,7 +32,7 @@ func (h *Handler) ListCards(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, string(jsonResponse))
 }
 
-func (h *Handler) GetCardByID(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) GetLoanByID(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 	id, err := utils.RetrieveParam(r, "id")
 	if err != nil {
@@ -46,17 +46,17 @@ func (h *Handler) GetCardByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response, err := h.FindCardByIDUseCase.Execute(ctx, idInt)
+	response, err := h.FindLoanByIDUseCase.Execute(ctx, idInt)
 	if err != nil {
 		utils.WriteErrModel(w, http.StatusNotFound,
-			utils.NewErrorResponse(fmt.Sprintf("failed to find card, error: '%s'", err.Error())))
+			utils.NewErrorResponse(fmt.Sprintf("failed to find loan, error: '%s'", err.Error())))
 		return
 	}
 
 	jsonResponse, err := json.Marshal(response)
 	if err != nil {
 		utils.WriteErrModel(w, http.StatusInternalServerError,
-			utils.NewErrorResponse("Failed to marshal card response"))
+			utils.NewErrorResponse("Failed to marshal loan response"))
 		return
 	}
 
@@ -64,11 +64,11 @@ func (h *Handler) GetCardByID(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, string(jsonResponse))
 }
 
-func (h *Handler) GetCardByLoanID(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) GetLoanByClientID(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
-	id, err := utils.RetrieveParam(r, "loanId")
+	id, err := utils.RetrieveParam(r, "clientId")
 	if err != nil {
-		utils.WriteErrModel(w, http.StatusBadRequest, utils.NewErrorResponse("error reading LoanId"))
+		utils.WriteErrModel(w, http.StatusBadRequest, utils.NewErrorResponse("error reading clientId"))
 		return
 	}
 
@@ -78,17 +78,17 @@ func (h *Handler) GetCardByLoanID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response, err := h.FindCardByLoanIDUseCase.Execute(ctx, idInt)
+	response, err := h.FindLoanByClientIDUseCase.Execute(ctx, idInt)
 	if err != nil {
 		utils.WriteErrModel(w, http.StatusNotFound,
-			utils.NewErrorResponse(fmt.Sprintf("failed to find card, error: '%s'", err.Error())))
+			utils.NewErrorResponse(fmt.Sprintf("failed to find loan by ClientId, error: '%s'", err.Error())))
 		return
 	}
 
 	jsonResponse, err := json.Marshal(response)
 	if err != nil {
 		utils.WriteErrModel(w, http.StatusInternalServerError,
-			utils.NewErrorResponse("Failed to marshal card response"))
+			utils.NewErrorResponse("Failed to marshal loan response"))
 		return
 	}
 
@@ -96,7 +96,39 @@ func (h *Handler) GetCardByLoanID(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, string(jsonResponse))
 }
 
-func (h *Handler) UpdateCard(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) GetLoanByPartnerID(w http.ResponseWriter, r *http.Request) {
+	ctx := context.Background()
+	id, err := utils.RetrieveParam(r, "partnerId")
+	if err != nil {
+		utils.WriteErrModel(w, http.StatusBadRequest, utils.NewErrorResponse("error reading partnerId"))
+		return
+	}
+
+	idInt, err := strconv.Atoi(id)
+	if err != nil {
+		utils.WriteErrModel(w, http.StatusBadRequest, utils.NewErrorResponse("error cast id to int"))
+		return
+	}
+
+	response, err := h.FindLoanByParnterIDUseCase.Execute(ctx, idInt)
+	if err != nil {
+		utils.WriteErrModel(w, http.StatusNotFound,
+			utils.NewErrorResponse(fmt.Sprintf("failed to find loan by PartnerId, error: '%s'", err.Error())))
+		return
+	}
+
+	jsonResponse, err := json.Marshal(response)
+	if err != nil {
+		utils.WriteErrModel(w, http.StatusInternalServerError,
+			utils.NewErrorResponse("Failed to marshal loan response"))
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	fmt.Fprint(w, string(jsonResponse))
+}
+
+func (h *Handler) UpdateLoan(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 	id, err := utils.RetrieveParam(r, "id")
 	if err != nil {
@@ -110,30 +142,30 @@ func (h *Handler) UpdateCard(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	card := input.UpdateCard{}
-	err = json.Unmarshal(body, &card)
+	loan := input.UpdateLoan{}
+	err = json.Unmarshal(body, &loan)
 	if err != nil {
 		utils.WriteErrModel(w, http.StatusBadRequest, utils.NewErrorResponse("failed to parse request body"))
 		return
 	}
 
-	card.ID, err = strconv.Atoi(id)
+	loan.ID, err = strconv.Atoi(id)
 	if err != nil {
 		utils.WriteErrModel(w, http.StatusBadRequest, utils.NewErrorResponse("failed to parse param id to int"))
 		return
 	}
 
-	response, err := h.UpdateCardUseCase.Execute(ctx, &card)
+	response, err := h.UpdateLoanUseCase.Execute(ctx, &loan)
 	if err != nil {
 		utils.WriteErrModel(w, http.StatusBadRequest,
-			utils.NewErrorResponse(fmt.Sprintf("failed to update card, error:'%s'", err.Error())))
+			utils.NewErrorResponse(fmt.Sprintf("failed to update loan, error:'%s'", err.Error())))
 		return
 	}
 
 	jsonResponse, err := json.Marshal(response)
 	if err != nil {
 		utils.WriteErrModel(w, http.StatusInternalServerError,
-			utils.NewErrorResponse("Failed to marshal card response"))
+			utils.NewErrorResponse("Failed to marshal loan response"))
 		return
 	}
 
@@ -141,7 +173,7 @@ func (h *Handler) UpdateCard(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, string(jsonResponse))
 }
 
-func (h *Handler) DeleteCard(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) DeleteLoan(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 	id, err := utils.RetrieveParam(r, "id")
 	if err != nil {
@@ -155,17 +187,17 @@ func (h *Handler) DeleteCard(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response, err := h.DeleteCardUseCase.Execute(ctx, idInt)
+	response, err := h.DeleteLoanUseCase.Execute(ctx, idInt)
 	if err != nil {
 		utils.WriteErrModel(w, http.StatusBadRequest,
-			utils.NewErrorResponse(fmt.Sprintf("failed to delete card, error: '%s'", err.Error())))
+			utils.NewErrorResponse(fmt.Sprintf("failed to delete loan, error: '%s'", err.Error())))
 		return
 	}
 
 	jsonResponse, err := json.Marshal(response)
 	if err != nil {
 		utils.WriteErrModel(w, http.StatusInternalServerError,
-			utils.NewErrorResponse("Failed to marshal card response"))
+			utils.NewErrorResponse("Failed to marshal loan response"))
 		return
 	}
 
@@ -173,7 +205,7 @@ func (h *Handler) DeleteCard(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, string(jsonResponse))
 }
 
-func (h *Handler) CreateCard(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) CreateLoan(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 	defer r.Body.Close()
 
@@ -183,24 +215,24 @@ func (h *Handler) CreateCard(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	card := []input.CreateCard{}
-	err = json.Unmarshal(body, &card)
+	loan := input.CreateLoan{}
+	err = json.Unmarshal(body, &loan)
 	if err != nil {
 		utils.WriteErrModel(w, http.StatusBadRequest, utils.NewErrorResponse("failed to parse request body"))
 		return
 	}
 
-	response, err := h.CreateCardUseCase.Execute(ctx, &card)
+	response, err := h.CreateLoanUseCase.Execute(ctx, &loan)
 	if err != nil {
 		utils.WriteErrModel(w, http.StatusInternalServerError,
-			utils.NewErrorResponse(fmt.Sprintf("failed to create card, error: '%s'", err.Error())))
+			utils.NewErrorResponse(fmt.Sprintf("failed to create loan, error: '%s'", err.Error())))
 		return
 	}
 
 	jsonResponse, err := json.Marshal(response)
 	if err != nil {
 		utils.WriteErrModel(w, http.StatusInternalServerError,
-			utils.NewErrorResponse("Failed to marshal card response"))
+			utils.NewErrorResponse("Failed to marshal loan response"))
 		return
 	}
 

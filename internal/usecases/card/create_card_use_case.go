@@ -23,48 +23,51 @@ func NewCreateCardUseCase(cardRepository repositories.CardRepository) contracts.
 	}
 }
 
-func (c *createCardUseCase) Execute(ctx context.Context, createCard *input.CreateCard) (*output.CreateCard, error) {
+func (c *createCardUseCase) Execute(ctx context.Context, createCard *[]input.CreateCard) (*output.CreateCard, error) {
+	for _, createCardInput := range *createCard {
 
-	if !(createCard.PaymentType == "online" || createCard.PaymentType == "present") {
-		return nil, fmt.Errorf("cannot create a card with invalid payment type")
-	}
+		if !(createCardInput.PaymentType == "online" || createCardInput.PaymentType == "present") {
+			return nil, fmt.Errorf("cannot create a card with invalid payment type")
+		}
 
-	if createCard.Value == 0 {
-		return nil, fmt.Errorf("cannot create a card without value")
-	}
+		if createCardInput.Value == 0 {
+			return nil, fmt.Errorf("cannot create a card without value")
+		}
 
-	if createCard.Brand == "" {
-		return nil, fmt.Errorf("cannot create a card without brand")
-	}
+		if createCardInput.Brand == "" {
+			return nil, fmt.Errorf("cannot create a card without brand")
+		}
 
-	if createCard.Installments <= 0 {
-		return nil, fmt.Errorf("cannot create card without valid number of installments")
-	}
-	if createCard.LoanID <= 0 {
-		return nil, fmt.Errorf("cannot create card without valid LoanID")
-	}
-	if createCard.CardMachineID <= 0 {
-		return nil, fmt.Errorf("cannot create card without valid CardMachineID")
-	}
+		if createCardInput.Installments <= 0 {
+			return nil, fmt.Errorf("cannot create card without valid number of installments")
+		}
+		if createCardInput.LoanID <= 0 {
+			return nil, fmt.Errorf("cannot create card without valid LoanID")
+		}
+		if createCardInput.CardMachineID <= 0 {
+			return nil, fmt.Errorf("cannot create card without valid CardMachineID")
+		}
 
-	cardEntity := &entities.Card{
-		PaymentType:   createCard.PaymentType,
-		Value:         createCard.Value,
-		Brand:         createCard.Brand,
-		Installments:  createCard.Installments,
-		LoanID:        createCard.LoanID,
-		CardMachineID: createCard.CardMachineID,
-		CreatedAt:     time.Now(),
-	}
+		cardEntity := &entities.Card{
+			PaymentType:   createCardInput.PaymentType,
+			Value:         createCardInput.Value,
+			Brand:         createCardInput.Brand,
+			Installments:  createCardInput.Installments,
+			LoanID:        createCardInput.LoanID,
+			CardMachineID: createCardInput.CardMachineID,
+			CreatedAt:     time.Now(),
+		}
 
-	err := c.cardRepository.CreateCard(ctx, cardEntity)
-	if err != nil {
-		return nil, fmt.Errorf("cannot save card at database: %v", err)
-	}
+		err := c.cardRepository.CreateCard(ctx, cardEntity)
+		if err != nil {
+			return nil, fmt.Errorf("cannot save card at database: %v", err)
+		}
 
-	createCardOutput := &output.CreateCard{
-		CardID: cardEntity.ID,
-	}
+		createCardOutput := &output.CreateCard{
+			CardID: cardEntity.ID,
+		}
 
-	return createCardOutput, nil
+		return createCardOutput, nil
+	}
+	return nil, fmt.Errorf("empty input provided")
 }

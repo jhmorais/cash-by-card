@@ -37,6 +37,14 @@ type Handler struct {
 	FindCardMachineByIDUseCase contracts.FindCardMachineByIDUseCase
 	UpdateCardMachineUseCase   contracts.UpdateCardMachineUseCase
 	ListCardMachineUseCase     contracts.ListCardMachineUseCase
+
+	CreateLoanUseCase          contracts.CreateLoanUseCase
+	DeleteLoanUseCase          contracts.DeleteLoanUseCase
+	FindLoanByIDUseCase        contracts.FindLoanByIDUseCase
+	FindLoanByClientIDUseCase  contracts.FindLoanByClientIDUseCase
+	FindLoanByParnterIDUseCase contracts.FindLoanByParnterIDUseCase
+	UpdateLoanUseCase          contracts.UpdateLoanUseCase
+	ListLoanUseCase            contracts.ListLoanUseCase
 }
 
 func NewHTTPRouterClient(
@@ -63,6 +71,13 @@ func NewHTTPRouterClient(
 	findCardMachineByIDUseCase contracts.FindCardMachineByIDUseCase,
 	updateCardMachineUseCase contracts.UpdateCardMachineUseCase,
 	listCardMachineUseCase contracts.ListCardMachineUseCase,
+	createLoanUseCase contracts.CreateLoanUseCase,
+	deleteLoanUseCase contracts.DeleteLoanUseCase,
+	findLoanByIDUseCase contracts.FindLoanByIDUseCase,
+	findLoanByClientIDUseCase contracts.FindLoanByClientIDUseCase,
+	findLoanByParnterIDUseCase contracts.FindLoanByParnterIDUseCase,
+	updateLoanUseCase contracts.UpdateLoanUseCase,
+	listLoanUseCase contracts.ListLoanUseCase,
 ) *mux.Router {
 	router := mux.NewRouter()
 	handler := Handler{
@@ -89,6 +104,13 @@ func NewHTTPRouterClient(
 		FindCardMachineByIDUseCase: findCardMachineByIDUseCase,
 		UpdateCardMachineUseCase:   updateCardMachineUseCase,
 		ListCardMachineUseCase:     listCardMachineUseCase,
+		CreateLoanUseCase:          createLoanUseCase,
+		DeleteLoanUseCase:          deleteLoanUseCase,
+		FindLoanByIDUseCase:        findLoanByIDUseCase,
+		FindLoanByClientIDUseCase:  findLoanByClientIDUseCase,
+		FindLoanByParnterIDUseCase: findLoanByParnterIDUseCase,
+		UpdateLoanUseCase:          updateLoanUseCase,
+		ListLoanUseCase:            listLoanUseCase,
 	}
 	router.UseEncodedPath()
 	router.Use(utils.CommonMiddleware)
@@ -126,6 +148,14 @@ func NewHTTPRouterClient(
 	router.HandleFunc("/card-machines/{id}", handler.DeleteCardMachine).Methods(http.MethodDelete)
 	router.HandleFunc("/card-machines", handler.CreateCardMachine).Methods(http.MethodPost)
 	router.HandleFunc("/card-machines/{id}", handler.UpdateCardMachine).Methods(http.MethodPut)
+
+	router.HandleFunc("/loans", handler.ListLoans).Methods(http.MethodGet, http.MethodOptions)
+	router.HandleFunc("/loans/{id}", handler.GetLoanByID).Methods(http.MethodGet)
+	router.HandleFunc("/loans/client/{clientId}", handler.GetLoanByClientID).Methods(http.MethodGet)
+	router.HandleFunc("/loans/partner/{parnterId}", handler.GetLoanByPartnerID).Methods(http.MethodGet)
+	router.HandleFunc("/loans/{id}", handler.DeleteLoan).Methods(http.MethodDelete)
+	router.HandleFunc("/loans", handler.CreateLoan).Methods(http.MethodPost)
+	router.HandleFunc("/loans/{id}", handler.UpdateLoan).Methods(http.MethodPut)
 
 	return router
 }

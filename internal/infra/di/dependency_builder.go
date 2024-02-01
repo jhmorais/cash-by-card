@@ -7,10 +7,12 @@ import (
 	repoCard "github.com/jhmorais/cash-by-card/internal/repositories/card"
 	repoCardMachine "github.com/jhmorais/cash-by-card/internal/repositories/cardMachine"
 	repoClient "github.com/jhmorais/cash-by-card/internal/repositories/client"
+	repoLoan "github.com/jhmorais/cash-by-card/internal/repositories/loan"
 	repoPartner "github.com/jhmorais/cash-by-card/internal/repositories/partner"
 	"github.com/jhmorais/cash-by-card/internal/usecases/card"
 	"github.com/jhmorais/cash-by-card/internal/usecases/cardMachine"
 	"github.com/jhmorais/cash-by-card/internal/usecases/client"
+	"github.com/jhmorais/cash-by-card/internal/usecases/loan"
 	"github.com/jhmorais/cash-by-card/internal/usecases/partner"
 	"gorm.io/gorm"
 )
@@ -26,6 +28,7 @@ type Repositories struct {
 	PartnerRepository     repoPartner.PartnerRepository
 	CardRepository        repoCard.CardRepository
 	CardMachineRepository repoCardMachine.CardMachineRepository
+	LoanRepository        repoLoan.LoanRepository
 }
 
 type Usecases struct {
@@ -57,6 +60,14 @@ type Usecases struct {
 	FindCardMachineByIDUseCase contracts.FindCardMachineByIDUseCase
 	UpdateCardMachineUseCase   contracts.UpdateCardMachineUseCase
 	ListCardMachineUseCase     contracts.ListCardMachineUseCase
+
+	CreateLoanUseCase          contracts.CreateLoanUseCase
+	DeleteLoanUseCase          contracts.DeleteLoanUseCase
+	FindLoanByIDUseCase        contracts.FindLoanByIDUseCase
+	UpdateLoanUseCase          contracts.UpdateLoanUseCase
+	ListLoanUseCase            contracts.ListLoanUseCase
+	FindLoanByClientIDUseCase  contracts.FindLoanByClientIDUseCase
+	FindLoanByParnterIDUseCase contracts.FindLoanByParnterIDUseCase
 }
 
 func NewBuild() *DenpencyBuild {
@@ -84,6 +95,7 @@ func (d *DenpencyBuild) buildRepositories() *DenpencyBuild {
 	d.Repositories.PartnerRepository = repoPartner.NewPartnerRepository(d.DB)
 	d.Repositories.CardRepository = repoCard.NewCardRepository(d.DB)
 	d.Repositories.CardMachineRepository = repoCardMachine.NewCardMachineRepository(d.DB)
+	d.Repositories.LoanRepository = repoLoan.NewLoanRepository(d.DB)
 
 	return d
 }
@@ -117,6 +129,14 @@ func (d *DenpencyBuild) buildUseCases() *DenpencyBuild {
 	d.Usecases.FindCardMachineByIDUseCase = cardMachine.NewFindCardMachineByIDUseCase(d.Repositories.CardMachineRepository)
 	d.Usecases.ListCardMachineUseCase = cardMachine.NewListCardMachinesUseCase(d.Repositories.CardMachineRepository)
 	d.Usecases.UpdateCardMachineUseCase = cardMachine.NewUpdateCardMachineUseCase(d.Repositories.CardMachineRepository)
+
+	d.Usecases.DeleteLoanUseCase = loan.NewDeleteLoanUseCase(d.Repositories.LoanRepository)
+	d.Usecases.FindLoanByIDUseCase = loan.NewFindLoanByIDUseCase(d.Repositories.LoanRepository)
+	d.Usecases.FindLoanByClientIDUseCase = loan.NewFindLoanByClientIDUseCase(d.Repositories.LoanRepository)
+	d.Usecases.FindLoanByParnterIDUseCase = loan.NewFindLoansByPartnerIDUseCase(d.Repositories.LoanRepository)
+	d.Usecases.ListLoanUseCase = loan.NewListLoansUseCase(d.Repositories.LoanRepository)
+	d.Usecases.UpdateLoanUseCase = loan.NewUpdateLoanUseCase(d.Repositories.LoanRepository)
+	d.Usecases.CreateLoanUseCase = loan.NewCreateLoanUseCase(d.Repositories.LoanRepository, d.Usecases.CreateCardUseCase)
 
 	return d
 }

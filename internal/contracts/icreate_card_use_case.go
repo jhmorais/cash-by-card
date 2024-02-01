@@ -8,5 +8,5 @@ import (
 )
 
 type CreateCardUseCase interface {
-	Execute(ctx context.Context, createCard *input.CreateCard) (*output.CreateCard, error)
+	Execute(ctx context.Context, createCard *[]input.CreateCard) (*output.CreateCard, error)
 }
