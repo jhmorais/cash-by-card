@@ -34,12 +34,26 @@ func (c *createCardMachineUseCase) Execute(ctx context.Context, createCardMachin
 		return nil, fmt.Errorf("cannot create cardMachine without valid number of installments")
 	}
 
-	if createCardMachine.OnlineTax <= 0 {
-		return nil, fmt.Errorf("cannot create cardMachine without valid number of OnlineTax")
+	if createCardMachine.OnlineTax == nil {
+		return nil, fmt.Errorf("cannot create cardMachine without valid OnlineTax")
 	}
 
-	if createCardMachine.PresentialTax <= 0 {
-		return nil, fmt.Errorf("cannot create cardMachine without valid number of PresentialTax")
+	if createCardMachine.PresentialTax == nil {
+		return nil, fmt.Errorf("cannot create cardMachine without valid PresentialTax")
+	}
+
+	if createCardMachine.Name == "" {
+		return nil, fmt.Errorf("failed create cardMachine- invalid Name")
+	}
+
+	bOnlineTax, err := json.Marshal(createCardMachine.OnlineTax)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal online tax")
+	}
+
+	bPresentialTax, err := json.Marshal(createCardMachine.PresentialTax)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal presential tax")
 	}
 
 	brands, err := json.Marshal(createCardMachine.Brand)
@@ -48,9 +62,10 @@ func (c *createCardMachineUseCase) Execute(ctx context.Context, createCardMachin
 	}
 	cardMachineEntity := &entities.CardMachine{
 		Brand:         string(brands),
+		Name:          createCardMachine.Name,
 		Installments:  createCardMachine.Installments,
-		OnlineTax:     createCardMachine.OnlineTax,
-		PresentialTax: createCardMachine.PresentialTax,
+		OnlineTax:     bOnlineTax,
+		PresentialTax: bPresentialTax,
 		CreatedAt:     time.Now(),
 	}
 

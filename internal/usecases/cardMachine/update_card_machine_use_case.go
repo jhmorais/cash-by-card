@@ -32,11 +32,14 @@ func (c *updateCardMachineUseCase) Execute(ctx context.Context, updateCardMachin
 	if updateCardMachine.Installments <= 0 {
 		return nil, fmt.Errorf("failed updated cardMachine- invalid number of installments")
 	}
-	if updateCardMachine.OnlineTax <= 0 {
+	if updateCardMachine.OnlineTax == nil {
 		return nil, fmt.Errorf("failed updated cardMachine- invalid OnlineTax")
 	}
-	if updateCardMachine.PresentialTax <= 0 {
+	if updateCardMachine.PresentialTax == nil {
 		return nil, fmt.Errorf("failed updated cardMachine- invalid PresentialTax")
+	}
+	if updateCardMachine.Name == "" {
+		return nil, fmt.Errorf("failed updated cardMachine- invalid Name")
 	}
 
 	brands, err := json.Marshal(updateCardMachine.Brand)
@@ -44,13 +47,24 @@ func (c *updateCardMachineUseCase) Execute(ctx context.Context, updateCardMachin
 		return nil, err
 	}
 
+	bOnlineTax, err := json.Marshal(updateCardMachine.OnlineTax)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal online tax")
+	}
+
+	bPresentialTax, err := json.Marshal(updateCardMachine.PresentialTax)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal presential tax")
+	}
+
 	cardMachineEntity := &entities.CardMachine{
 		ID:            updateCardMachine.ID,
 		Brand:         string(brands),
+		Name:          updateCardMachine.Name,
 		Installments:  updateCardMachine.Installments,
-		OnlineTax:     updateCardMachine.OnlineTax,
-		PresentialTax: updateCardMachine.PresentialTax,
-		CreatedAt:     time.Now(),
+		OnlineTax:     bOnlineTax,
+		PresentialTax: bPresentialTax,
+		UpdatedAt:     time.Now(),
 	}
 
 	errUpdate := c.cardMachineRepository.UpdateCardMachine(ctx, cardMachineEntity)

@@ -2,6 +2,7 @@ package cardMachine
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 
 	"github.com/jhmorais/cash-by-card/internal/contracts"
@@ -31,8 +32,31 @@ func (c *findCardMachineByIDUseCase) Execute(ctx context.Context, cardMachineID 
 		return nil, fmt.Errorf("cardMachineID not found")
 	}
 
+	var onlineTax map[string]interface{}
+	err = json.Unmarshal(cardMachineEntity.OnlineTax, &onlineTax)
+	if err != nil {
+		return nil, fmt.Errorf("failed to unmarshal online tax")
+	}
+
+	var presentialTax map[string]interface{}
+	err = json.Unmarshal(cardMachineEntity.PresentialTax, &presentialTax)
+	if err != nil {
+		return nil, fmt.Errorf("failed to unmarshal presential tax")
+	}
+
+	cardMachineOutput := &output.FindCardMachineOutput{
+		ID:            cardMachineEntity.ID,
+		Brand:         cardMachineEntity.Brand,
+		Name:          cardMachineEntity.Name,
+		PresentialTax: presentialTax,
+		OnlineTax:     onlineTax,
+		Installments:  cardMachineEntity.Installments,
+		CreatedAt:     cardMachineEntity.CreatedAt,
+		UpdatedAt:     cardMachineEntity.UpdatedAt,
+	}
+
 	output := &output.FindCardMachine{
-		CardMachine: cardMachineEntity,
+		CardMachine: cardMachineOutput, //fazer o parse do byte[] para string
 	}
 
 	return output, nil
