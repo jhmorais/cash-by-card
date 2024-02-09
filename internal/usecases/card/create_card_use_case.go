@@ -41,6 +41,11 @@ func (c *createCardUseCase) Execute(ctx context.Context, createCard *[]input.Cre
 		if createCardInput.Installments <= 0 {
 			return nil, fmt.Errorf("cannot create card without valid number of installments")
 		}
+
+		if int(createCardInput.InstallmentsValue) <= 0 {
+			return nil, fmt.Errorf("cannot create card without valid number of installmentsValue")
+		}
+
 		if createCardInput.LoanID <= 0 {
 			return nil, fmt.Errorf("cannot create card without valid LoanID")
 		}
@@ -49,13 +54,14 @@ func (c *createCardUseCase) Execute(ctx context.Context, createCard *[]input.Cre
 		}
 
 		cardEntity := &entities.Card{
-			PaymentType:   createCardInput.PaymentType,
-			Value:         createCardInput.Value,
-			Brand:         createCardInput.Brand,
-			Installments:  createCardInput.Installments,
-			LoanID:        createCardInput.LoanID,
-			CardMachineID: createCardInput.CardMachineID,
-			CreatedAt:     time.Now(),
+			PaymentType:       createCardInput.PaymentType,
+			Value:             createCardInput.Value,
+			Brand:             createCardInput.Brand,
+			Installments:      createCardInput.Installments,
+			InstallmentsValue: createCardInput.InstallmentsValue,
+			LoanID:            createCardInput.LoanID,
+			CardMachineID:     createCardInput.CardMachineID,
+			CreatedAt:         time.Now(),
 		}
 
 		err := c.cardRepository.CreateCard(ctx, cardEntity)
