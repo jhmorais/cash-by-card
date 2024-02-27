@@ -70,6 +70,14 @@ func (c *createLoanUseCase) Execute(ctx context.Context, createLoan *inputLoan.C
 		return nil, fmt.Errorf("cannot create a loan without valid Profit")
 	}
 
+	if !(createLoan.Type == 1 || createLoan.Type == 2) {
+		return nil, fmt.Errorf("cannot create a loan with invalid type")
+	}
+
+	if createLoan.ClientAmount == 0 {
+		return nil, fmt.Errorf("cannot create a loan without valid client amount")
+	}
+
 	loanEntity := &entities.Loan{
 		ClientID:         createLoan.ClientID,
 		AskValue:         createLoan.AskValue,
@@ -82,6 +90,8 @@ func (c *createLoanUseCase) Execute(ctx context.Context, createLoan *inputLoan.C
 		PartnerAmount:    createLoan.PartnerAmount,
 		Profit:           createLoan.Profit,
 		PaymentStatus:    createLoan.PaymentStatus,
+		ClientAmount:     createLoan.ClientAmount,
+		Type:             createLoan.Type,
 		CreatedAt:        time.Now(),
 	}
 
@@ -93,12 +103,13 @@ func (c *createLoanUseCase) Execute(ctx context.Context, createLoan *inputLoan.C
 	cardsInput := []inputCard.CreateCard{}
 	for _, card := range createLoan.Cards {
 		cardsInput = append(cardsInput, inputCard.CreateCard{
-			PaymentType:   card.PaymentType,
-			Value:         card.Value,
-			Brand:         card.Brand,
-			Installments:  card.Installments,
-			LoanID:        loanEntity.ID,
-			CardMachineID: card.CardMachineID,
+			PaymentType:       card.PaymentType,
+			Value:             card.Value,
+			Brand:             card.Brand,
+			Installments:      card.Installments,
+			InstallmentsValue: card.InstallmentsValue,
+			LoanID:            loanEntity.ID,
+			CardMachineID:     card.CardMachineID,
 		})
 	}
 

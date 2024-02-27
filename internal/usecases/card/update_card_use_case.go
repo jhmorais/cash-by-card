@@ -46,15 +46,19 @@ func (c *updateCardUseCase) Execute(ctx context.Context, updateCard *input.Updat
 	if updateCard.CardMachineID <= 0 {
 		return nil, fmt.Errorf("failed updated card- invalid CardMachineID")
 	}
+	if updateCard.CardMachineName == "" {
+		return nil, fmt.Errorf("cannot updated card without valid CardMachine name")
+	}
 
 	cardEntity := &entities.Card{
-		ID:            updateCard.ID,
-		PaymentType:   updateCard.PaymentType,
-		Value:         updateCard.Value,
-		Brand:         updateCard.Brand,
-		LoanID:        updateCard.LoanID,
-		CardMachineID: updateCard.CardMachineID,
-		CreatedAt:     time.Now(),
+		ID:              updateCard.ID,
+		PaymentType:     updateCard.PaymentType,
+		Value:           updateCard.Value,
+		Brand:           updateCard.Brand,
+		LoanID:          updateCard.LoanID,
+		CardMachineID:   updateCard.CardMachineID,
+		CardMachineName: updateCard.CardMachineName,
+		CreatedAt:       time.Now(),
 	}
 
 	errUpdate := c.cardRepository.UpdateCard(ctx, cardEntity)

@@ -17,7 +17,8 @@ func InitGormMysqlDB() (*gorm.DB, error) {
 
 	mysqlDb, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
 		NamingStrategy: schema.NamingStrategy{
-			TablePrefix:   "cashby87_cash_by_card.", // schema name
+			// TablePrefix:   "cashby87_cash_by_card.", // schema name
+			// TablePrefix:   "database.", // schema name
 			SingularTable: true,
 		},
 	})

@@ -1,6 +1,10 @@
 {
-    "MYSQL_CONNECTION_STRING":"tcp(ns561.hostgator.com.br)/cashby87_cash_by_card?charset=utf8&parseTime=True&loc=Local",
-    "MYSQL_USER":"cashby87_dev",
-    "MYSQL_PASSWORD":"CashByCard3012",
+    "MYSQL_CONNECTION_STRING2":"tcp(ns561.hostgator.com.br)/cashby87_cash_by_card?charset=utf8&parseTime=True&loc=Local",
+    "MYSQL_USER2":"cashby87_dev",
+    "MYSQL_PASSWORD2":"CashByCard3012",
+    "SERVER_PORT2": "3000",
+    "MYSQL_CONNECTION_STRING":"tcp(mysqlcontainer)/database?charset=utf8&parseTime=True&loc=Local",
+    "MYSQL_USER":"root",
+    "MYSQL_PASSWORD":"password",
     "SERVER_PORT": "3000"
 }

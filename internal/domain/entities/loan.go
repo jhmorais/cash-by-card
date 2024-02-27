@@ -16,6 +16,8 @@ type Loan struct {
 	PartnerAmount    float64   `json:"partnerAmount"`
 	Profit           float64   `json:"profit"`
 	PaymentStatus    string    `json:"paymentStatus"`
+	ClientAmount     float64   `json:"clientAmount"`
+	Type             int       `json:"type"`
 	CreatedAt        time.Time `json:"createdAt"`
 	UpdatedAt        time.Time `json:"updatedAt"`
 	Partner          Partner   `gorm:"foreignKey:PartnerID" json:"partner"`

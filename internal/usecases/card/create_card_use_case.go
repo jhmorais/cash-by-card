@@ -52,6 +52,9 @@ func (c *createCardUseCase) Execute(ctx context.Context, createCard *[]input.Cre
 		if createCardInput.CardMachineID <= 0 {
 			return nil, fmt.Errorf("cannot create card without valid CardMachineID")
 		}
+		if createCardInput.CardMachineName == "" {
+			return nil, fmt.Errorf("cannot create card without valid CardMachine name")
+		}
 
 		cardEntity := &entities.Card{
 			PaymentType:       createCardInput.PaymentType,
@@ -61,6 +64,7 @@ func (c *createCardUseCase) Execute(ctx context.Context, createCard *[]input.Cre
 			InstallmentsValue: createCardInput.InstallmentsValue,
 			LoanID:            createCardInput.LoanID,
 			CardMachineID:     createCardInput.CardMachineID,
+			CardMachineName:   createCardInput.CardMachineName,
 			CreatedAt:         time.Now(),
 		}
 

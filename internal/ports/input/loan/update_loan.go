@@ -16,4 +16,6 @@ type UpdateLoan struct {
 	PartnerAmount    float64      `json:"partnerAmount"`
 	Profit           float64      `json:"profit"`
 	PaymentStatus    string       `json:"paymentStatus"`
+	ClientAmount     float64      `json:"clientAmount"`
+	Type             int          `json:"type"`
 }
