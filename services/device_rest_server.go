@@ -38,13 +38,14 @@ type Handler struct {
 	UpdateCardMachineUseCase   contracts.UpdateCardMachineUseCase
 	ListCardMachineUseCase     contracts.ListCardMachineUseCase
 
-	CreateLoanUseCase          contracts.CreateLoanUseCase
-	DeleteLoanUseCase          contracts.DeleteLoanUseCase
-	FindLoanByIDUseCase        contracts.FindLoanByIDUseCase
-	FindLoanByClientIDUseCase  contracts.FindLoanByClientIDUseCase
-	FindLoanByParnterIDUseCase contracts.FindLoanByParnterIDUseCase
-	UpdateLoanUseCase          contracts.UpdateLoanUseCase
-	ListLoanUseCase            contracts.ListLoanUseCase
+	CreateLoanUseCase              contracts.CreateLoanUseCase
+	DeleteLoanUseCase              contracts.DeleteLoanUseCase
+	FindLoanByIDUseCase            contracts.FindLoanByIDUseCase
+	FindLoanByClientIDUseCase      contracts.FindLoanByClientIDUseCase
+	FindLoanByParnterIDUseCase     contracts.FindLoanByParnterIDUseCase
+	UpdateLoanUseCase              contracts.UpdateLoanUseCase
+	ListLoanUseCase                contracts.ListLoanUseCase
+	UpdateLoanPaymentStatusUseCase contracts.UpdateLoanPaymentStatusUseCase
 }
 
 func NewHTTPRouterClient(
@@ -78,6 +79,7 @@ func NewHTTPRouterClient(
 	findLoanByParnterIDUseCase contracts.FindLoanByParnterIDUseCase,
 	updateLoanUseCase contracts.UpdateLoanUseCase,
 	listLoanUseCase contracts.ListLoanUseCase,
+	updateLoanPaymentStatusUseCase contracts.UpdateLoanPaymentStatusUseCase,
 ) *mux.Router {
 	router := mux.NewRouter()
 	handler := Handler{
@@ -156,6 +158,7 @@ func NewHTTPRouterClient(
 	router.HandleFunc("/loans/{id}", handler.DeleteLoan).Methods(http.MethodDelete)
 	router.HandleFunc("/loans", handler.CreateLoan).Methods(http.MethodPost)
 	router.HandleFunc("/loans/{id}", handler.UpdateLoan).Methods(http.MethodPut)
+	router.HandleFunc("/loans/{id}/payment-status", handler.UpdateLoanPaymentStatus).Methods(http.MethodPatch)
 
 	return router
 }

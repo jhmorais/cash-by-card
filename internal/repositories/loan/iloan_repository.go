@@ -14,4 +14,5 @@ type LoanRepository interface {
 	FindLoanByClientID(ctx context.Context, ClientID int) ([]*entities.Loan, error)
 	FindLoanByPartnerID(ctx context.Context, PartnerID int) ([]*entities.Loan, error)
 	ListLoan(ctx context.Context) ([]*entities.Loan, error)
+	UpdateLoanPaymentStatus(ctx context.Context, LoanID int, paymentStatus string) error
 }

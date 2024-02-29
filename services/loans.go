@@ -173,6 +173,44 @@ func (h *Handler) UpdateLoan(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, string(jsonResponse))
 }
 
+func (h *Handler) UpdateLoanPaymentStatus(w http.ResponseWriter, r *http.Request) {
+	ctx := context.Background()
+	id, err := utils.RetrieveParam(r, "id")
+	if err != nil {
+		utils.WriteErrModel(w, http.StatusBadRequest, utils.NewErrorResponse("error reading id"))
+		return
+	}
+
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		utils.WriteErrModel(w, http.StatusBadRequest, utils.NewErrorResponse("error reading request body"))
+		return
+	}
+
+	loan := input.UpdateLoanPaymentStatus{}
+	err = json.Unmarshal(body, &loan)
+	if err != nil {
+		utils.WriteErrModel(w, http.StatusBadRequest, utils.NewErrorResponse("failed to parse request body"))
+		return
+	}
+
+	loan.ID, err = strconv.Atoi(id)
+	if err != nil {
+		utils.WriteErrModel(w, http.StatusBadRequest, utils.NewErrorResponse("failed to parse param id to int"))
+		return
+	}
+
+	err = h.UpdateLoanPaymentStatusUseCase.Execute(ctx, &loan)
+	if err != nil {
+		utils.WriteErrModel(w, http.StatusBadRequest,
+			utils.NewErrorResponse(fmt.Sprintf("failed to update loan payment status, error:'%s'", err.Error())))
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	fmt.Fprint(w, "PaymentStatus updated successfully")
+}
+
 func (h *Handler) DeleteLoan(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 	id, err := utils.RetrieveParam(r, "id")

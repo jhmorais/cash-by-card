@@ -73,6 +73,14 @@ func (d *loanRepository) FindLoanByPartnerID(ctx context.Context, PartnerID int)
 	return entity, err
 }
 
+func (d *loanRepository) UpdateLoanPaymentStatus(ctx context.Context, LoanID int, paymentStatus string) error {
+	err := d.db.
+		Where("id = ?", LoanID).
+		Update("payment_status", paymentStatus).
+		Error
+	return err
+}
+
 func (d *loanRepository) ListLoan(ctx context.Context) ([]*entities.Loan, error) {
 	//TODO impl pagination
 	var entities []*entities.Loan
