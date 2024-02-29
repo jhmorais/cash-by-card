@@ -75,6 +75,7 @@ func (d *loanRepository) FindLoanByPartnerID(ctx context.Context, PartnerID int)
 
 func (d *loanRepository) UpdateLoanPaymentStatus(ctx context.Context, LoanID int, paymentStatus string) error {
 	err := d.db.
+		Model(&entities.Loan{}).
 		Where("id = ?", LoanID).
 		Update("payment_status", paymentStatus).
 		Error
