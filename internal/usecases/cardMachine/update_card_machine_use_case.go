@@ -64,7 +64,7 @@ func (c *updateCardMachineUseCase) Execute(ctx context.Context, updateCardMachin
 		Installments:  updateCardMachine.Installments,
 		OnlineTax:     bOnlineTax,
 		PresentialTax: bPresentialTax,
-		UpdatedAt:     time.Now(),
+		CreatedAt:     time.Now(),
 	}
 
 	errUpdate := c.cardMachineRepository.UpdateCardMachine(ctx, cardMachineEntity)

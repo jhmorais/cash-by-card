@@ -60,6 +60,7 @@ func (c *createCardMachineUseCase) Execute(ctx context.Context, createCardMachin
 	if err != nil {
 		return nil, err
 	}
+	// createdAt := time.Now()
 	cardMachineEntity := &entities.CardMachine{
 		Brand:         string(brands),
 		Name:          createCardMachine.Name,
