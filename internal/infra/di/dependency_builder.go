@@ -61,13 +61,14 @@ type Usecases struct {
 	UpdateCardMachineUseCase   contracts.UpdateCardMachineUseCase
 	ListCardMachineUseCase     contracts.ListCardMachineUseCase
 
-	CreateLoanUseCase          contracts.CreateLoanUseCase
-	DeleteLoanUseCase          contracts.DeleteLoanUseCase
-	FindLoanByIDUseCase        contracts.FindLoanByIDUseCase
-	UpdateLoanUseCase          contracts.UpdateLoanUseCase
-	ListLoanUseCase            contracts.ListLoanUseCase
-	FindLoanByClientIDUseCase  contracts.FindLoanByClientIDUseCase
-	FindLoanByParnterIDUseCase contracts.FindLoanByParnterIDUseCase
+	CreateLoanUseCase              contracts.CreateLoanUseCase
+	DeleteLoanUseCase              contracts.DeleteLoanUseCase
+	FindLoanByIDUseCase            contracts.FindLoanByIDUseCase
+	UpdateLoanUseCase              contracts.UpdateLoanUseCase
+	ListLoanUseCase                contracts.ListLoanUseCase
+	FindLoanByClientIDUseCase      contracts.FindLoanByClientIDUseCase
+	FindLoanByParnterIDUseCase     contracts.FindLoanByParnterIDUseCase
+	UpdateLoanPaymentStatusUseCase contracts.UpdateLoanPaymentStatusUseCase
 }
 
 func NewBuild() *DenpencyBuild {
@@ -137,6 +138,7 @@ func (d *DenpencyBuild) buildUseCases() *DenpencyBuild {
 	d.Usecases.ListLoanUseCase = loan.NewListLoansUseCase(d.Repositories.LoanRepository)
 	d.Usecases.UpdateLoanUseCase = loan.NewUpdateLoanUseCase(d.Repositories.LoanRepository)
 	d.Usecases.CreateLoanUseCase = loan.NewCreateLoanUseCase(d.Repositories.LoanRepository, d.Usecases.CreateCardUseCase)
+	d.Usecases.UpdateLoanPaymentStatusUseCase = loan.NewUpdateLoanPaymentStatusUseCase(d.Repositories.LoanRepository)
 
 	return d
 }

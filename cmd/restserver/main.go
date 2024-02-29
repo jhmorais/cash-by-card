@@ -45,6 +45,7 @@ func main() {
 		dependencies.Usecases.FindLoanByParnterIDUseCase,
 		dependencies.Usecases.UpdateLoanUseCase,
 		dependencies.Usecases.ListLoanUseCase,
+		dependencies.Usecases.UpdateLoanPaymentStatusUseCase,
 	)
 
 	fmt.Println("Starting SERVER, LISTEN PORT: " + config.GetServerPort())
