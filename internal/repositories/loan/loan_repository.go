@@ -26,6 +26,7 @@ func (d *loanRepository) CreateLoan(ctx context.Context, entity *entities.Loan) 
 func (d *loanRepository) UpdateLoan(ctx context.Context, entity *entities.Loan) error {
 	return d.db.
 		Session(&gorm.Session{FullSaveAssociations: false}).
+		Omit("created_at").
 		Save(entity).
 		Error
 }

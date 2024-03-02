@@ -54,7 +54,7 @@ func (c *updatePartnerUseCase) Execute(ctx context.Context, updatePartner *input
 		Endereco:  updatePartner.Address,
 		Email:     updatePartner.Email,
 		PixType:   updatePartner.PixType,
-		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
 	}
 
 	errUpdate := c.partnerRepository.UpdatePartner(ctx, partnerEntity)

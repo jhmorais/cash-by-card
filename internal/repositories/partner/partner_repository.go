@@ -26,6 +26,7 @@ func (d *partnerRepository) CreatePartner(ctx context.Context, entity *entities.
 func (d *partnerRepository) UpdatePartner(ctx context.Context, entity *entities.Partner) error {
 	return d.db.
 		Session(&gorm.Session{FullSaveAssociations: false}).
+		Omit("created_at").
 		Save(entity).
 		Error
 }

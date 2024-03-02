@@ -98,7 +98,7 @@ func (c *updateLoanUseCase) Execute(ctx context.Context, updateLoan *input.Updat
 		OperationPercent: updateLoan.OperationPercent,
 		ClientAmount:     updateLoan.ClientAmount,
 		Type:             updateLoan.Type,
-		CreatedAt:        time.Now(),
+		UpdatedAt:        time.Now(),
 	}
 
 	errUpdate := c.loanRepository.UpdateLoan(ctx, loanEntity)

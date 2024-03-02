@@ -54,8 +54,7 @@ func (c *updateClientUseCase) Execute(ctx context.Context, updateClient *input.U
 		Documents: updateClient.Documents,
 		Phone:     updateClient.Phone,
 		CPF:       updateClient.CPF,
-
-		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
 	}
 
 	errUpdate := c.clientRepository.UpdateClient(ctx, clientEntity)

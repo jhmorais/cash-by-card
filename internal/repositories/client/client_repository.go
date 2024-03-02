@@ -26,6 +26,7 @@ func (d *clientRepository) CreateClient(ctx context.Context, entity *entities.Cl
 func (d *clientRepository) UpdateClient(ctx context.Context, entity *entities.Client) error {
 	return d.db.
 		Session(&gorm.Session{FullSaveAssociations: false}).
+		Omit("created_at").
 		Save(entity).
 		Error
 }

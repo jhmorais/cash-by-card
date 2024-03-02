@@ -58,7 +58,7 @@ func (c *updateCardUseCase) Execute(ctx context.Context, updateCard *input.Updat
 		LoanID:          updateCard.LoanID,
 		CardMachineID:   updateCard.CardMachineID,
 		CardMachineName: updateCard.CardMachineName,
-		CreatedAt:       time.Now(),
+		UpdatedAt:       time.Now(),
 	}
 
 	errUpdate := c.cardRepository.UpdateCard(ctx, cardEntity)

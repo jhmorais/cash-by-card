@@ -26,6 +26,7 @@ func (d *cardMachineRepository) CreateCardMachine(ctx context.Context, entity *e
 func (d *cardMachineRepository) UpdateCardMachine(ctx context.Context, entity *entities.CardMachine) error {
 	return d.db.
 		Session(&gorm.Session{FullSaveAssociations: false}).
+		Omit("created_at").
 		Save(entity).
 		Error
 }
