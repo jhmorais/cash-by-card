@@ -41,16 +41,7 @@ func (c *createClientUseCase) Execute(ctx context.Context, createClient *input.C
 		return nil, fmt.Errorf("cannot have documents greater than 100 characters")
 	}
 
-	client, err := c.clientRepository.FindClientByName(ctx, createClient.Name)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get client")
-	}
-
-	if len(client) > 0 && client[0].ID > 0 {
-		return nil, fmt.Errorf("failed, already exists client with the same name")
-	}
-
-	client, err = c.clientRepository.FindClientByCPF(ctx, createClient.CPF)
+	client, err := c.clientRepository.FindClientByCPF(ctx, createClient.CPF)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get client: %v", err)
 	}
