@@ -7,6 +7,9 @@ type CreateCard struct {
 	Installments      int     `json:"installments"`
 	InstallmentsValue float64 `json:"installmentsValue"`
 	CardMachineName   string  `json:"cardMachineName"`
+	GrossProfit       float64 `json:"grossProfit"`
+	ClientAmount      float64 `json:"clientAmount"`
+	MachineValue      float64 `json:"machineValue"`
 	LoanID            int     `json:"loanId"`
 	CardMachineID     int     `json:"cardMachineId"`
 }

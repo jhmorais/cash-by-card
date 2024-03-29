@@ -59,14 +59,10 @@ func (c *createLoanUseCase) Execute(ctx context.Context, createLoan *inputLoan.C
 		return nil, fmt.Errorf("cannot create loan without card")
 	}
 
-	if createLoan.PartnerID < 0 {
-		return nil, fmt.Errorf("cannot create a loan without PartnerId")
-	}
-
-	if createLoan.GrossProfit == 0 {
+	if createLoan.GrossProfit < 0 {
 		return nil, fmt.Errorf("cannot create a loan without valid GrossProfit")
 	}
-	if createLoan.Profit == 0 {
+	if createLoan.Profit < 0 {
 		return nil, fmt.Errorf("cannot create a loan without valid Profit")
 	}
 
@@ -78,13 +74,21 @@ func (c *createLoanUseCase) Execute(ctx context.Context, createLoan *inputLoan.C
 		return nil, fmt.Errorf("cannot create a loan without valid client amount")
 	}
 
+	var partnerID *int
+
+	if createLoan.PartnerID == 0 {
+		partnerID = nil
+	} else {
+		partnerID = &createLoan.PartnerID
+	}
+
 	loanEntity := &entities.Loan{
 		ClientID:         createLoan.ClientID,
 		AskValue:         createLoan.AskValue,
 		Amount:           createLoan.Amount,
 		OperationPercent: createLoan.OperationPercent,
 		NumberCards:      createLoan.NumberCards,
-		PartnerID:        createLoan.PartnerID,
+		PartnerID:        partnerID,
 		GrossProfit:      createLoan.GrossProfit,
 		PartnerPercent:   createLoan.PartnerPercent,
 		PartnerAmount:    createLoan.PartnerAmount,
@@ -110,6 +114,10 @@ func (c *createLoanUseCase) Execute(ctx context.Context, createLoan *inputLoan.C
 			InstallmentsValue: card.InstallmentsValue,
 			LoanID:            loanEntity.ID,
 			CardMachineID:     card.CardMachineID,
+			CardMachineName:   card.CardMachineName,
+			GrossProfit:       card.GrossProfit,
+			ClientAmount:      card.ClientAmount,
+			MachineValue:      card.MachineValue,
 		})
 	}
 

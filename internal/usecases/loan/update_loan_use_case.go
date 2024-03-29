@@ -90,7 +90,7 @@ func (c *updateLoanUseCase) Execute(ctx context.Context, updateLoan *input.Updat
 		Cards:            cardsEntity,
 		NumberCards:      updateLoan.NumberCards,
 		ClientID:         updateLoan.ClientID,
-		PartnerID:        updateLoan.PartnerID,
+		PartnerID:        &updateLoan.PartnerID,
 		PartnerAmount:    updateLoan.PartnerAmount,
 		PartnerPercent:   updateLoan.PartnerPercent,
 		Profit:           updateLoan.Profit,

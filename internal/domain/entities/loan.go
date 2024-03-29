@@ -10,7 +10,7 @@ type Loan struct {
 	OperationPercent float64   `json:"operationPercent"`
 	NumberCards      int       `json:"numberCards"`
 	Cards            []Card    `json:"cards"`
-	PartnerID        int       `gorm:"index" json:"partnerId"`
+	PartnerID        *int      `gorm:"index" json:"partnerId"`
 	GrossProfit      float64   `json:"grossProfit"`
 	PartnerPercent   float64   `json:"partnerPercent"`
 	PartnerAmount    float64   `json:"partnerAmount"`

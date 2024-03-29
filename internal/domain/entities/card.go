@@ -10,6 +10,8 @@ type Card struct {
 	Installments      int     `json:"installments"`
 	InstallmentsValue float64 `json:"installmentsValue"`
 	CardMachineName   string  `json:"cardMachineName"`
+	ClientAmount      float64 `json:"clientAmount"`
+	GrossProfit       float64 `json:"grossProfit"`
 	LoanID            int     `gorm:"index" json:"loanId"`
 	CardMachineID     int     `gorm:"index" json:"cardMachineId"`
 	CreatedAt         time.Time

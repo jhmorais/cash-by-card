@@ -26,7 +26,7 @@ func NewCreateCardUseCase(cardRepository repositories.CardRepository) contracts.
 func (c *createCardUseCase) Execute(ctx context.Context, createCard *[]input.CreateCard) (*output.CreateCard, error) {
 	for _, createCardInput := range *createCard {
 
-		if !(createCardInput.PaymentType == "online" || createCardInput.PaymentType == "present") {
+		if !(createCardInput.PaymentType == "onlineTax" || createCardInput.PaymentType == "presentialTax") {
 			return nil, fmt.Errorf("cannot create a card with invalid payment type")
 		}
 
@@ -65,6 +65,8 @@ func (c *createCardUseCase) Execute(ctx context.Context, createCard *[]input.Cre
 			LoanID:            createCardInput.LoanID,
 			CardMachineID:     createCardInput.CardMachineID,
 			CardMachineName:   createCardInput.CardMachineName,
+			ClientAmount:      createCardInput.ClientAmount,
+			GrossProfit:       createCardInput.GrossProfit,
 			CreatedAt:         time.Now(),
 		}
 
