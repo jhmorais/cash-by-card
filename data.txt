@@ -227,9 +227,9 @@ VALUES
 
 INSERT INTO database.card_machine (brand, presential_tax, online_tax, installments, name)
 VALUES
-('Mastercard', '{"1": 3.19, "2": 4.19, "3": 5.19, "4": 4.2, "5": 5.2, "6": 6.2, "7": 7.2, "8": 8.2, "9": 9.2, "10": 1.2}', '{"1": 3.49, "2": 4.49, "3": 5.49, "4": 4.2, "5": 5.2, "6": 6.2, "7": 7.2, "8": 8.2, "9": 9.2, "10": 1.2}', 12, 'Maquininha Mastercard'),
-('Visa', '{"1": 3.29, "2": 4.29, "3": 5.29,"4": 4.2, "5": 5.2, "6": 6.2, "7": 7.2, "8": 8.2, "9": 9.2, "10": 1.2}', '{"1": 3.59, "2": 4.59, "3": 5.59 ,"4": 4.2, "5": 5.2, "6": 6.2, "7": 7.2, "8": 8.2, "9": 9.2, "10": 1.2}', 12, 'Maquininha Visa'),
-('Elo', '{"1": 3.39, "2": 4.39, "3": 5.39, "4": 4.2, "5": 5.2, "6": 6.2, "7": 7.2, "8": 8.2, "9": 9.2, "10": 1.2}', '{"1": 3.69, "2": 4.69, "3": 5.69, "4": 4.2, "5": 5.2, "6": 6.2, "7": 7.2, "8": 8.2, "9": 9.2, "10": 1.2}', 12, 'Maquininha Elo');
+('[\'mastercard\',\'visa\' ]', '{"1": 3.19, "2": 4.19, "3": 5.19, "4": 4.2, "5": 5.2, "6": 6.2, "7": 7.2, "8": 8.2, "9": 9.2, "10": 1.2}', '{"1": 3.49, "2": 4.49, "3": 5.49, "4": 4.2, "5": 5.2, "6": 6.2, "7": 7.2, "8": 8.2, "9": 9.2, "10": 1.2}', 12, 'Maquininha Mastercard'),
+('[\'mastercard\',\'visa\' ]', '{"1": 3.29, "2": 4.29, "3": 5.29,"4": 4.2, "5": 5.2, "6": 6.2, "7": 7.2, "8": 8.2, "9": 9.2, "10": 1.2}', '{"1": 3.59, "2": 4.59, "3": 5.59 ,"4": 4.2, "5": 5.2, "6": 6.2, "7": 7.2, "8": 8.2, "9": 9.2, "10": 1.2}', 12, 'Maquininha Visa'),
+('[\'mastercard\',\'visa\', \'elo\' ]', '{"1": 3.39, "2": 4.39, "3": 5.39, "4": 4.2, "5": 5.2, "6": 6.2, "7": 7.2, "8": 8.2, "9": 9.2, "10": 1.2}', '{"1": 3.69, "2": 4.69, "3": 5.69, "4": 4.2, "5": 5.2, "6": 6.2, "7": 7.2, "8": 8.2, "9": 9.2, "10": 1.2}', 12, 'Maquininha Elo');
 
 INSERT INTO database.loan (client_id, ask_value, amount, partner_id, gross_profit, partner_amount, partner_percent, profit, type, number_cards, client_amount, payment_status, operation_percent)
 VALUES
@@ -239,7 +239,7 @@ VALUES
 
 INSERT INTO database.card (payment_type, value, brand, installments, installments_value, card_machine_name, loan_id, card_machine_id)
 VALUES
-('present', 500.00, '[\'mastercard\',\'visa\' ]', 3, 166.67, 'Maquininha 1', 1, 1),
-('present', 300.00, '[\'mastercard\',\'visa\' ]', 5, 50, 'Maquininha 2', 2, 2),
-('online', 700.00, '[\'mastercard\',\'visa\', \'elo\' ]', 6, 116.67, 'Maquininha 3', 3, 3);
+('present', 500.00, 'mastercard', 3, 166.67, 'Maquininha 1', 1, 1),
+('present', 300.00, 'mastercard', 5, 50, 'Maquininha 2', 2, 2),
+('online', 700.00, 'visa', 6, 116.67, 'Maquininha 3', 3, 3);
 

@@ -3,8 +3,9 @@
     "MYSQL_USER2":"cashby87_dev",
     "MYSQL_PASSWORD2":"CashByCard3012",
     "SERVER_PORT2": "3000",
-    "MYSQL_CONNECTION_STRING":"tcp(mysqlcontainer)/database?charset=utf8&parseTime=True&loc=Local",
+    "MYSQL_CONNECTION_STRING":"tcp(localhost:3306)/database?charset=utf8&parseTime=True&loc=Local",
+    "MYSQL_CONNECTION_STRING1":"tcp(mysqlcontainer)/database?charset=utf8&parseTime=True&loc=Local",
     "MYSQL_USER":"root",
     "MYSQL_PASSWORD":"password",
-    "SERVER_PORT": "3000"
+    "SERVER_PORT": "3001"
 }
