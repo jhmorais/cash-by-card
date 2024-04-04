@@ -7,7 +7,7 @@ type Partner struct {
 	Name      string `gorm:"index" json:"name"`
 	CPF       string `gorm:"index" json:"cpf"`
 	PixKey    string `json:"pixKey"`
-	Telefone  string `json:"phone"`
+	Phone     string `json:"phone"`
 	Endereco  string `json:"address"`
 	PixType   int    `json:"pixType"`
 	Email     string `json:"email"`

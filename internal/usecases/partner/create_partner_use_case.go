@@ -50,7 +50,7 @@ func (c *createPartnerUseCase) Execute(ctx context.Context, createPartner *input
 		Name:      createPartner.Name,
 		PixKey:    createPartner.PixKey,
 		CPF:       createPartner.CPF,
-		Telefone:  createPartner.Phone,
+		Phone:     createPartner.Phone,
 		Endereco:  createPartner.Address,
 		Email:     createPartner.Email,
 		PixType:   createPartner.PixType,

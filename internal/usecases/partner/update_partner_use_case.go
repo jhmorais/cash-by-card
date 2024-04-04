@@ -50,7 +50,7 @@ func (c *updatePartnerUseCase) Execute(ctx context.Context, updatePartner *input
 		Name:      updatePartner.Name,
 		PixKey:    updatePartner.PixKey,
 		CPF:       updatePartner.CPF,
-		Telefone:  updatePartner.Phone,
+		Phone:     updatePartner.Phone,
 		Endereco:  updatePartner.Address,
 		Email:     updatePartner.Email,
 		PixType:   updatePartner.PixType,
