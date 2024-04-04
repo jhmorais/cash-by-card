@@ -23,7 +23,8 @@ func NewCreateCardUseCase(cardRepository repositories.CardRepository) contracts.
 	}
 }
 
-func (c *createCardUseCase) Execute(ctx context.Context, createCard *[]input.CreateCard) (*output.CreateCard, error) {
+func (c *createCardUseCase) Execute(ctx context.Context, createCard *[]input.CreateCard) ([]*output.CreateCard, error) {
+	var createCardOutput []*output.CreateCard
 	for _, createCardInput := range *createCard {
 
 		if !(createCardInput.PaymentType == "onlineTax" || createCardInput.PaymentType == "presentialTax") {
@@ -75,11 +76,13 @@ func (c *createCardUseCase) Execute(ctx context.Context, createCard *[]input.Cre
 			return nil, fmt.Errorf("cannot save card at database: %v", err)
 		}
 
-		createCardOutput := &output.CreateCard{
+		createCardOutput = append(createCardOutput, &output.CreateCard{
 			CardID: cardEntity.ID,
-		}
+		})
 
-		return createCardOutput, nil
 	}
-	return nil, fmt.Errorf("empty input provided")
+	if len(createCardOutput) == 0 {
+		return nil, fmt.Errorf("empty input provided")
+	}
+	return createCardOutput, nil
 }
