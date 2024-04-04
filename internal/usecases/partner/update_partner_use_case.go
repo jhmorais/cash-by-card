@@ -51,7 +51,7 @@ func (c *updatePartnerUseCase) Execute(ctx context.Context, updatePartner *input
 		PixKey:    updatePartner.PixKey,
 		CPF:       updatePartner.CPF,
 		Phone:     updatePartner.Phone,
-		Endereco:  updatePartner.Address,
+		Address:   updatePartner.Address,
 		Email:     updatePartner.Email,
 		PixType:   updatePartner.PixType,
 		UpdatedAt: time.Now(),

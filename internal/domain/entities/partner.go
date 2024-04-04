@@ -8,7 +8,7 @@ type Partner struct {
 	CPF       string `gorm:"index" json:"cpf"`
 	PixKey    string `json:"pixKey"`
 	Phone     string `json:"phone"`
-	Endereco  string `json:"address"`
+	Address   string `json:"address"`
 	PixType   int    `json:"pixType"`
 	Email     string `json:"email"`
 	CreatedAt time.Time
