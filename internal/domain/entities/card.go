@@ -9,6 +9,7 @@ type Card struct {
 	Brand             string  `json:"brand"`
 	Installments      int     `json:"installments"`
 	InstallmentsValue float64 `json:"installmentsValue"`
+	MachineValue      float64 `json:"machineValue"`
 	CardMachineName   string  `json:"cardMachineName"`
 	ClientAmount      float64 `json:"clientAmount"`
 	GrossProfit       float64 `json:"grossProfit"`

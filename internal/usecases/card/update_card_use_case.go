@@ -51,14 +51,17 @@ func (c *updateCardUseCase) Execute(ctx context.Context, updateCard *input.Updat
 	}
 
 	cardEntity := &entities.Card{
-		ID:              updateCard.ID,
-		PaymentType:     updateCard.PaymentType,
-		Value:           updateCard.Value,
-		Brand:           updateCard.Brand,
-		LoanID:          updateCard.LoanID,
-		CardMachineID:   updateCard.CardMachineID,
-		CardMachineName: updateCard.CardMachineName,
-		UpdatedAt:       time.Now(),
+		ID:                updateCard.ID,
+		PaymentType:       updateCard.PaymentType,
+		Value:             updateCard.Value,
+		MachineValue:      updateCard.MachineValue,
+		Installments:      updateCard.Installments,
+		InstallmentsValue: updateCard.InstallmentsValue,
+		Brand:             updateCard.Brand,
+		LoanID:            updateCard.LoanID,
+		CardMachineID:     updateCard.CardMachineID,
+		CardMachineName:   updateCard.CardMachineName,
+		UpdatedAt:         time.Now(),
 	}
 
 	errUpdate := c.cardRepository.UpdateCard(ctx, cardEntity)

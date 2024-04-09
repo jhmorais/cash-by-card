@@ -43,6 +43,10 @@ func (c *createCardUseCase) Execute(ctx context.Context, createCard *[]input.Cre
 			return nil, fmt.Errorf("cannot create card without valid number of installments")
 		}
 
+		if createCardInput.MachineValue <= 0 {
+			return nil, fmt.Errorf("cannot create card without valid number of machine value")
+		}
+
 		if int(createCardInput.InstallmentsValue) <= 0 {
 			return nil, fmt.Errorf("cannot create card without valid number of installmentsValue")
 		}
@@ -63,6 +67,7 @@ func (c *createCardUseCase) Execute(ctx context.Context, createCard *[]input.Cre
 			Brand:             createCardInput.Brand,
 			Installments:      createCardInput.Installments,
 			InstallmentsValue: createCardInput.InstallmentsValue,
+			MachineValue:      createCardInput.MachineValue,
 			LoanID:            createCardInput.LoanID,
 			CardMachineID:     createCardInput.CardMachineID,
 			CardMachineName:   createCardInput.CardMachineName,
