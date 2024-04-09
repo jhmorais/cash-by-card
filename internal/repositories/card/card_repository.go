@@ -23,7 +23,7 @@ func (d *cardRepository) CreateCard(ctx context.Context, entity *entities.Card) 
 		Error
 }
 
-func (d *cardRepository) UpdateCard(ctx context.Context, entity *entities.Card) error {
+func (d *cardRepository) UpdateCard(ctx context.Context, entity []*entities.Card) error {
 	return d.db.
 		Session(&gorm.Session{FullSaveAssociations: false}).
 		Omit("created_at").

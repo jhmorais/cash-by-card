@@ -98,11 +98,6 @@ func (h *Handler) GetCardByLoanID(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) UpdateCard(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
-	id, err := utils.RetrieveParam(r, "id")
-	if err != nil {
-		utils.WriteErrModel(w, http.StatusBadRequest, utils.NewErrorResponse("error reading id"))
-		return
-	}
 
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
@@ -110,20 +105,14 @@ func (h *Handler) UpdateCard(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	card := input.UpdateCard{}
-	err = json.Unmarshal(body, &card)
+	cards := []input.UpdateCard{}
+	err = json.Unmarshal(body, &cards)
 	if err != nil {
 		utils.WriteErrModel(w, http.StatusBadRequest, utils.NewErrorResponse("failed to parse request body"))
 		return
 	}
 
-	card.ID, err = strconv.Atoi(id)
-	if err != nil {
-		utils.WriteErrModel(w, http.StatusBadRequest, utils.NewErrorResponse("failed to parse param id to int"))
-		return
-	}
-
-	response, err := h.UpdateCardUseCase.Execute(ctx, &card)
+	response, err := h.UpdateCardUseCase.Execute(ctx, cards)
 	if err != nil {
 		utils.WriteErrModel(w, http.StatusBadRequest,
 			utils.NewErrorResponse(fmt.Sprintf("failed to update card, error:'%s'", err.Error())))

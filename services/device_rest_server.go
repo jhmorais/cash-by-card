@@ -136,7 +136,7 @@ func NewHTTPRouterClient(
 	router.HandleFunc("/cards/loan/{loanId}", handler.GetCardByLoanID).Methods(http.MethodGet)
 	router.HandleFunc("/cards/{id}", handler.DeleteCard).Methods(http.MethodDelete)
 	router.HandleFunc("/cards", handler.CreateCard).Methods(http.MethodPost)
-	router.HandleFunc("/cards/{id}", handler.UpdateCard).Methods(http.MethodPut)
+	router.HandleFunc("/cards", handler.UpdateCard).Methods(http.MethodPut)
 
 	router.HandleFunc("/card-machines", handler.ListCardMachines).Methods(http.MethodGet, http.MethodOptions)
 	router.HandleFunc("/card-machines/{id}", handler.GetCardMachineByID).Methods(http.MethodGet)

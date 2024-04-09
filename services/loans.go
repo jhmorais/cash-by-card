@@ -155,6 +155,14 @@ func (h *Handler) UpdateLoan(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// TODO adicionar as duas atualizações na mesma transação
+	_, err = h.UpdateCardUseCase.Execute(ctx, loan.Cards)
+	if err != nil {
+		utils.WriteErrModel(w, http.StatusBadRequest,
+			utils.NewErrorResponse(fmt.Sprintf("failed to update cards of loan, error:'%s'", err.Error())))
+		return
+	}
+
 	response, err := h.UpdateLoanUseCase.Execute(ctx, &loan)
 	if err != nil {
 		utils.WriteErrModel(w, http.StatusBadRequest,

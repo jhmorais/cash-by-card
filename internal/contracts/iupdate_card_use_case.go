@@ -8,5 +8,5 @@ import (
 )
 
 type UpdateCardUseCase interface {
-	Execute(ctx context.Context, updateCard *input.UpdateCard) (*output.CreateCard, error)
+	Execute(ctx context.Context, updateCard []input.UpdateCard) (*output.UpdateCards, error)
 }

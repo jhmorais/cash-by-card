@@ -25,73 +25,17 @@ func NewUpdateLoanUseCase(loanRepository repositories.LoanRepository) contracts.
 
 func (c *updateLoanUseCase) Execute(ctx context.Context, updateLoan *input.UpdateLoan) (*output.CreateLoan, error) {
 
-	if updateLoan.ClientID < 0 {
-		return nil, fmt.Errorf("cannot update a loan without ClientId")
+	err := validateFields(updateLoan)
+	if err != nil {
+		return nil, err
 	}
 
-	if !(updateLoan.PaymentStatus == "pending" || updateLoan.PaymentStatus == "paid") {
-		return nil, fmt.Errorf("cannot update a loan with invalid payment status")
-	}
-
-	if updateLoan.AskValue == 0 {
-		return nil, fmt.Errorf("cannot update a loan without AskValue")
-	}
-	if updateLoan.Amount == 0 {
-		return nil, fmt.Errorf("cannot update a loan without Amount")
-	}
-
-	if updateLoan.OperationPercent < 0 {
-		return nil, fmt.Errorf("cannot update a loan without valid OperationPercent")
-	}
-
-	if updateLoan.NumberCards <= 0 {
-		return nil, fmt.Errorf("cannot update loan without valid number of cards")
-	}
-
-	if len(updateLoan.Cards) == 0 {
-		return nil, fmt.Errorf("cannot update loan without card")
-	}
-
-	if updateLoan.PartnerID < 0 {
-		return nil, fmt.Errorf("cannot update a loan without PartnerId")
-	}
-
-	if updateLoan.GrossProfit == 0 {
-		return nil, fmt.Errorf("cannot update a loan without valid GrossProfit")
-	}
-	if updateLoan.Profit == 0 {
-		return nil, fmt.Errorf("cannot update a loan without valid Profit")
-	}
-	if !(updateLoan.Type == 1 || updateLoan.Type == 2) {
-		return nil, fmt.Errorf("cannot update a loan with invalid type")
-	}
-
-	if updateLoan.ClientAmount == 0 {
-		return nil, fmt.Errorf("cannot update a loan without valid client amount")
-	}
-
-	cardsEntity := []entities.Card{}
-	for _, card := range updateLoan.Cards {
-		cardsEntity = append(cardsEntity, entities.Card{
-			PaymentType:       card.PaymentType,
-			Value:             card.Value,
-			Brand:             card.Brand,
-			CardMachineName:   card.CardMachineName,
-			MachineValue:      card.MachineValue,
-			Installments:      card.Installments,
-			GrossProfit:       card.GrossProfit,
-			ClientAmount:      card.ClientAmount,
-			InstallmentsValue: card.InstallmentsValue,
-			LoanID:            card.LoanID,
-			CardMachineID:     card.CardMachineID,
-		})
-	}
 	loanEntity := &entities.Loan{
 		ID:               updateLoan.ID,
 		PaymentStatus:    updateLoan.PaymentStatus,
 		AskValue:         updateLoan.AskValue,
 		Amount:           updateLoan.Amount,
-		Cards:            cardsEntity,
+		Cards:            nil,
 		NumberCards:      updateLoan.NumberCards,
 		ClientID:         updateLoan.ClientID,
 		PartnerID:        &updateLoan.PartnerID,
@@ -115,4 +59,53 @@ func (c *updateLoanUseCase) Execute(ctx context.Context, updateLoan *input.Updat
 	}
 
 	return updateLoanOutput, nil
+}
+
+func validateFields(updateLoan *input.UpdateLoan) error {
+	if updateLoan.ClientID < 0 {
+		return fmt.Errorf("cannot update a loan without ClientId")
+	}
+
+	if !(updateLoan.PaymentStatus == "pending" || updateLoan.PaymentStatus == "paid") {
+		return fmt.Errorf("cannot update a loan with invalid payment status")
+	}
+
+	if updateLoan.AskValue == 0 {
+		return fmt.Errorf("cannot update a loan without AskValue")
+	}
+	if updateLoan.Amount == 0 {
+		return fmt.Errorf("cannot update a loan without Amount")
+	}
+
+	if updateLoan.OperationPercent < 0 {
+		return fmt.Errorf("cannot update a loan without valid OperationPercent")
+	}
+
+	if updateLoan.NumberCards <= 0 {
+		return fmt.Errorf("cannot update loan without valid number of cards")
+	}
+
+	if len(updateLoan.Cards) == 0 {
+		return fmt.Errorf("cannot update loan without card")
+	}
+
+	if updateLoan.PartnerID < 0 {
+		return fmt.Errorf("cannot update a loan without PartnerId")
+	}
+
+	if updateLoan.GrossProfit == 0 {
+		return fmt.Errorf("cannot update a loan without valid GrossProfit")
+	}
+	if updateLoan.Profit == 0 {
+		return fmt.Errorf("cannot update a loan without valid Profit")
+	}
+	if !(updateLoan.Type == 1 || updateLoan.Type == 2) {
+		return fmt.Errorf("cannot update a loan with invalid type")
+	}
+
+	if updateLoan.ClientAmount == 0 {
+		return fmt.Errorf("cannot update a loan without valid client amount")
+	}
+
+	return nil
 }

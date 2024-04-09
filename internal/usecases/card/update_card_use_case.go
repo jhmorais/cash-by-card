@@ -23,55 +23,68 @@ func NewUpdateCardUseCase(cardRepository repositories.CardRepository) contracts.
 	}
 }
 
-func (c *updateCardUseCase) Execute(ctx context.Context, updateCard *input.UpdateCard) (*output.CreateCard, error) {
-
-	if !(updateCard.PaymentType == "online" || updateCard.PaymentType == "present") {
-		return nil, fmt.Errorf("failed updated card- PaymentType is empty")
+func (c *updateCardUseCase) Execute(ctx context.Context, updateCards []input.UpdateCard) (*output.UpdateCards, error) {
+	cardsEntity := []*entities.Card{}
+	for _, card := range updateCards {
+		if err := validateFields(card); err != nil {
+			return nil, err
+		}
+		cardEntity := &entities.Card{
+			ID:                card.ID,
+			PaymentType:       card.PaymentType,
+			Value:             card.Value,
+			MachineValue:      card.MachineValue,
+			Installments:      card.Installments,
+			InstallmentsValue: card.InstallmentsValue,
+			Brand:             card.Brand,
+			LoanID:            card.LoanID,
+			CardMachineID:     card.CardMachineID,
+			CardMachineName:   card.CardMachineName,
+			ClientAmount:      card.ClientAmount,
+			GrossProfit:       card.GrossProfit,
+			UpdatedAt:         time.Now(),
+		}
+		cardsEntity = append(cardsEntity, cardEntity)
 	}
 
-	if updateCard.Value == 0 {
-		return nil, fmt.Errorf("failed updated card- value is empty")
-	}
-
-	if updateCard.Brand == "" {
-		return nil, fmt.Errorf("failed updated card- brand is empty")
-	}
-
-	if updateCard.Installments <= 0 {
-		return nil, fmt.Errorf("failed updated card- invalid number of installments")
-	}
-	if updateCard.LoanID <= 0 {
-		return nil, fmt.Errorf("failed updated card- invalid LoanID")
-	}
-	if updateCard.CardMachineID <= 0 {
-		return nil, fmt.Errorf("failed updated card- invalid CardMachineID")
-	}
-	if updateCard.CardMachineName == "" {
-		return nil, fmt.Errorf("cannot updated card without valid CardMachine name")
-	}
-
-	cardEntity := &entities.Card{
-		ID:                updateCard.ID,
-		PaymentType:       updateCard.PaymentType,
-		Value:             updateCard.Value,
-		MachineValue:      updateCard.MachineValue,
-		Installments:      updateCard.Installments,
-		InstallmentsValue: updateCard.InstallmentsValue,
-		Brand:             updateCard.Brand,
-		LoanID:            updateCard.LoanID,
-		CardMachineID:     updateCard.CardMachineID,
-		CardMachineName:   updateCard.CardMachineName,
-		UpdatedAt:         time.Now(),
-	}
-
-	errUpdate := c.cardRepository.UpdateCard(ctx, cardEntity)
+	errUpdate := c.cardRepository.UpdateCard(ctx, cardsEntity)
 	if errUpdate != nil {
 		return nil, fmt.Errorf("cannot update card at database: %v", errUpdate)
 	}
 
-	createCardOutput := &output.CreateCard{
-		CardID: cardEntity.ID,
+	createCardOutput := &output.UpdateCards{}
+	for _, card := range cardsEntity {
+		createCardOutput.CardIDs = append(createCardOutput.CardIDs, card.ID)
 	}
 
 	return createCardOutput, nil
+}
+
+func validateFields(updateCard input.UpdateCard) error {
+	if !(updateCard.PaymentType == "onlineTax" || updateCard.PaymentType == "presentialTax") {
+		return fmt.Errorf("failed updated card- PaymentType is empty")
+	}
+
+	if updateCard.Value == 0 {
+		return fmt.Errorf("failed updated card- value is empty")
+	}
+
+	if updateCard.Brand == "" {
+		return fmt.Errorf("failed updated card- brand is empty")
+	}
+
+	if updateCard.Installments <= 0 {
+		return fmt.Errorf("failed updated card- invalid number of installments")
+	}
+	if updateCard.LoanID <= 0 {
+		return fmt.Errorf("failed updated card- invalid LoanID")
+	}
+	if updateCard.CardMachineID <= 0 {
+		return fmt.Errorf("failed updated card- invalid CardMachineID")
+	}
+	if updateCard.CardMachineName == "" {
+		return fmt.Errorf("cannot updated card without valid CardMachine name")
+	}
+
+	return nil
 }
