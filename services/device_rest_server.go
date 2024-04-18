@@ -122,6 +122,7 @@ func NewHTTPRouterClient(
 	router.HandleFunc("/clients/name/{name}", handler.GetClient).Methods(http.MethodGet)
 	router.HandleFunc("/clients/{id}", handler.DeleteClient).Methods(http.MethodDelete)
 	router.HandleFunc("/clients", handler.CreateClient).Methods(http.MethodPost)
+	router.HandleFunc("/clients/files/{cpf}/{id}", handler.CreateClientDocuments).Methods(http.MethodPost)
 	router.HandleFunc("/clients/{id}", handler.UpdateClient).Methods(http.MethodPut)
 
 	router.HandleFunc("/partners", handler.ListPartners).Methods(http.MethodGet, http.MethodOptions)

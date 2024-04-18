@@ -258,3 +258,5 @@ VALUES
 ('present', 300.00, 'mastercard', 5, 50, 'Maquininha 2', 2, 2),
 ('online', 700.00, 'visa', 6, 116.67, 'Maquininha 3', 3, 3);
 
+ALTER TABLE database.card DROP FOREIGN KEY card_ibfk_1;
+ALTER TABLE database.card ADD CONSTRAINT card_ibfk_1 FOREIGN KEY (loan_id) REFERENCES loan(id) ON DELETE CASCADE;

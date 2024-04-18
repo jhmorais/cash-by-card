@@ -5,8 +5,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"mime/multipart"
 	"net/http"
+	"os"
 	"strconv"
+	"strings"
 
 	input "github.com/jhmorais/cash-by-card/internal/ports/input/client"
 	"github.com/jhmorais/cash-by-card/utils"
@@ -200,4 +203,124 @@ func (h *Handler) CreateClient(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 	fmt.Fprint(w, string(jsonResponse))
+}
+
+func (h *Handler) CreateClientDocuments(w http.ResponseWriter, r *http.Request) {
+	ctx := context.Background()
+	id, err := utils.RetrieveParam(r, "id")
+	if err != nil {
+		utils.WriteErrModel(w, http.StatusBadRequest, utils.NewErrorResponse("error reading id"))
+		return
+	}
+	cpf, err := utils.RetrieveParam(r, "cpf")
+	if err != nil {
+		utils.WriteErrModel(w, http.StatusBadRequest, utils.NewErrorResponse("error reading cpf"))
+		return
+	}
+
+	idInt, err := strconv.Atoi(id)
+	if err != nil {
+		utils.WriteErrModel(w, http.StatusBadRequest, utils.NewErrorResponse("error cast id to int"))
+		return
+	}
+
+	client, err := h.FindClientByIDUseCase.Execute(ctx, idInt)
+	if err != nil {
+		utils.WriteErrModel(w, http.StatusBadRequest, utils.NewErrorResponse("error to get client"))
+		return
+	}
+
+	err = r.ParseMultipartForm(10 << 20)
+
+	// 10 MB máximo
+	if err != nil {
+		utils.WriteErrModel(w, http.StatusInternalServerError, utils.NewErrorResponse("error parsing multipart form"))
+		_, err := h.DeleteClientUseCase.Execute(ctx, idInt)
+		if err != nil {
+			utils.WriteErrModel(w, http.StatusBadRequest, utils.NewErrorResponse("error to delete client"))
+			return
+		}
+		return
+	}
+
+	var filenames []string
+	files := r.MultipartForm.File
+	for _, file := range files {
+		// Obter o nome original do arquivo
+		filename := file[0].Filename
+		// Renomear o arquivo adicionando o CPF do cliente ao seu nome
+		newFilename := cpf + "_" + filename
+		// Salvar o arquivo na pasta raiz do projeto assets
+		err := h.saveFile(file[0], newFilename)
+		if err != nil {
+			utils.WriteErrModel(w, http.StatusInternalServerError, utils.NewErrorResponse("error saving file"))
+			_, err := h.DeleteClientUseCase.Execute(ctx, idInt)
+			if err != nil {
+				utils.WriteErrModel(w, http.StatusBadRequest, utils.NewErrorResponse("error to delete client"))
+				return
+			}
+
+			return
+		}
+		// Adicionar o nome do arquivo à lista de nomes de arquivos
+		filenames = append(filenames, newFilename)
+	}
+
+	updateClient := input.UpdateClient{
+		ID:        idInt,
+		Name:      client.Client.Name,
+		PixType:   client.Client.PartnerID,
+		PixKey:    client.Client.PixKey,
+		PartnerID: client.Client.PartnerID,
+		Phone:     client.Client.Phone,
+		CPF:       client.Client.CPF,
+		Documents: strings.Join(filenames, ","),
+	}
+
+	response, err := h.UpdateClientUseCase.Execute(ctx, &updateClient)
+	if err != nil {
+		utils.WriteErrModel(w, http.StatusBadRequest,
+			utils.NewErrorResponse(fmt.Sprintf("failed to update client, error:'%s'", err.Error())))
+		return
+	}
+
+	jsonResponse, err := json.Marshal(response)
+	if err != nil {
+		utils.WriteErrModel(w, http.StatusInternalServerError,
+			utils.NewErrorResponse("Failed to marshal client response"))
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	fmt.Fprint(w, string(jsonResponse))
+
+}
+
+func (h *Handler) saveFile(file *multipart.FileHeader, filename string) error {
+	src, err := file.Open()
+	if err != nil {
+		return err
+	}
+	defer src.Close()
+
+	if _, err := os.Stat("../../assets"); os.IsNotExist(err) {
+		// Criar a pasta 'assets' se não existir
+		err := os.Mkdir("../../assets", 0755) // As permissões podem ser ajustadas conforme necessário
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	dst, err := os.Create("../../assets/" + filename)
+	if err != nil {
+		return err
+	}
+	defer dst.Close()
+
+	_, err = io.Copy(dst, src)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
