@@ -206,27 +206,9 @@ func (h *Handler) CreateClient(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) CreateClientDocuments(w http.ResponseWriter, r *http.Request) {
-	ctx := context.Background()
-	id, err := utils.RetrieveParam(r, "id")
-	if err != nil {
-		utils.WriteErrModel(w, http.StatusBadRequest, utils.NewErrorResponse("error reading id"))
-		return
-	}
 	cpf, err := utils.RetrieveParam(r, "cpf")
 	if err != nil {
 		utils.WriteErrModel(w, http.StatusBadRequest, utils.NewErrorResponse("error reading cpf"))
-		return
-	}
-
-	idInt, err := strconv.Atoi(id)
-	if err != nil {
-		utils.WriteErrModel(w, http.StatusBadRequest, utils.NewErrorResponse("error cast id to int"))
-		return
-	}
-
-	client, err := h.FindClientByIDUseCase.Execute(ctx, idInt)
-	if err != nil {
-		utils.WriteErrModel(w, http.StatusBadRequest, utils.NewErrorResponse("error to get client"))
 		return
 	}
 
@@ -235,11 +217,6 @@ func (h *Handler) CreateClientDocuments(w http.ResponseWriter, r *http.Request) 
 	// 10 MB máximo
 	if err != nil {
 		utils.WriteErrModel(w, http.StatusInternalServerError, utils.NewErrorResponse("error parsing multipart form"))
-		_, err := h.DeleteClientUseCase.Execute(ctx, idInt)
-		if err != nil {
-			utils.WriteErrModel(w, http.StatusBadRequest, utils.NewErrorResponse("error to delete client"))
-			return
-		}
 		return
 	}
 
@@ -254,11 +231,6 @@ func (h *Handler) CreateClientDocuments(w http.ResponseWriter, r *http.Request) 
 		err := h.saveFile(file[0], newFilename)
 		if err != nil {
 			utils.WriteErrModel(w, http.StatusInternalServerError, utils.NewErrorResponse("error saving file"))
-			_, err := h.DeleteClientUseCase.Execute(ctx, idInt)
-			if err != nil {
-				utils.WriteErrModel(w, http.StatusBadRequest, utils.NewErrorResponse("error to delete client"))
-				return
-			}
 
 			return
 		}
@@ -266,28 +238,11 @@ func (h *Handler) CreateClientDocuments(w http.ResponseWriter, r *http.Request) 
 		filenames = append(filenames, newFilename)
 	}
 
-	updateClient := input.UpdateClient{
-		ID:        idInt,
-		Name:      client.Client.Name,
-		PixType:   client.Client.PartnerID,
-		PixKey:    client.Client.PixKey,
-		PartnerID: client.Client.PartnerID,
-		Phone:     client.Client.Phone,
-		CPF:       client.Client.CPF,
-		Documents: strings.Join(filenames, ","),
-	}
-
-	response, err := h.UpdateClientUseCase.Execute(ctx, &updateClient)
-	if err != nil {
-		utils.WriteErrModel(w, http.StatusBadRequest,
-			utils.NewErrorResponse(fmt.Sprintf("failed to update client, error:'%s'", err.Error())))
-		return
-	}
-
-	jsonResponse, err := json.Marshal(response)
+	documents := strings.Join(filenames, ",")
+	jsonResponse, err := json.Marshal(documents)
 	if err != nil {
 		utils.WriteErrModel(w, http.StatusInternalServerError,
-			utils.NewErrorResponse("Failed to marshal client response"))
+			utils.NewErrorResponse("Failed to marshal client documents response"))
 		return
 	}
 

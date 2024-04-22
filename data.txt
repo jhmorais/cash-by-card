@@ -143,7 +143,7 @@ CREATE TABLE database.client (
 	pix_type INT NOT NULL,
 	pix_key varchar(100) NOT NULL,
 	partner_id BIGINT NULL,
-	documentos varchar(100) NULL,
+	documentos varchar(512) NULL,
 	phone VARCHAR(15) NULL,
 	cpf varchar(15) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
 	created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -260,3 +260,4 @@ VALUES
 
 ALTER TABLE database.card DROP FOREIGN KEY card_ibfk_1;
 ALTER TABLE database.card ADD CONSTRAINT card_ibfk_1 FOREIGN KEY (loan_id) REFERENCES loan(id) ON DELETE CASCADE;
+ALTER TABLE `database`.client MODIFY COLUMN documents varchar(512) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL;
