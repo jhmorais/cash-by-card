@@ -27,6 +27,14 @@ func CommonMiddleware(next http.Handler) http.Handler {
 	})
 }
 
+func ValidateJwtTokenMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// chamar o metodo para validar o jwt token
+		w.Header().Get("jwt") // nome do campo do token, ULTIMO passo
+		next.ServeHTTP(w, r)
+	})
+}
+
 func WriteErrModel(w http.ResponseWriter, statusCode int, errModel *ErrorModel) {
 	jsonStr, err := json.Marshal(errModel)
 	if err != nil {

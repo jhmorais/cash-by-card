@@ -117,6 +117,10 @@ func NewHTTPRouterClient(
 	router.UseEncodedPath()
 	router.Use(utils.CommonMiddleware)
 
+	router.Use(utils.ValidateJwtTokenMiddleware)
+	// Criar um middleware para validar o token jwt
+	//		https://github.com/HunCoding/meu-primeiro-crud-go/blob/main/src/model/user_token_domain.go#L67
+
 	router.HandleFunc("/clients", handler.ListClients).Methods(http.MethodGet, http.MethodOptions)
 	router.HandleFunc("/clients/{id}", handler.GetClientByID).Methods(http.MethodGet)
 	router.HandleFunc("/clients/name/{name}", handler.GetClient).Methods(http.MethodGet)
@@ -153,6 +157,10 @@ func NewHTTPRouterClient(
 	router.HandleFunc("/loans", handler.CreateLoan).Methods(http.MethodPost)
 	router.HandleFunc("/loans/{id}", handler.UpdateLoan).Methods(http.MethodPut)
 	router.HandleFunc("/loans/{id}/payment-status", handler.UpdateLoanPaymentStatus).Methods(http.MethodPatch)
+
+	router.HandleFunc("/users", handler.CreateUser).Methods(http.MethodPost) // Criar o service do usuario
+
+	router.HandleFunc("/login", handler.Login).Methods(http.MethodPost) // Criar o service do login
 
 	return router
 }
