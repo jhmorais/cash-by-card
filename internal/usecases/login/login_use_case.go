@@ -10,12 +10,9 @@ package login
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"github.com/jhmorais/cash-by-card/internal/contracts"
-	"github.com/jhmorais/cash-by-card/internal/domain/entities"
 	input "github.com/jhmorais/cash-by-card/internal/ports/input/user"
-	output "github.com/jhmorais/cash-by-card/internal/ports/output/user"
 	repositories "github.com/jhmorais/cash-by-card/internal/repositories/user"
 	"github.com/jhmorais/cash-by-card/utils"
 )
@@ -24,54 +21,38 @@ type loginUseCase struct {
 	userRepository repositories.UserRepository
 }
 
-func NewLoginUseCase(userRepository repositories.UserRepository) contracts.CreateUserUseCase {
+func NewLoginUseCase(userRepository repositories.UserRepository) contracts.LoginUseCase {
 
 	return &loginUseCase{
 		userRepository: userRepository,
 	}
 }
 
-func (c *loginUseCase) Execute(ctx context.Context, loginUser *input.CreateUser) (*output.CreateUser, error) {
+func (c *loginUseCase) Execute(ctx context.Context, loginUser *input.UserLogin) (string, error) {
 
 	if loginUser.Email == "" {
-		return nil, fmt.Errorf("cannot login without email")
+		return "", fmt.Errorf("cannot login without email")
 	}
 
 	if loginUser.Role != "admin" && loginUser.Role != "regular" {
-		return nil, fmt.Errorf("cannot login without valid role")
-	}
-
-	if len(loginUser.Password) < 6 {
-		return nil, fmt.Errorf("cannot login without valid password")
+		return "", fmt.Errorf("cannot login without valid role")
 	}
 
 	hashUser := utils.EncryptPassword(loginUser.Password)
 
 	user, err := c.userRepository.FindUserByEmailandPassword(ctx, loginUser.Email, hashUser)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get user: %v", err)
+		return "", fmt.Errorf("failed to get user: %v", err)
 	}
 
-	if len(user) < 1 {
-		return nil, fmt.Errorf("failed, invalid inputs")
+	if user == nil {
+		return "", fmt.Errorf("failed, invalid inputs")
 	}
 
-	userEntity := &entities.User{
-		Name:      createUser.Name,
-		Email:     createUser.Email,
-		Role:      createUser.Role,
-		Password:  hashUser,
-		CreatedAt: time.Now(),
-	}
-
-	err = c.userRepository.CreateUser(ctx, userEntity)
+	token, err := utils.GenerateToken(*loginUser)
 	if err != nil {
-		return nil, fmt.Errorf("cannot save user at database: %v", err)
+		return "", fmt.Errorf("failed to generate token: %v", err)
 	}
 
-	createUserOutput := &output.CreateUser{
-		UserID: userEntity.ID,
-	}
-
-	return createUserOutput, nil
+	return token, nil
 }

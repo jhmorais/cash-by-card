@@ -3,12 +3,16 @@ package utils
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
 	"net/url"
+	"os"
 
+	"github.com/golang-jwt/jwt"
 	"github.com/gorilla/mux"
+	input "github.com/jhmorais/cash-by-card/internal/ports/input/user"
 )
 
 const (
@@ -29,8 +33,36 @@ func CommonMiddleware(next http.Handler) http.Handler {
 
 func ValidateJwtTokenMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// chamar o metodo para validar o jwt token
-		w.Header().Get("jwt") // nome do campo do token, ULTIMO passo
+		secret := os.Getenv(JWT_SECRET_KEY)
+		tokenValue := RemoveBearerPrefix(r.Header.Get("Authorization"))
+
+		token, err := jwt.Parse(tokenValue, func(token *jwt.Token) (interface{}, error) {
+			if _, ok := token.Method.(*jwt.SigningMethodHMAC); ok {
+				return []byte(secret), nil
+			}
+
+			return nil, errors.New("invalid token")
+		})
+		if err != nil {
+			WriteErrModel(w, http.StatusNotFound,
+				NewErrorResponse(fmt.Sprintf("failed to parse token, error: '%s'", err)))
+			return
+		}
+
+		claims, ok := token.Claims.(jwt.MapClaims)
+		if !ok || !token.Valid {
+			WriteErrModel(w, http.StatusNotFound,
+				NewErrorResponse(fmt.Sprintf("failed to claims token, error: '%s'", errors.New("invalid token"))))
+			return
+		}
+
+		userDomain := input.UserLogin{
+			ID:    claims["id"].(int),
+			Email: claims["email"].(string),
+			Role:  claims["role"].(string),
+		}
+		fmt.Printf("User authenticated: %#v", userDomain)
+		// w.Header().Get("jwt") // nome do campo do token, ULTIMO passo
 		next.ServeHTTP(w, r)
 	})
 }

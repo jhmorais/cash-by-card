@@ -5,6 +5,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/jhmorais/cash-by-card/internal/contracts"
+	"github.com/jhmorais/cash-by-card/internal/infra/di"
 	"github.com/jhmorais/cash-by-card/utils"
 )
 
@@ -45,74 +46,47 @@ type Handler struct {
 	UpdateLoanUseCase              contracts.UpdateLoanUseCase
 	ListLoanUseCase                contracts.ListLoanUseCase
 	UpdateLoanPaymentStatusUseCase contracts.UpdateLoanPaymentStatusUseCase
+
+	CreateUserUseCase                 contracts.CreateUserUseCase
+	LoginUseCase                      contracts.LoginUseCase
+	FindUserByEmailAndPasswordUseCase contracts.FindUserByEmailAndPasswordUseCase
 }
 
 func NewHTTPRouterClient(
-	createClientUseCase contracts.CreateClientUseCase,
-	deleteClientUseCase contracts.DeleteClientUseCase,
-	findClientByIDUseCase contracts.FindClientByIDUseCase,
-	findClientByBrandUseCase contracts.FindClientByNameUseCase,
-	listClientUseCase contracts.ListClientUseCase,
-	updateClientUseCase contracts.UpdateClientUseCase,
-	createPartnerUseCase contracts.CreatePartnerUseCase,
-	deletePartnerUseCase contracts.DeletePartnerUseCase,
-	findPartnerByIDUseCase contracts.FindPartnerByIDUseCase,
-	findPartnerByBrandUseCase contracts.FindPartnerByNameUseCase,
-	listPartnerUseCase contracts.ListPartnerUseCase,
-	updatePartnerUseCase contracts.UpdatePartnerUseCase,
-	createCardUseCase contracts.CreateCardUseCase,
-	deleteCardUseCase contracts.DeleteCardUseCase,
-	findCardByIDUseCase contracts.FindCardByIDUseCase,
-	findCardByLoanIDUseCase contracts.FindCardByLoanIDUseCase,
-	updateCardUseCase contracts.UpdateCardUseCase,
-	listCardUseCase contracts.ListCardUseCase,
-	createCardMachineUseCase contracts.CreateCardMachineUseCase,
-	deleteCardMachineUseCase contracts.DeleteCardMachineUseCase,
-	findCardMachineByIDUseCase contracts.FindCardMachineByIDUseCase,
-	updateCardMachineUseCase contracts.UpdateCardMachineUseCase,
-	listCardMachineUseCase contracts.ListCardMachineUseCase,
-	createLoanUseCase contracts.CreateLoanUseCase,
-	deleteLoanUseCase contracts.DeleteLoanUseCase,
-	findLoanByIDUseCase contracts.FindLoanByIDUseCase,
-	findLoanByClientIDUseCase contracts.FindLoanByClientIDUseCase,
-	findLoanByParnterIDUseCase contracts.FindLoanByParnterIDUseCase,
-	updateLoanUseCase contracts.UpdateLoanUseCase,
-	listLoanUseCase contracts.ListLoanUseCase,
-	updateLoanPaymentStatusUseCase contracts.UpdateLoanPaymentStatusUseCase,
+	useCases di.Usecases,
 ) *mux.Router {
 	router := mux.NewRouter()
 	handler := Handler{
-		CreateClientUseCase:            createClientUseCase,
-		DeleteClientUseCase:            deleteClientUseCase,
-		FindClientByIDUseCase:          findClientByIDUseCase,
-		FindClientByNameUseCase:        findClientByBrandUseCase,
-		ListClientUseCase:              listClientUseCase,
-		UpdateClientUseCase:            updateClientUseCase,
-		CreatePartnerUseCase:           createPartnerUseCase,
-		DeletePartnerUseCase:           deletePartnerUseCase,
-		FindPartnerByIDUseCase:         findPartnerByIDUseCase,
-		FindPartnerByNameUseCase:       findPartnerByBrandUseCase,
-		ListPartnerUseCase:             listPartnerUseCase,
-		UpdatePartnerUseCase:           updatePartnerUseCase,
-		CreateCardUseCase:              createCardUseCase,
-		DeleteCardUseCase:              deleteCardUseCase,
-		FindCardByIDUseCase:            findCardByIDUseCase,
-		FindCardByLoanIDUseCase:        findCardByLoanIDUseCase,
-		UpdateCardUseCase:              updateCardUseCase,
-		ListCardUseCase:                listCardUseCase,
-		CreateCardMachineUseCase:       createCardMachineUseCase,
-		DeleteCardMachineUseCase:       deleteCardMachineUseCase,
-		FindCardMachineByIDUseCase:     findCardMachineByIDUseCase,
-		UpdateCardMachineUseCase:       updateCardMachineUseCase,
-		ListCardMachineUseCase:         listCardMachineUseCase,
-		CreateLoanUseCase:              createLoanUseCase,
-		DeleteLoanUseCase:              deleteLoanUseCase,
-		FindLoanByIDUseCase:            findLoanByIDUseCase,
-		FindLoanByClientIDUseCase:      findLoanByClientIDUseCase,
-		FindLoanByParnterIDUseCase:     findLoanByParnterIDUseCase,
-		UpdateLoanUseCase:              updateLoanUseCase,
-		ListLoanUseCase:                listLoanUseCase,
-		UpdateLoanPaymentStatusUseCase: updateLoanPaymentStatusUseCase,
+		CreateClientUseCase:            useCases.CreateClientUseCase,
+		DeleteClientUseCase:            useCases.DeleteClientUseCase,
+		FindClientByIDUseCase:          useCases.FindClientByIDUseCase,
+		FindClientByNameUseCase:        useCases.FindClientByNameUseCase,
+		ListClientUseCase:              useCases.ListClientUseCase,
+		UpdateClientUseCase:            useCases.UpdateClientUseCase,
+		CreatePartnerUseCase:           useCases.CreatePartnerUseCase,
+		DeletePartnerUseCase:           useCases.DeletePartnerUseCase,
+		FindPartnerByIDUseCase:         useCases.FindPartnerByIDUseCase,
+		FindPartnerByNameUseCase:       useCases.FindPartnerByNameUseCase,
+		ListPartnerUseCase:             useCases.ListPartnerUseCase,
+		UpdatePartnerUseCase:           useCases.UpdatePartnerUseCase,
+		CreateCardUseCase:              useCases.CreateCardUseCase,
+		DeleteCardUseCase:              useCases.DeleteCardUseCase,
+		FindCardByIDUseCase:            useCases.FindCardByIDUseCase,
+		FindCardByLoanIDUseCase:        useCases.FindCardByLoanIDUseCase,
+		UpdateCardUseCase:              useCases.UpdateCardUseCase,
+		ListCardUseCase:                useCases.ListCardUseCase,
+		CreateCardMachineUseCase:       useCases.CreateCardMachineUseCase,
+		DeleteCardMachineUseCase:       useCases.DeleteCardMachineUseCase,
+		FindCardMachineByIDUseCase:     useCases.FindCardMachineByIDUseCase,
+		UpdateCardMachineUseCase:       useCases.UpdateCardMachineUseCase,
+		ListCardMachineUseCase:         useCases.ListCardMachineUseCase,
+		CreateLoanUseCase:              useCases.CreateLoanUseCase,
+		DeleteLoanUseCase:              useCases.DeleteLoanUseCase,
+		FindLoanByIDUseCase:            useCases.FindLoanByIDUseCase,
+		FindLoanByParnterIDUseCase:     useCases.FindLoanByParnterIDUseCase,
+		UpdateLoanUseCase:              useCases.UpdateLoanUseCase,
+		ListLoanUseCase:                useCases.ListLoanUseCase,
+		UpdateLoanPaymentStatusUseCase: useCases.UpdateLoanPaymentStatusUseCase,
 	}
 	router.UseEncodedPath()
 	router.Use(utils.CommonMiddleware)
@@ -159,8 +133,7 @@ func NewHTTPRouterClient(
 	router.HandleFunc("/loans/{id}/payment-status", handler.UpdateLoanPaymentStatus).Methods(http.MethodPatch)
 
 	router.HandleFunc("/users", handler.CreateUser).Methods(http.MethodPost) // Criar o service do usuario
-
-	router.HandleFunc("/login", handler.Login).Methods(http.MethodPost) // Criar o service do login
+	router.HandleFunc("/login", handler.LoginUser).Methods(http.MethodPost)  // Criar o service do login
 
 	return router
 }

@@ -9,11 +9,14 @@ import (
 	repoClient "github.com/jhmorais/cash-by-card/internal/repositories/client"
 	repoLoan "github.com/jhmorais/cash-by-card/internal/repositories/loan"
 	repoPartner "github.com/jhmorais/cash-by-card/internal/repositories/partner"
+	repoUser "github.com/jhmorais/cash-by-card/internal/repositories/user"
 	"github.com/jhmorais/cash-by-card/internal/usecases/card"
 	"github.com/jhmorais/cash-by-card/internal/usecases/cardMachine"
 	"github.com/jhmorais/cash-by-card/internal/usecases/client"
 	"github.com/jhmorais/cash-by-card/internal/usecases/loan"
+	"github.com/jhmorais/cash-by-card/internal/usecases/login"
 	"github.com/jhmorais/cash-by-card/internal/usecases/partner"
+	"github.com/jhmorais/cash-by-card/internal/usecases/user"
 	"gorm.io/gorm"
 )
 
@@ -29,6 +32,7 @@ type Repositories struct {
 	CardRepository        repoCard.CardRepository
 	CardMachineRepository repoCardMachine.CardMachineRepository
 	LoanRepository        repoLoan.LoanRepository
+	UserRepository        repoUser.UserRepository
 }
 
 type Usecases struct {
@@ -69,6 +73,10 @@ type Usecases struct {
 	FindLoanByClientIDUseCase      contracts.FindLoanByClientIDUseCase
 	FindLoanByParnterIDUseCase     contracts.FindLoanByParnterIDUseCase
 	UpdateLoanPaymentStatusUseCase contracts.UpdateLoanPaymentStatusUseCase
+
+	CreateUserUseCase                 contracts.CreateUserUseCase
+	LoginUseCase                      contracts.LoginUseCase
+	FindUserByEmailAndPasswordUseCase contracts.FindUserByEmailAndPasswordUseCase
 }
 
 func NewBuild() *DenpencyBuild {
@@ -97,6 +105,7 @@ func (d *DenpencyBuild) buildRepositories() *DenpencyBuild {
 	d.Repositories.CardRepository = repoCard.NewCardRepository(d.DB)
 	d.Repositories.CardMachineRepository = repoCardMachine.NewCardMachineRepository(d.DB)
 	d.Repositories.LoanRepository = repoLoan.NewLoanRepository(d.DB)
+	d.Repositories.UserRepository = repoUser.NewUserRepository(d.DB)
 
 	return d
 }
@@ -139,6 +148,10 @@ func (d *DenpencyBuild) buildUseCases() *DenpencyBuild {
 	d.Usecases.UpdateLoanUseCase = loan.NewUpdateLoanUseCase(d.Repositories.LoanRepository)
 	d.Usecases.CreateLoanUseCase = loan.NewCreateLoanUseCase(d.Repositories.LoanRepository, d.Usecases.CreateCardUseCase)
 	d.Usecases.UpdateLoanPaymentStatusUseCase = loan.NewUpdateLoanPaymentStatusUseCase(d.Repositories.LoanRepository)
+
+	d.Usecases.CreateUserUseCase = user.NewCreateUserUseCase(d.Repositories.UserRepository)
+	d.Usecases.FindUserByEmailAndPasswordUseCase = user.NewFindUserByEmailAndPasswordUseCase(d.Repositories.UserRepository)
+	d.Usecases.LoginUseCase = login.NewLoginUseCase(d.Repositories.UserRepository)
 
 	return d
 }

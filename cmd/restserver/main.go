@@ -20,37 +20,7 @@ func main() {
 	dependencies := di.NewBuild()
 
 	router := services.NewHTTPRouterClient(
-		dependencies.Usecases.CreateClientUseCase,
-		dependencies.Usecases.DeleteClientUseCase,
-		dependencies.Usecases.FindClientByIDUseCase,
-		dependencies.Usecases.FindClientByNameUseCase,
-		dependencies.Usecases.ListClientUseCase,
-		dependencies.Usecases.UpdateClientUseCase,
-		dependencies.Usecases.CreatePartnerUseCase,
-		dependencies.Usecases.DeletePartnerUseCase,
-		dependencies.Usecases.FindPartnerByIDUseCase,
-		dependencies.Usecases.FindPartnerByNameUseCase,
-		dependencies.Usecases.ListPartnerUseCase,
-		dependencies.Usecases.UpdatePartnerUseCase,
-		dependencies.Usecases.CreateCardUseCase,
-		dependencies.Usecases.DeleteCardUseCase,
-		dependencies.Usecases.FindCardByIDUseCase,
-		dependencies.Usecases.FindCardByLoanIDUseCase,
-		dependencies.Usecases.UpdateCardUseCase,
-		dependencies.Usecases.ListCardUseCase,
-		dependencies.Usecases.CreateCardMachineUseCase,
-		dependencies.Usecases.DeleteCardMachineUseCase,
-		dependencies.Usecases.FindCardMachineByIDUseCase,
-		dependencies.Usecases.UpdateCardMachineUseCase,
-		dependencies.Usecases.ListCardMachineUseCase,
-		dependencies.Usecases.CreateLoanUseCase,
-		dependencies.Usecases.DeleteLoanUseCase,
-		dependencies.Usecases.FindLoanByIDUseCase,
-		dependencies.Usecases.FindLoanByClientIDUseCase,
-		dependencies.Usecases.FindLoanByParnterIDUseCase,
-		dependencies.Usecases.UpdateLoanUseCase,
-		dependencies.Usecases.ListLoanUseCase,
-		dependencies.Usecases.UpdateLoanPaymentStatusUseCase,
+		dependencies.Usecases,
 	)
 
 	http.Handle("/", &MyServer{router})

@@ -20,19 +20,22 @@ func NewFindUserByEmailAndPasswordUseCase(userRepository repositories.UserReposi
 	}
 }
 
-func (c *findUserByEmailAndPasswordUseCase) Execute(ctx context.Context, email string, password string) (*output.ListUser, error) {
+func (c *findUserByEmailAndPasswordUseCase) Execute(ctx context.Context, email string, password string) (*output.FindUser, error) {
 
 	userEntity, err := c.userRepository.FindUserByEmailandPassword(ctx, email, password)
 	if err != nil {
 		return nil, fmt.Errorf("erro to find user with email: '%s' at database: '%v'", email, err)
 	}
 
-	if len(userEntity) == 0 {
+	if userEntity == nil {
 		return nil, fmt.Errorf("user not found")
 	}
 
-	output := &output.ListUser{
-		Users: userEntity,
+	output := &output.FindUser{
+		ID:    userEntity.ID,
+		Email: userEntity.Email,
+		Name:  userEntity.Name,
+		Role:  userEntity.Role,
 	}
 
 	return output, nil

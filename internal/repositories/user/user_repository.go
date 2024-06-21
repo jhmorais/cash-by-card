@@ -62,13 +62,13 @@ func (d *userRepository) FindUserByEmail(ctx context.Context, email string) ([]*
 	return entity, err
 }
 
-func (d *userRepository) FindUserByEmailandPassword(ctx context.Context, email string, password string) ([]*entities.User, error) {
-	var entity []*entities.User
+func (d *userRepository) FindUserByEmailandPassword(ctx context.Context, email string, password string) (*entities.User, error) {
+	var entity *entities.User
 
 	err := d.db.
 		Preload(clause.Associations).
 		Where("email = ? AND password = ?", email, password).
-		Limit(100).
+		Limit(1).
 		Find(&entity).Error
 
 	return entity, err
