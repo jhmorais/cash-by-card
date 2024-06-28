@@ -77,6 +77,7 @@ type Usecases struct {
 	CreateUserUseCase                 contracts.CreateUserUseCase
 	LoginUseCase                      contracts.LoginUseCase
 	FindUserByEmailAndPasswordUseCase contracts.FindUserByEmailAndPasswordUseCase
+	ListUserUseCase                   contracts.ListUserUseCase
 }
 
 func NewBuild() *DenpencyBuild {

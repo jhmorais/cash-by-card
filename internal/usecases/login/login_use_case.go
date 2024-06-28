@@ -34,10 +34,6 @@ func (c *loginUseCase) Execute(ctx context.Context, loginUser *input.UserLogin) 
 		return "", fmt.Errorf("cannot login without email")
 	}
 
-	if loginUser.Role != "admin" && loginUser.Role != "regular" {
-		return "", fmt.Errorf("cannot login without valid role")
-	}
-
 	hashUser := utils.EncryptPassword(loginUser.Password)
 
 	user, err := c.userRepository.FindUserByEmailandPassword(ctx, loginUser.Email, hashUser)

@@ -18,7 +18,6 @@ func GenerateToken(user input.UserLogin) (string, error) {
 	claims := jwt.MapClaims{
 		"id":    user.ID,
 		"email": user.Email,
-		"role":  user.Role,
 		"exp":   time.Now().Add(time.Hour * 24).Unix(),
 	}
 

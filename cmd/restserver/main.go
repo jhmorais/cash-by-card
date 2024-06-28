@@ -21,6 +21,7 @@ func main() {
 
 	router := services.NewHTTPRouterClient(
 		dependencies.Usecases,
+		dependencies.Repositories,
 	)
 
 	http.Handle("/", &MyServer{router})

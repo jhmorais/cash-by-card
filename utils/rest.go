@@ -2,6 +2,7 @@ package utils
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -12,7 +13,7 @@ import (
 
 	"github.com/golang-jwt/jwt"
 	"github.com/gorilla/mux"
-	input "github.com/jhmorais/cash-by-card/internal/ports/input/user"
+	repositories "github.com/jhmorais/cash-by-card/internal/repositories/user"
 )
 
 const (
@@ -23,6 +24,12 @@ type ErrorModel struct {
 	Message string `json:"message"`
 	Type    string `json:"type"`
 }
+
+type contextKey string
+
+const (
+	emailKey = contextKey("email")
+)
 
 func CommonMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -56,15 +63,39 @@ func ValidateJwtTokenMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		userDomain := input.UserLogin{
-			ID:    claims["id"].(int),
-			Email: claims["email"].(string),
-			Role:  claims["role"].(string),
+		email, ok := claims["email"].(string)
+		if !ok {
+			WriteErrModel(w, http.StatusUnauthorized,
+				NewErrorResponse("invalid token claims"))
+			return
 		}
-		fmt.Printf("User authenticated: %#v", userDomain)
-		// w.Header().Get("jwt") // nome do campo do token, ULTIMO passo
-		next.ServeHTTP(w, r)
+		ctx := context.WithValue(r.Context(), emailKey, email)
+		next.ServeHTTP(w, r.WithContext(ctx))
 	})
+}
+
+func RoleMiddleware(requiredRole string, userRepo repositories.UserRepository) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			email := r.Context().Value("email").(string)
+			ctx := context.Background()
+
+			user, err := userRepo.FindUserByEmail(ctx, email)
+			if err != nil {
+				WriteErrModel(w, http.StatusUnauthorized,
+					NewErrorResponse("user not found"))
+				return
+			}
+
+			if user.Role != requiredRole {
+				WriteErrModel(w, http.StatusForbidden,
+					NewErrorResponse("forbidden"))
+				return
+			}
+
+			next.ServeHTTP(w, r)
+		})
+	}
 }
 
 func WriteErrModel(w http.ResponseWriter, statusCode int, errModel *ErrorModel) {

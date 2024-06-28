@@ -1,263 +1,102 @@
-INSERT INTO partner (name, cpf, pix_key, phone, address) VALUES
-('Fulano da Silva', '123.456.789-10', 'fulano@gmail.com', '(11) 1234-5678', 'Rua A, 123'),
-('Ciclano Souza', '987.654.321-98', 'ciclano@hotmail.com', '(22) 9876-5432', 'Avenida B, 456'),
-('Beltrano Oliveira', '456.789.123-45', 'beltrano@yahoo.com', '(33) 4567-8901', 'Rua C, 789');
+CREATE TABLE `partner` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `name` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `cpf` varchar(15) COLLATE utf8_unicode_ci NOT NULL,
+  `pix_key` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `phone` varchar(15) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `address` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `email` varchar(120) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `pix_type` int(11) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
-INSERT INTO client (name, cpf,  pix_key, pix_type, phone, documentos, partner_id) VALUES
-('Cliente da Silva', '123.456.789-10', 'fulano@gmail.com', 1,'(11) 1234-5678', 'text.xml' , 1),
-('Cliente Souza', '987.654.321-98', 'ciclano@hotmail.com', 2, '(22) 9876-5432','text.txt', 2),
-('Cliente Oliveira', '456.789.123-45', 'beltrano@yahoo.com', 3,  '(33) 4567-8901','documents.txt',2);
+CREATE TABLE `client` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `name` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `pix_type` int(11) NOT NULL,
+  `pix_key` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `partner_id` bigint(20) DEFAULT NULL,
+  `documents` varchar(512) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `cpf` varchar(15) COLLATE utf8_unicode_ci NOT NULL,
+  `phone` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `partner_id` (`partner_id`),
+  CONSTRAINT `client_ibfk_1` FOREIGN KEY (`partner_id`) REFERENCES `partner` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=41 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
-INSERT INTO `database`.loan
-(client_id, ask_value, number_cards, amount, partner_id, gross_profit, profit, `type`, client_amount, payment_status, partner_percent, partner_amount, operation_percent)
-VALUES(4, 10000, 2, 11000, 1, 1050, 950, 1, 9000, 'pending', 10, 100, 10);
+CREATE TABLE `card` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `payment_type` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `value` float NOT NULL,
+  `brand` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `installments` int(11) DEFAULT NULL,
+  `loan_id` bigint(20) NOT NULL,
+  `card_machine_id` bigint(20) NOT NULL,
+  `installments_value` float NOT NULL,
+  `card_machine_name` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `client_amount` float NOT NULL,
+  `gross_profit` float NOT NULL,
+  `machine_value` float DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `card_machine_id` (`card_machine_id`),
+  KEY `card_ibfk_1` (`loan_id`),
+  CONSTRAINT `card_ibfk_1` FOREIGN KEY (`loan_id`) REFERENCES `loan` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `card_ibfk_2` FOREIGN KEY (`card_machine_id`) REFERENCES `card_machine` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=46 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
-INSERT INTO `database`.card_machine (brand, presential_tax, online_tax, installments, name)
-VALUES ('[\'mastercard\',\'visa\' ]', '{"1": 1.2, "2": 2.2, "3": 3.2, "4": 4.2, "5": 5.2, "6": 6.2, "7": 7.2, "8": 8.2, "9": 9.2, "10": 1.2}', '{"1": 1.2, "2": 2.2, "3": 3.2, "4": 4.2, "5": 5.2, "6": 6.2, "7": 7.2, "8": 8.2, "9": 9.2, "10": 1.2}', 18, 'maquininha-1');
+CREATE TABLE `card_machine` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `brand` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `presential_tax` json NOT NULL,
+  `online_tax` json NOT NULL,
+  `installments` int(11) NOT NULL,
+  `name` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
-INSERT INTO `database`.card
-(payment_type, value, brand, installments, loan_id, card_machine_id, installments_value, card_machine_name)
-VALUES('present', 1000, '[\'mastercard\',\'visa\' ]', 10, 2, 1, 100, 'maquininha 1');
+CREATE TABLE `loan` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `client_id` bigint(20) NOT NULL,
+  `ask_value` float NOT NULL,
+  `number_cards` int(11) NOT NULL,
+  `amount` float NOT NULL,
+  `partner_id` bigint(20) DEFAULT NULL,
+  `gross_profit` float NOT NULL,
+  `profit` float NOT NULL,
+  `type` int(11) NOT NULL,
+  `client_amount` float NOT NULL,
+  `payment_status` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `partner_percent` float DEFAULT NULL,
+  `partner_amount` float DEFAULT NULL,
+  `operation_percent` float DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `client_id` (`client_id`),
+  KEY `partner_id` (`partner_id`),
+  CONSTRAINT `loan_ibfk_1` FOREIGN KEY (`client_id`) REFERENCES `client` (`id`),
+  CONSTRAINT `loan_ibfk_2` FOREIGN KEY (`partner_id`) REFERENCES `partner` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
-CREATE TABLE database.client (
-	id BIGINT auto_increment NOT NULL primary key,
-	name VARCHAR(100) NOT NULL,
-	pix_type INT NOT NULL,
-	pix_key varchar(100) NOT NULL,
-	partner_id BIGINT NULL,
-	documentos varchar(100) NULL,
-	FOREIGN KEY (partner_id) REFERENCES partner(id)
-)
-ENGINE=InnoDB
-DEFAULT CHARSET=utf8
-COLLATE=utf8_unicode_ci;
-
-
-CREATE TABLE database.partner (
-	id BIGINT auto_increment NOT NULL primary key,
-	name VARCHAR(100) NOT NULL,
-	cpf VARCHAR(15) NOT NULL,
-	pix_key varchar(100) NULL,
-	phone VARCHAR(15) NULL,
-	address varchar(100) NULL
-)
-ENGINE=InnoDB
-DEFAULT CHARSET=utf8
-COLLATE=utf8_unicode_ci;
-
-CREATE TABLE database.card_machine (
-	id BIGINT auto_increment NOT NULL primary key,
-	brand VARCHAR(100) NOT NULL,
-	presential_tax FLOAT NOT NULL,
-	online_tax FLOAT NOT NULL,
-	installments INT NOT NULL
-)
-ENGINE=InnoDB
-DEFAULT CHARSET=utf8
-COLLATE=utf8_unicode_ci;
-
-CREATE TABLE database.loan (
-	id BIGINT auto_increment NOT NULL primary key,
-	client_id BIGINT NOT NULL,
-	ask_value FLOAT NOT NULL,
-	number_cards FLOAT NOT NULL,
-	card_machine_id BIGINT NOT NULL,
-	amount FLOAT NOT NULL,
-	partner_id BIGINT NOT NULL,
-	gross_value FLOAT NOT NULL,
-	partner_amount FLOAT NOT NULL,
-	profit FLOAT NOT NULL,
-	FOREIGN KEY (client_id) REFERENCES client(id),
-	FOREIGN KEY (partner_id) REFERENCES partner(id),
-	FOREIGN KEY (card_machine_id) REFERENCES card_machine(id)
-)
-ENGINE=InnoDB
-DEFAULT CHARSET=utf8
-COLLATE=utf8_unicode_ci;
-
-CREATE TABLE database.card (
-	id BIGINT auto_increment NOT NULL primary key,
-	payment_type VARCHAR(100) NOT NULL,
-	value FLOAT NOT NULL,
-	brand VARCHAR(100) NULL,
-	installments INT NULL,
-	loan_id BIGINT NOT NULL,
-	card_machine_id BIGINT NOT NULL,
-	FOREIGN KEY (loan_id) REFERENCES loan(id),
-	FOREIGN KEY (card_machine_id) REFERENCES card_machine(id)
-)
-ENGINE=InnoDB
-DEFAULT CHARSET=utf8
-COLLATE=utf8_unicode_ci;
-
-alter table database.client add column phone VARCHAR(15) NULL;
-alter table database.client add column cpf VARCHAR(15) NULL;
-alter table database.partner add column email VARCHAR(120) NULL;
-alter table database.partner add column pix_type INT NULL;
-ALTER TABLE database.partner CHANGE pixType pix_type int(11) NULL;
-
-ALTER TABLE `database`.card ADD installments_value FLOAT NOT NULL;
-ALTER TABLE `database`.card ADD card_machine_name varchar(100) NOT NULL;
-
-ALTER TABLE `database`.card_machine ADD name varchar(100) NOT NULL;
-ALTER TABLE `database`.card_machine MODIFY COLUMN presential_tax json NOT NULL;
-ALTER TABLE `database`.card_machine MODIFY COLUMN online_tax json NOT NULL;
-
-ALTER TABLE `database`.client ADD phone varchar(100) NOT NULL;
-ALTER TABLE `database`.client MODIFY COLUMN cpf varchar(15) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL;
-
-ALTER TABLE `database`.loan MODIFY COLUMN number_cards INT NOT NULL;
-ALTER TABLE `database`.loan ADD `type` INT NOT NULL;
-ALTER TABLE `database`.loan ADD client_amount FLOAT NOT NULL;
-ALTER TABLE `database`.loan ADD payment_status VARCHAR(100) NOT NULL;
-ALTER TABLE `database`.loan ADD partner_percent FLOAT NOT NULL;
-ALTER TABLE `database`.loan ADD partner_amount FLOAT NOT NULL;
-
-ALTER TABLE `database`.loan CHANGE gross_value gross_profit float NOT NULL;
-ALTER TABLE `database`.loan ADD operation_percent FLOAT NULL;
-ALTER TABLE `database`.loan DROP INDEX card_machine_id;
-ALTER TABLE `database`.loan DROP COLUMN card_machine_id;
+CREATE TABLE `user` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `email` varchar(100) NOT NULL,
+  `name` varchar(100) NOT NULL,
+  `password` varchar(100) NOT NULL,
+  `role` varchar(100) NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `user_unique` (`email`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 
-uniao das alterações na criação das tabelas
 
-CREATE TABLE database.partner (
-	id BIGINT auto_increment NOT NULL primary key,
-	name VARCHAR(100) NOT NULL,
-	cpf VARCHAR(15) NOT NULL,
-	pix_key varchar(100) NULL,
-	phone VARCHAR(15) NULL,
-	address varchar(100) NULL,
-	email VARCHAR(120) NULL,
-	pix_type INT NULL,
-	created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-	updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-)
-ENGINE=InnoDB
-DEFAULT CHARSET=utf8
-COLLATE=utf8_unicode_ci;
-
-CREATE TABLE database.client (
-	id BIGINT auto_increment NOT NULL primary key,
-	name VARCHAR(100) NOT NULL,
-	pix_type INT NOT NULL,
-	pix_key varchar(100) NOT NULL,
-	partner_id BIGINT NULL,
-	documentos varchar(512) NULL,
-	phone VARCHAR(15) NULL,
-	cpf varchar(15) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
-	created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-	updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-	FOREIGN KEY (partner_id) REFERENCES partner(id)
-)
-ENGINE=InnoDB
-DEFAULT CHARSET=utf8
-COLLATE=utf8_unicode_ci;
-
-CREATE TABLE database.card_machine (
-	id BIGINT auto_increment NOT NULL primary key,
-	brand VARCHAR(100) NOT NULL,
-	presential_tax json NOT NULL,
-	online_tax json NOT NULL,
-	installments INT NOT NULL,
-	name varchar(100) NOT NULL,
-	created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-	updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-)
-ENGINE=InnoDB
-DEFAULT CHARSET=utf8
-COLLATE=utf8_unicode_ci;
-
-CREATE TABLE database.loan (
-	id BIGINT auto_increment NOT NULL primary key,
-	client_id BIGINT NOT NULL,
-	ask_value FLOAT NOT NULL,
-	amount FLOAT NOT NULL,
-	partner_id BIGINT NOT NULL,
-	gross_profit FLOAT NOT NULL,
-	partner_amount FLOAT NOT NULL,
-	partner_percent FLOAT NOT NULL,
-	profit FLOAT NOT NULL,
-	type INT NOT NULL,
-	number_cards INT NOT NULL,
-	client_amount FLOAT NOT NULL,
-	payment_status VARCHAR(100) NOT NULL,
-	operation_percent FLOAT NULL,
-	created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-	updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-	FOREIGN KEY (client_id) REFERENCES client(id),
-	FOREIGN KEY (partner_id) REFERENCES partner(id)
-)
-ENGINE=InnoDB
-DEFAULT CHARSET=utf8
-COLLATE=utf8_unicode_ci;
-
-CREATE TABLE database.card (
-	id BIGINT auto_increment NOT NULL primary key,
-	payment_type VARCHAR(100) NOT NULL,
-	value FLOAT NOT NULL,
-	brand VARCHAR(100) NULL,
-	installments INT NULL,
-	installments_value FLOAT NULL,
-	machine_value FLOAT NULL,
-	client_amount FLOAT NULL,
-	gross_profit FLOAT NULL,
-	card_machine_name varchar(100) NOT NULL,
-	loan_id BIGINT NOT NULL,
-	card_machine_id BIGINT NOT NULL,
-	created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-	updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-	FOREIGN KEY (loan_id) REFERENCES loan(id),
-	FOREIGN KEY (card_machine_id) REFERENCES card_machine(id)
-)
-ENGINE=InnoDB
-DEFAULT CHARSET=utf8
-COLLATE=utf8_unicode_ci;
-
-insert nas tabelas
-
-INSERT INTO database.partner (name, cpf, pix_key, phone, address, email, pix_type)
-VALUES
-('João da Silva', '123.456.789-00', 'pixjoao@example.com', '(11) 99999-9999', 'Rua das Flores, 123', 'joao@example.com', 1),
-('Maria Souza', '987.654.321-00', 'pixmaria@example.com', '(22) 88888-8888', 'Avenida dos Sonhos, 456', 'maria@example.com', 2),
-('Pedro Oliveira', '456.789.012-34', 'pixpedro@example.com', '(33) 77777-7777', 'Travessa das Árvores, 789', 'pedro@example.com', 1);
-
-INSERT INTO database.client (name, pix_type, pix_key, partner_id, documentos, phone, cpf)
-VALUES
-('Ana Silva', 1, 'anapix@example.com', 1, '123456789', '(11) 99999-9999', '123.456.789-00'),
-('Bruno Oliveira', 2, 'brunopix@example.com', 2, '987654321', '(22) 88888-8888', '987.654.321-00'),
-('Carlos Souza', 1, 'carlospix@example.com', NULL, '789012345', '(33) 77777-7777', '789.012.345-67');
-
-INSERT INTO database.card_machine (brand, presential_tax, online_tax, installments, name)
-VALUES
-('[\"mastercard\",\"visa\"]',
-'{"1": 3.19, "2": 4.19, "3": 5.19, "4": 4.2, "5": 5.2, "6": 6.2, "7": 7.2, "8": 8.2, "9": 9.2, "10": 1.2}',
-'{"1": 3.49, "2": 4.49, "3": 5.49, "4": 4.2, "5": 5.2, "6": 6.2, "7": 7.2, "8": 8.2, "9": 9.2, "10": 1.2}',
-12,
-'Maquininha Mastercard'),
-('[\"mastercard\",\"visa\"]',
-'{"1": 3.29, "2": 4.29, "3": 5.29,"4": 4.2, "5": 5.2, "6": 6.2, "7": 7.2, "8": 8.2, "9": 9.2, "10": 1.2}',
-'{"1": 3.59, "2": 4.59, "3": 5.59 ,"4": 4.2, "5": 5.2, "6": 6.2, "7": 7.2, "8": 8.2, "9": 9.2, "10": 1.2}',
-12,
-'Maquininha Visa'),
-('[\"mastercard\",\"visa\",\"elo\"]',
-'{"1": 3.39, "2": 4.39, "3": 5.39, "4": 4.2, "5": 5.2, "6": 6.2, "7": 7.2, "8": 8.2, "9": 9.2, "10": 1.2}',
-'{"1": 3.69, "2": 4.69, "3": 5.69, "4": 4.2, "5": 5.2, "6": 6.2, "7": 7.2, "8": 8.2, "9": 9.2, "10": 1.2}',
-12,
-'Maquininha Elo');
-
-INSERT INTO database.loan (client_id, ask_value, amount, partner_id, gross_profit, partner_amount, partner_percent, profit, type, number_cards, client_amount, payment_status, operation_percent)
-VALUES
-(1, 5000.00, 4800.00, 1, 200.00, 4600.00, 0.95, 200.00, 1, 1, 4800.00, 'pending', 5.0),
-(2, 8000.00, 7600.00, 2, 400.00, 7200.00, 0.90, 400.00, 2, 2, 7600.00, 'paid', 5.5),
-(3, 10000.00, 9600.00, 3, 500.00, 9100.00, 0.95, 500.00, 1, 1, 9600.00, 'pending', 6.0);
-
-INSERT INTO database.card (payment_type, value, brand, installments, installments_value, card_machine_name, loan_id, card_machine_id)
-VALUES
-('present', 500.00, 'mastercard', 3, 166.67, 'Maquininha 1', 1, 1),
-('present', 300.00, 'mastercard', 5, 50, 'Maquininha 2', 2, 2),
-('online', 700.00, 'visa', 6, 116.67, 'Maquininha 3', 3, 3);
-
-ALTER TABLE database.card DROP FOREIGN KEY card_ibfk_1;
-ALTER TABLE database.card ADD CONSTRAINT card_ibfk_1 FOREIGN KEY (loan_id) REFERENCES loan(id) ON DELETE CASCADE;
-ALTER TABLE `database`.client MODIFY COLUMN documents varchar(512) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL;

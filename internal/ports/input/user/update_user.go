@@ -5,5 +5,5 @@ type UpdateUser struct {
 	Email    string `json:"email"`
 	Name     string `json:"name"`
 	Password string `json:"-"`
-	Role     string `json:"role"`
+	// Role     string `json:"role"`
 }

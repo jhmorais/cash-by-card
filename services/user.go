@@ -11,25 +11,25 @@ import (
 	"github.com/jhmorais/cash-by-card/utils"
 )
 
-// func (h *Handler) ListUsers(w http.ResponseWriter, r *http.Request) {
-// 	ctx := context.Background()
-// 	response, err := h.ListClientUseCase.Execute(ctx)
-// 	if err != nil {
-// 		utils.WriteErrModel(w, http.StatusNotFound,
-// 			utils.NewErrorResponse(fmt.Sprintf("failed to get users, error: '%s'", err.Error())))
-// 		return
-// 	}
+func (h *Handler) ListUsers(w http.ResponseWriter, r *http.Request) {
+	ctx := context.Background()
+	response, err := h.ListClientUseCase.Execute(ctx)
+	if err != nil {
+		utils.WriteErrModel(w, http.StatusNotFound,
+			utils.NewErrorResponse(fmt.Sprintf("failed to get users, error: '%s'", err.Error())))
+		return
+	}
 
-// 	jsonResponse, err := json.Marshal(response)
-// 	if err != nil {
-// 		utils.WriteErrModel(w, http.StatusInternalServerError,
-// 			utils.NewErrorResponse("Failed to marshal user response"))
-// 		return
-// 	}
+	jsonResponse, err := json.Marshal(response)
+	if err != nil {
+		utils.WriteErrModel(w, http.StatusInternalServerError,
+			utils.NewErrorResponse("Failed to marshal user response"))
+		return
+	}
 
-// 	w.WriteHeader(http.StatusOK)
-// 	fmt.Fprint(w, string(jsonResponse))
-// }
+	w.WriteHeader(http.StatusOK)
+	fmt.Fprint(w, string(jsonResponse))
+}
 
 // func (h *Handler) GetUserByID(w http.ResponseWriter, r *http.Request) {
 // 	ctx := context.Background()

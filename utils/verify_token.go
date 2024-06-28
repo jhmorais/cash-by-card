@@ -30,6 +30,5 @@ func VerifyToken(tokenValue string) (*output.FindUser, error) {
 	return &output.FindUser{
 		ID:    claims["id"].(int),
 		Email: claims["email"].(string),
-		Role:  claims["role"].(string),
 	}, errors.New("invalid token")
 }

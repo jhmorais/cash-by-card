@@ -50,8 +50,8 @@ func (d *userRepository) FindUserByID(ctx context.Context, id int) (*entities.Us
 	return entity, err
 }
 
-func (d *userRepository) FindUserByEmail(ctx context.Context, email string) ([]*entities.User, error) {
-	var entity []*entities.User
+func (d *userRepository) FindUserByEmail(ctx context.Context, email string) (*entities.User, error) {
+	var entity *entities.User
 
 	err := d.db.
 		Preload(clause.Associations).
@@ -81,6 +81,7 @@ func (d *userRepository) ListUser(ctx context.Context) ([]*entities.User, error)
 	err := d.db.
 		Preload(clause.Associations).
 		Limit(100).
+		Select("id", "email", "name", "role").
 		Order("created_at desc").
 		Find(&entities).Error
 
