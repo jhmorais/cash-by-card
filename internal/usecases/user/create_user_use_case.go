@@ -55,7 +55,7 @@ func (c *createUserUseCase) Execute(ctx context.Context, createUser *input.Creat
 		return nil, fmt.Errorf("failed to get client: %v", err)
 	}
 
-	if user != nil {
+	if user.Email != "" {
 		return nil, fmt.Errorf("failed, already exists user with the same email")
 	}
 

@@ -41,7 +41,7 @@ func (c *loginUseCase) Execute(ctx context.Context, loginUser *input.UserLogin) 
 		return "", fmt.Errorf("failed to get user: %v", err)
 	}
 
-	if user == nil {
+	if user.Email == "" {
 		return "", fmt.Errorf("failed, invalid inputs")
 	}
 

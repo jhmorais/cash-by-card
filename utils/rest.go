@@ -77,7 +77,7 @@ func ValidateJwtTokenMiddleware(next http.Handler) http.Handler {
 func RoleMiddleware(requiredRole string, userRepo repositories.UserRepository) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			email := r.Context().Value("email").(string)
+			email := r.Context().Value(emailKey).(string)
 			ctx := context.Background()
 
 			user, err := userRepo.FindUserByEmail(ctx, email)

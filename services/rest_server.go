@@ -96,9 +96,13 @@ func NewHTTPRouterClient(
 	}
 	router.UseEncodedPath()
 	router.Use(utils.CommonMiddleware)
-	router.Use(utils.ValidateJwtTokenMiddleware)
 
 	adminRouter := router.PathPrefix("/admin").Subrouter()
+	publicRouter := router.PathPrefix("/public").Subrouter()
+	authRouter := router.PathPrefix("/auth").Subrouter()
+
+	publicRouter.Use(utils.ValidateJwtTokenMiddleware)
+	adminRouter.Use(utils.ValidateJwtTokenMiddleware)
 	adminRouter.Use(utils.RoleMiddleware("admin", userRepo.UserRepository))
 
 	adminRouter.HandleFunc("/clients", handler.ListClients).Methods(http.MethodGet, http.MethodOptions)
@@ -109,12 +113,12 @@ func NewHTTPRouterClient(
 	adminRouter.HandleFunc("/clients/files/{cpf}", handler.CreateClientDocuments).Methods(http.MethodPost)
 	adminRouter.HandleFunc("/clients/{id}", handler.UpdateClient).Methods(http.MethodPut)
 
-	router.HandleFunc("/partners", handler.ListPartners).Methods(http.MethodGet, http.MethodOptions)
-	router.HandleFunc("/partners/{id}", handler.GetPartnerByID).Methods(http.MethodGet)
-	router.HandleFunc("/partners/name/{name}", handler.GetPartner).Methods(http.MethodGet)
-	router.HandleFunc("/partners/{id}", handler.DeletePartner).Methods(http.MethodDelete)
-	router.HandleFunc("/partners", handler.CreatePartner).Methods(http.MethodPost)
-	router.HandleFunc("/partners/{id}", handler.UpdatePartner).Methods(http.MethodPut)
+	publicRouter.HandleFunc("/partners", handler.ListPartners).Methods(http.MethodGet, http.MethodOptions)
+	publicRouter.HandleFunc("/partners/{id}", handler.GetPartnerByID).Methods(http.MethodGet)
+	publicRouter.HandleFunc("/partners/name/{name}", handler.GetPartner).Methods(http.MethodGet)
+	publicRouter.HandleFunc("/partners/{id}", handler.DeletePartner).Methods(http.MethodDelete)
+	publicRouter.HandleFunc("/partners", handler.CreatePartner).Methods(http.MethodPost)
+	publicRouter.HandleFunc("/partners/{id}", handler.UpdatePartner).Methods(http.MethodPut)
 
 	adminRouter.HandleFunc("/cards", handler.ListCards).Methods(http.MethodGet, http.MethodOptions)
 	adminRouter.HandleFunc("/cards/{id}", handler.GetCardByID).Methods(http.MethodGet)
@@ -132,7 +136,7 @@ func NewHTTPRouterClient(
 	adminRouter.HandleFunc("/loans", handler.ListLoans).Methods(http.MethodGet, http.MethodOptions)
 	adminRouter.HandleFunc("/loans/{id}", handler.GetLoanByID).Methods(http.MethodGet)
 	adminRouter.HandleFunc("/loans/client/{clientId}", handler.GetLoanByClientID).Methods(http.MethodGet)
-	router.HandleFunc("/loans/partner/{parnterId}", handler.GetLoanByPartnerID).Methods(http.MethodGet)
+	publicRouter.HandleFunc("/loans/partner/{parnterId}", handler.GetLoanByPartnerID).Methods(http.MethodGet)
 	adminRouter.HandleFunc("/loans/{id}", handler.DeleteLoan).Methods(http.MethodDelete)
 	adminRouter.HandleFunc("/loans", handler.CreateLoan).Methods(http.MethodPost)
 	adminRouter.HandleFunc("/loans/{id}", handler.UpdateLoan).Methods(http.MethodPut)
@@ -140,7 +144,7 @@ func NewHTTPRouterClient(
 
 	adminRouter.HandleFunc("/users", handler.CreateUser).Methods(http.MethodPost) // Criar o service do usuario
 	adminRouter.HandleFunc("/users", handler.ListUsers).Methods(http.MethodGet)   // Criar o service do usuario
-	router.HandleFunc("/login", handler.LoginUser).Methods(http.MethodPost)       // Criar o service do login
+	authRouter.HandleFunc("/login", handler.LoginUser).Methods(http.MethodPost)   // Criar o service do login
 
 	return router
 }
