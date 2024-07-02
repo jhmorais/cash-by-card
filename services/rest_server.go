@@ -136,7 +136,7 @@ func NewHTTPRouterClient(
 	adminRouter.HandleFunc("/loans", handler.ListLoans).Methods(http.MethodGet, http.MethodOptions)
 	adminRouter.HandleFunc("/loans/{id}", handler.GetLoanByID).Methods(http.MethodGet)
 	adminRouter.HandleFunc("/loans/client/{clientId}", handler.GetLoanByClientID).Methods(http.MethodGet)
-	publicRouter.HandleFunc("/loans/partner/{parnterId}", handler.GetLoanByPartnerID).Methods(http.MethodGet)
+	adminRouter.HandleFunc("/loans/partner/{parnterId}", handler.GetLoanByPartnerID).Methods(http.MethodGet)
 	adminRouter.HandleFunc("/loans/{id}", handler.DeleteLoan).Methods(http.MethodDelete)
 	adminRouter.HandleFunc("/loans", handler.CreateLoan).Methods(http.MethodPost)
 	adminRouter.HandleFunc("/loans/{id}", handler.UpdateLoan).Methods(http.MethodPut)

@@ -51,14 +51,14 @@ func ValidateJwtTokenMiddleware(next http.Handler) http.Handler {
 			return nil, errors.New("invalid token")
 		})
 		if err != nil {
-			WriteErrModel(w, http.StatusNotFound,
+			WriteErrModel(w, http.StatusUnauthorized,
 				NewErrorResponse(fmt.Sprintf("failed to parse token, error: '%s'", err)))
 			return
 		}
 
 		claims, ok := token.Claims.(jwt.MapClaims)
 		if !ok || !token.Valid {
-			WriteErrModel(w, http.StatusNotFound,
+			WriteErrModel(w, http.StatusUnauthorized,
 				NewErrorResponse(fmt.Sprintf("failed to claims token, error: '%s'", errors.New("invalid token"))))
 			return
 		}
