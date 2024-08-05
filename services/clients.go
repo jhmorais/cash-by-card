@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"mime/multipart"
@@ -123,7 +124,7 @@ func (h *Handler) UpdateClient(w http.ResponseWriter, r *http.Request) {
 	response, err := h.UpdateClientUseCase.Execute(ctx, &client)
 	if err != nil {
 		utils.WriteErrModel(w, http.StatusBadRequest,
-			utils.NewErrorResponse(fmt.Sprintf("failed to update client, error:'%s'", err.Error())))
+			utils.NewErrorResponse(err.Error()))
 		return
 	}
 
@@ -155,7 +156,7 @@ func (h *Handler) DeleteClient(w http.ResponseWriter, r *http.Request) {
 	response, err := h.DeleteClientUseCase.Execute(ctx, idInt)
 	if err != nil {
 		utils.WriteErrModel(w, http.StatusBadRequest,
-			utils.NewErrorResponse(fmt.Sprintf("failed to delete client, error: '%s'", err.Error())))
+			utils.NewErrorResponse((err.Error())))
 		return
 	}
 
@@ -183,14 +184,20 @@ func (h *Handler) CreateClient(w http.ResponseWriter, r *http.Request) {
 	client := input.CreateClient{}
 	err = json.Unmarshal(body, &client)
 	if err != nil {
-		utils.WriteErrModel(w, http.StatusBadRequest, utils.NewErrorResponse("failed to parse request body"))
+		utils.WriteErrModel(w, http.StatusBadRequest, utils.NewErrorResponse("Campos não preenchidos"))
 		return
 	}
 
 	response, err := h.CreateClientUseCase.Execute(ctx, &client)
 	if err != nil {
+		var errorStatus *utils.RequestError
+		if errors.As(err, &errorStatus) {
+			utils.WriteErrModel(w, errorStatus.StatusCode,
+				utils.NewErrorResponse(errorStatus.Error()))
+			return
+		}
 		utils.WriteErrModel(w, http.StatusInternalServerError,
-			utils.NewErrorResponse(fmt.Sprintf("failed to create client, error: '%s'", err.Error())))
+			utils.NewErrorResponse(err.Error()))
 		return
 	}
 

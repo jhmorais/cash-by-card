@@ -33,7 +33,7 @@ func (c *deleteClientUseCase) Execute(ctx context.Context, clientID int) (*outpu
 
 	err = c.clientRepository.DeleteClient(ctx, clientEntity)
 	if err != nil {
-		return nil, fmt.Errorf("failed to delete client '%d'", clientEntity.ID)
+		return nil, fmt.Errorf("falha para deletar o cliente de id '%d'", clientEntity.ID)
 	}
 
 	output := &output.DeleteClient{

@@ -3,6 +3,7 @@ package client
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"time"
 
 	"github.com/jhmorais/cash-by-card/internal/contracts"
@@ -10,6 +11,7 @@ import (
 	input "github.com/jhmorais/cash-by-card/internal/ports/input/client"
 	output "github.com/jhmorais/cash-by-card/internal/ports/output/client"
 	repositories "github.com/jhmorais/cash-by-card/internal/repositories/client"
+	"github.com/jhmorais/cash-by-card/utils"
 )
 
 type createClientUseCase struct {
@@ -47,14 +49,14 @@ func (c *createClientUseCase) Execute(ctx context.Context, createClient *input.C
 	}
 
 	if len(client) > 0 {
-		return nil, fmt.Errorf("failed, already exists client with the same cpf")
+		return nil, &utils.RequestError{StatusCode: http.StatusBadRequest, Err: fmt.Errorf("falha, já existe um cliente com o mesmo cpf")}
 	}
 
 	clientEntity := &entities.Client{
 		Name:      createClient.Name,
 		PixType:   createClient.PixType,
 		PixKey:    createClient.PixKey,
-		PartnerID: createClient.PartnerID,
+		PartnerID: &createClient.PartnerID,
 		CPF:       createClient.CPF,
 		Phone:     createClient.Phone,
 		Documents: createClient.Documents,

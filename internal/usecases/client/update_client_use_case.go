@@ -25,11 +25,15 @@ func NewUpdateClientUseCase(clientRepository repositories.ClientRepository) cont
 
 func (c *updateClientUseCase) Execute(ctx context.Context, updateClient *input.UpdateClient) (*output.CreateClient, error) {
 	if updateClient.Name == "" {
-		return nil, fmt.Errorf("failed name client is empty")
+		return nil, fmt.Errorf("nome não pode ser vazio")
 	}
 
 	if updateClient.PixKey == "" {
-		return nil, fmt.Errorf("failed pix key client is empty")
+		return nil, fmt.Errorf("pix key não pode ser vazio")
+	}
+
+	if updateClient.CPF == "" {
+		return nil, fmt.Errorf("cpf não pode ser vazio")
 	}
 
 	client, err := c.clientRepository.FindClientByCPF(ctx, updateClient.CPF)
@@ -38,7 +42,7 @@ func (c *updateClientUseCase) Execute(ctx context.Context, updateClient *input.U
 	}
 
 	if len(client) > 0 && client[0].ID != updateClient.ID {
-		return nil, fmt.Errorf("failed, already exists client with the same cpf")
+		return nil, fmt.Errorf("falha, já existe um cliente com esse cpf")
 	}
 
 	if len(updateClient.PixKey) > 250 {
@@ -50,7 +54,7 @@ func (c *updateClientUseCase) Execute(ctx context.Context, updateClient *input.U
 		Name:      updateClient.Name,
 		PixKey:    updateClient.PixKey,
 		PixType:   updateClient.PixType,
-		PartnerID: updateClient.PartnerID,
+		PartnerID: &updateClient.PartnerID,
 		Documents: updateClient.Documents,
 		Phone:     updateClient.Phone,
 		CPF:       updateClient.CPF,
@@ -59,7 +63,7 @@ func (c *updateClientUseCase) Execute(ctx context.Context, updateClient *input.U
 
 	errUpdate := c.clientRepository.UpdateClient(ctx, clientEntity)
 	if errUpdate != nil {
-		return nil, fmt.Errorf("cannot update client at database: %v", errUpdate)
+		return nil, fmt.Errorf("não foi possivel atualizar o cliente: %v", errUpdate)
 	}
 
 	createClientOutput := &output.CreateClient{
