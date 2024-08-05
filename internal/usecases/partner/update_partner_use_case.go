@@ -25,11 +25,11 @@ func NewUpdatePartnerUseCase(partnerRepository repositories.PartnerRepository) c
 
 func (c *updatePartnerUseCase) Execute(ctx context.Context, updatePartner *input.UpdatePartner) (*output.CreatePartner, error) {
 	if updatePartner.Name == "" {
-		return nil, fmt.Errorf("failed name partner is empty")
+		return nil, fmt.Errorf("nome não pode ser vazio")
 	}
 
 	if updatePartner.PixKey == "" {
-		return nil, fmt.Errorf("failed pix key partner is empty")
+		return nil, fmt.Errorf("chave pix não pode ser vazia")
 	}
 
 	partner, err := c.partnerRepository.FindPartnerByCPF(ctx, updatePartner.CPF)
@@ -38,7 +38,7 @@ func (c *updatePartnerUseCase) Execute(ctx context.Context, updatePartner *input
 	}
 
 	if len(partner) > 0 && partner[0].ID != updatePartner.ID {
-		return nil, fmt.Errorf("failed, already exists partner with the same cpf")
+		return nil, fmt.Errorf("falha, já existe um parceiro com esse cpf")
 	}
 
 	if len(updatePartner.PixKey) > 250 {
@@ -59,7 +59,7 @@ func (c *updatePartnerUseCase) Execute(ctx context.Context, updatePartner *input
 
 	errUpdate := c.partnerRepository.UpdatePartner(ctx, partnerEntity)
 	if errUpdate != nil {
-		return nil, fmt.Errorf("cannot update partner at database: %v", errUpdate)
+		return nil, fmt.Errorf("não foi possível atualizar os dados do parceiro: %v", errUpdate)
 	}
 
 	createPartnerOutput := &output.CreatePartner{

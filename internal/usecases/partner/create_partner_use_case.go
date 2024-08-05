@@ -30,20 +30,11 @@ func (c *createPartnerUseCase) Execute(ctx context.Context, createPartner *input
 	}
 
 	if createPartner.Phone == "" {
-		return nil, fmt.Errorf("cannot create a partner without phone")
+		return nil, fmt.Errorf("telefone não pode ser vazio")
 	}
 
 	if createPartner.CPF == "" {
-		return nil, fmt.Errorf("cannot create a partner without cpf")
-	}
-
-	partner, err := c.partnerRepository.FindPartnerByName(ctx, createPartner.Name)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get partner")
-	}
-
-	if len(partner) > 0 && partner[0].ID > 0 {
-		return nil, fmt.Errorf("failed, already exists partner with the same name")
+		return nil, fmt.Errorf("cpf não pode ser vazio")
 	}
 
 	partnerEntity := &entities.Partner{
@@ -57,18 +48,27 @@ func (c *createPartnerUseCase) Execute(ctx context.Context, createPartner *input
 		CreatedAt: time.Now(),
 	}
 
-	partner, err = c.partnerRepository.FindPartnerByCPF(ctx, createPartner.CPF)
+	partner, err := c.partnerRepository.FindPartnerByCPF(ctx, createPartner.CPF)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get partner: %v", err)
 	}
 
 	if len(partner) > 0 {
-		return nil, fmt.Errorf("failed, already exists partner with the same cpf")
+		return nil, fmt.Errorf("falha, já existe um parceiro com esse cpf")
+	}
+
+	partner, err = c.partnerRepository.FindPartnerByEmail(ctx, createPartner.Email)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get partner: %v", err)
+	}
+
+	if len(partner) > 0 {
+		return nil, fmt.Errorf("falha, já existe um parceiro com esse email")
 	}
 
 	err = c.partnerRepository.CreatePartner(ctx, partnerEntity)
 	if err != nil {
-		return nil, fmt.Errorf("cannot save partner at database: %v", err)
+		return nil, fmt.Errorf("não foi possivel salvar o parceiro: %v", err)
 	}
 
 	createPartnerOutput := &output.CreatePartner{

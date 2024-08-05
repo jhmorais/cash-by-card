@@ -18,7 +18,7 @@ func NewClientEntity(partnerID int, name string) *entities.Client {
 func NewClientEntityWithUser(partnerID int, name string) *entities.Client {
 	task := &entities.Client{
 		Name:      name,
-		PartnerID: partnerID,
+		PartnerID: &partnerID,
 		CreatedAt: time.Now(),
 	}
 	return task

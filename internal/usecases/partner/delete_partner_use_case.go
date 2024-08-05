@@ -33,7 +33,7 @@ func (c *deletePartnerUseCase) Execute(ctx context.Context, partnerID int) (*out
 
 	err = c.partnerRepository.DeletePartner(ctx, partnerEntity)
 	if err != nil {
-		return nil, fmt.Errorf("failed to delete partner '%d'", partnerEntity.ID)
+		return nil, fmt.Errorf("falha para deletar o parceiro de id '%d'", partnerEntity.ID)
 	}
 
 	output := &output.DeletePartner{

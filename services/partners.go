@@ -107,7 +107,7 @@ func (h *Handler) UpdatePartner(w http.ResponseWriter, r *http.Request) {
 	partner := input.UpdatePartner{}
 	err = json.Unmarshal(body, &partner)
 	if err != nil {
-		utils.WriteErrModel(w, http.StatusBadRequest, utils.NewErrorResponse("failed to parse request body"))
+		utils.WriteErrModel(w, http.StatusBadRequest, utils.NewErrorResponse("Campos não preenchidos"))
 		return
 	}
 
@@ -120,7 +120,7 @@ func (h *Handler) UpdatePartner(w http.ResponseWriter, r *http.Request) {
 	response, err := h.UpdatePartnerUseCase.Execute(ctx, &partner)
 	if err != nil {
 		utils.WriteErrModel(w, http.StatusBadRequest,
-			utils.NewErrorResponse(fmt.Sprintf("failed to update partner, error:'%s'", err.Error())))
+			utils.NewErrorResponse(err.Error()))
 		return
 	}
 
@@ -152,7 +152,7 @@ func (h *Handler) DeletePartner(w http.ResponseWriter, r *http.Request) {
 	response, err := h.DeletePartnerUseCase.Execute(ctx, idInt)
 	if err != nil {
 		utils.WriteErrModel(w, http.StatusBadRequest,
-			utils.NewErrorResponse(fmt.Sprintf("failed to delete partner, error: '%s'", err.Error())))
+			utils.NewErrorResponse(err.Error()))
 		return
 	}
 
@@ -180,14 +180,14 @@ func (h *Handler) CreatePartner(w http.ResponseWriter, r *http.Request) {
 	partner := input.CreatePartner{}
 	err = json.Unmarshal(body, &partner)
 	if err != nil {
-		utils.WriteErrModel(w, http.StatusBadRequest, utils.NewErrorResponse("failed to parse request body"))
+		utils.WriteErrModel(w, http.StatusBadRequest, utils.NewErrorResponse("Campos não preenchidos"))
 		return
 	}
 
 	response, err := h.CreatePartnerUseCase.Execute(ctx, &partner)
 	if err != nil {
 		utils.WriteErrModel(w, http.StatusNotFound,
-			utils.NewErrorResponse(fmt.Sprintf("failed to create partner, error: '%s'", err.Error())))
+			utils.NewErrorResponse(err.Error()))
 		return
 	}
 

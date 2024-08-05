@@ -9,7 +9,7 @@ type Client struct {
 	PixKey    string `json:"pixKey"`
 	Phone     string `gorm:"size:15" json:"phone"`
 	CPF       string `gorm:"size:15" json:"cpf"`
-	PartnerID int    `gorm:"index" json:"partnerId"`
+	PartnerID *int   `gorm:"index" json:"partnerId"`
 	Documents string `json:"documents"`
 	CreatedAt time.Time
 	UpdatedAt time.Time

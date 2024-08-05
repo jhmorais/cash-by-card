@@ -44,13 +44,14 @@ type Usecases struct {
 	ListClientUseCase       contracts.ListClientUseCase
 	UpdateClientUseCase     contracts.UpdateClientUseCase
 
-	CreatePartnerUseCase     contracts.CreatePartnerUseCase
-	DeletePartnerUseCase     contracts.DeletePartnerUseCase
-	FindPartnerUseCase       contracts.FindPartnerUseCase
-	FindPartnerByNameUseCase contracts.FindPartnerByNameUseCase
-	FindPartnerByIDUseCase   contracts.FindPartnerByIDUseCase
-	ListPartnerUseCase       contracts.ListPartnerUseCase
-	UpdatePartnerUseCase     contracts.UpdatePartnerUseCase
+	CreatePartnerUseCase      contracts.CreatePartnerUseCase
+	DeletePartnerUseCase      contracts.DeletePartnerUseCase
+	FindPartnerUseCase        contracts.FindPartnerUseCase
+	FindPartnerByNameUseCase  contracts.FindPartnerByNameUseCase
+	FindPartnerByEmailUseCase contracts.FindPartnerByEmailUseCase
+	FindPartnerByIDUseCase    contracts.FindPartnerByIDUseCase
+	ListPartnerUseCase        contracts.ListPartnerUseCase
+	UpdatePartnerUseCase      contracts.UpdatePartnerUseCase
 
 	CreateCardUseCase       contracts.CreateCardUseCase
 	DeleteCardUseCase       contracts.DeleteCardUseCase
@@ -124,6 +125,7 @@ func (d *DenpencyBuild) buildUseCases() *DenpencyBuild {
 	d.Usecases.DeletePartnerUseCase = partner.NewDeletePartnerUseCase(d.Repositories.PartnerRepository)
 	d.Usecases.FindPartnerUseCase = partner.NewFindPartnerUseCase(d.Repositories.PartnerRepository)
 	d.Usecases.FindPartnerByNameUseCase = partner.NewFindPartnerByNameUseCase(d.Repositories.PartnerRepository)
+	d.Usecases.FindPartnerByEmailUseCase = partner.NewFindPartnerByEmailUseCase(d.Repositories.PartnerRepository)
 	d.Usecases.FindPartnerByIDUseCase = partner.NewFindPartnerByIDUseCase(d.Repositories.PartnerRepository)
 	d.Usecases.ListPartnerUseCase = partner.NewListPartnerUseCase(d.Repositories.PartnerRepository)
 	d.Usecases.UpdatePartnerUseCase = partner.NewUpdatePartnerUseCase(d.Repositories.PartnerRepository)
