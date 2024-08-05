@@ -86,7 +86,7 @@ func (h *Handler) UpdateCardMachine(w http.ResponseWriter, r *http.Request) {
 	cardMachine := input.UpdateCardMachine{}
 	err = json.Unmarshal(body, &cardMachine)
 	if err != nil {
-		utils.WriteErrModel(w, http.StatusBadRequest, utils.NewErrorResponse("failed to parse request body"))
+		utils.WriteErrModel(w, http.StatusBadRequest, utils.NewErrorResponse("Campos não preenchidos"))
 		return
 	}
 
@@ -131,7 +131,7 @@ func (h *Handler) DeleteCardMachine(w http.ResponseWriter, r *http.Request) {
 	response, err := h.DeleteCardMachineUseCase.Execute(ctx, idInt)
 	if err != nil {
 		utils.WriteErrModel(w, http.StatusBadRequest,
-			utils.NewErrorResponse(fmt.Sprintf("failed to delete cardMachine, error: '%s'", err.Error())))
+			utils.NewErrorResponse(err.Error()))
 		return
 	}
 
@@ -159,14 +159,14 @@ func (h *Handler) CreateCardMachine(w http.ResponseWriter, r *http.Request) {
 	cardMachine := input.CreateCardMachine{}
 	err = json.Unmarshal(body, &cardMachine)
 	if err != nil {
-		utils.WriteErrModel(w, http.StatusBadRequest, utils.NewErrorResponse("failed to parse request body"))
+		utils.WriteErrModel(w, http.StatusBadRequest, utils.NewErrorResponse("Campos não preenchidos"))
 		return
 	}
 
 	response, err := h.CreateCardMachineUseCase.Execute(ctx, &cardMachine)
 	if err != nil {
-		utils.WriteErrModel(w, http.StatusInternalServerError,
-			utils.NewErrorResponse(fmt.Sprintf("failed to create card, error: '%s'", err.Error())))
+		utils.WriteErrModel(w, http.StatusBadRequest,
+			utils.NewErrorResponse(err.Error()))
 		return
 	}
 

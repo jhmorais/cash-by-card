@@ -33,7 +33,7 @@ func (c *deleteCardMachineUseCase) Execute(ctx context.Context, cardMachineID in
 
 	err = c.cardMachineRepository.DeleteCardMachine(ctx, cardMachineEntity)
 	if err != nil {
-		return nil, fmt.Errorf("failed to delete cardMachine '%d'", cardMachineEntity.ID)
+		return nil, fmt.Errorf("falha em deletar a maquininha '%d'", cardMachineEntity.ID)
 	}
 
 	output := &output.DeleteCardMachine{

@@ -26,12 +26,15 @@ func NewCreateCardMachineUseCase(cardMachineRepository repositories.CardMachineR
 
 func (c *createCardMachineUseCase) Execute(ctx context.Context, createCardMachine *input.CreateCardMachine) (*output.CreateCardMachine, error) {
 
-	if len(createCardMachine.Brand) == 0 {
-		return nil, fmt.Errorf("cannot create a cardMachine without brand")
+	if createCardMachine.Name == "" {
+		return nil, fmt.Errorf("não é possível criar a maquininha sem nome")
 	}
 
 	if createCardMachine.Installments <= 0 {
-		return nil, fmt.Errorf("cannot create cardMachine without valid number of installments")
+		return nil, fmt.Errorf("não é possível criar a maquininha sem número de parcelas")
+	}
+	if len(createCardMachine.Brand) == 0 {
+		return nil, fmt.Errorf("não é possível criar a maquininha sem bandeira")
 	}
 
 	if createCardMachine.OnlineTax == nil {
@@ -40,10 +43,6 @@ func (c *createCardMachineUseCase) Execute(ctx context.Context, createCardMachin
 
 	if createCardMachine.PresentialTax == nil {
 		return nil, fmt.Errorf("cannot create cardMachine without valid PresentialTax")
-	}
-
-	if createCardMachine.Name == "" {
-		return nil, fmt.Errorf("failed create cardMachine- invalid Name")
 	}
 
 	bOnlineTax, err := json.Marshal(createCardMachine.OnlineTax)
@@ -72,7 +71,7 @@ func (c *createCardMachineUseCase) Execute(ctx context.Context, createCardMachin
 
 	err = c.cardMachineRepository.CreateCardMachine(ctx, cardMachineEntity)
 	if err != nil {
-		return nil, fmt.Errorf("cannot save card at database: %v", err)
+		return nil, fmt.Errorf("não foi possível salvar a maquininha: %v", err)
 	}
 
 	createCardMachineOutput := &output.CreateCardMachine{

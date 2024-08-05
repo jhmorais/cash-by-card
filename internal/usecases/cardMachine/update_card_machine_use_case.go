@@ -69,7 +69,7 @@ func (c *updateCardMachineUseCase) Execute(ctx context.Context, updateCardMachin
 
 	errUpdate := c.cardMachineRepository.UpdateCardMachine(ctx, cardMachineEntity)
 	if errUpdate != nil {
-		return nil, fmt.Errorf("cannot update cardMchine at database: %v", errUpdate)
+		return nil, fmt.Errorf("não foi possível atualizar a maquininha: %v", errUpdate)
 	}
 
 	createCardMachineOutput := &output.CreateCardMachine{
