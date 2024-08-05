@@ -31,7 +31,7 @@ func NewLoginUseCase(userRepository repositories.UserRepository) contracts.Login
 func (c *loginUseCase) Execute(ctx context.Context, loginUser *input.UserLogin) (string, error) {
 
 	if loginUser.Email == "" {
-		return "", fmt.Errorf("cannot login without email")
+		return "", fmt.Errorf("não é possível logar sem email")
 	}
 
 	hashUser := utils.EncryptPassword(loginUser.Password)
@@ -42,7 +42,7 @@ func (c *loginUseCase) Execute(ctx context.Context, loginUser *input.UserLogin) 
 	}
 
 	if user.Email == "" {
-		return "", fmt.Errorf("failed, invalid inputs")
+		return "", fmt.Errorf("falha, campos inválidos")
 	}
 
 	token, err := utils.GenerateToken(*loginUser)
