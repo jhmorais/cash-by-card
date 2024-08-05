@@ -49,7 +49,7 @@ func (h *Handler) GetLoanByID(w http.ResponseWriter, r *http.Request) {
 	response, err := h.FindLoanByIDUseCase.Execute(ctx, idInt)
 	if err != nil {
 		utils.WriteErrModel(w, http.StatusNotFound,
-			utils.NewErrorResponse(fmt.Sprintf("failed to find loan, error: '%s'", err.Error())))
+			utils.NewErrorResponse(err.Error()))
 		return
 	}
 
@@ -81,7 +81,7 @@ func (h *Handler) GetLoanByClientID(w http.ResponseWriter, r *http.Request) {
 	response, err := h.FindLoanByClientIDUseCase.Execute(ctx, idInt)
 	if err != nil {
 		utils.WriteErrModel(w, http.StatusNotFound,
-			utils.NewErrorResponse(fmt.Sprintf("failed to find loan by ClientId, error: '%s'", err.Error())))
+			utils.NewErrorResponse(err.Error()))
 		return
 	}
 
@@ -113,7 +113,7 @@ func (h *Handler) GetLoanByPartnerID(w http.ResponseWriter, r *http.Request) {
 	response, err := h.FindLoanByParnterIDUseCase.Execute(ctx, idInt)
 	if err != nil {
 		utils.WriteErrModel(w, http.StatusNotFound,
-			utils.NewErrorResponse(fmt.Sprintf("failed to find loan by PartnerId, error: '%s'", err.Error())))
+			utils.NewErrorResponse(err.Error()))
 		return
 	}
 
@@ -145,7 +145,7 @@ func (h *Handler) UpdateLoan(w http.ResponseWriter, r *http.Request) {
 	loan := input.UpdateLoan{}
 	err = json.Unmarshal(body, &loan)
 	if err != nil {
-		utils.WriteErrModel(w, http.StatusBadRequest, utils.NewErrorResponse("failed to parse request body"))
+		utils.WriteErrModel(w, http.StatusBadRequest, utils.NewErrorResponse("Campos não preenchidos"))
 		return
 	}
 
@@ -159,14 +159,14 @@ func (h *Handler) UpdateLoan(w http.ResponseWriter, r *http.Request) {
 	_, err = h.UpdateCardUseCase.Execute(ctx, loan.Cards)
 	if err != nil {
 		utils.WriteErrModel(w, http.StatusBadRequest,
-			utils.NewErrorResponse(fmt.Sprintf("failed to update cards of loan, error:'%s'", err.Error())))
+			utils.NewErrorResponse(err.Error()))
 		return
 	}
 
 	response, err := h.UpdateLoanUseCase.Execute(ctx, &loan)
 	if err != nil {
 		utils.WriteErrModel(w, http.StatusBadRequest,
-			utils.NewErrorResponse(fmt.Sprintf("failed to update loan, error:'%s'", err.Error())))
+			utils.NewErrorResponse(err.Error()))
 		return
 	}
 
@@ -198,7 +198,7 @@ func (h *Handler) UpdateLoanPaymentStatus(w http.ResponseWriter, r *http.Request
 	loan := input.UpdateLoanPaymentStatus{}
 	err = json.Unmarshal(body, &loan)
 	if err != nil {
-		utils.WriteErrModel(w, http.StatusBadRequest, utils.NewErrorResponse("failed to parse request body"))
+		utils.WriteErrModel(w, http.StatusBadRequest, utils.NewErrorResponse("Campos não preenchidos"))
 		return
 	}
 
@@ -211,7 +211,7 @@ func (h *Handler) UpdateLoanPaymentStatus(w http.ResponseWriter, r *http.Request
 	err = h.UpdateLoanPaymentStatusUseCase.Execute(ctx, &loan)
 	if err != nil {
 		utils.WriteErrModel(w, http.StatusBadRequest,
-			utils.NewErrorResponse(fmt.Sprintf("failed to update loan payment status, error:'%s'", err.Error())))
+			utils.NewErrorResponse(err.Error()))
 		return
 	}
 
@@ -236,7 +236,7 @@ func (h *Handler) DeleteLoan(w http.ResponseWriter, r *http.Request) {
 	response, err := h.DeleteLoanUseCase.Execute(ctx, idInt)
 	if err != nil {
 		utils.WriteErrModel(w, http.StatusBadRequest,
-			utils.NewErrorResponse(fmt.Sprintf("failed to delete loan, error: '%s'", err.Error())))
+			utils.NewErrorResponse(err.Error()))
 		return
 	}
 
@@ -264,14 +264,14 @@ func (h *Handler) CreateLoan(w http.ResponseWriter, r *http.Request) {
 	loan := input.CreateLoan{}
 	err = json.Unmarshal(body, &loan)
 	if err != nil {
-		utils.WriteErrModel(w, http.StatusBadRequest, utils.NewErrorResponse("failed to parse request body"))
+		utils.WriteErrModel(w, http.StatusBadRequest, utils.NewErrorResponse("Campos não preenchidos"))
 		return
 	}
 
 	response, err := h.CreateLoanUseCase.Execute(ctx, &loan)
 	if err != nil {
 		utils.WriteErrModel(w, http.StatusInternalServerError,
-			utils.NewErrorResponse(fmt.Sprintf("failed to create loan, error: '%s'", err.Error())))
+			utils.NewErrorResponse(err.Error()))
 		return
 	}
 

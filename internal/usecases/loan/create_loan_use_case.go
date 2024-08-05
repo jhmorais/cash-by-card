@@ -29,7 +29,7 @@ func NewCreateLoanUseCase(loanRepository repositories.LoanRepository, cardUsecas
 func (c *createLoanUseCase) Execute(ctx context.Context, createLoan *inputLoan.CreateLoan) (*output.CreateLoan, error) {
 
 	if createLoan.ClientID < 0 {
-		return nil, fmt.Errorf("cannot create a loan without ClientId")
+		return nil, fmt.Errorf("não é possível criar um empréstimo sem um Cliente ID")
 	}
 
 	if createLoan.PaymentStatus == "" {
@@ -37,7 +37,7 @@ func (c *createLoanUseCase) Execute(ctx context.Context, createLoan *inputLoan.C
 	}
 
 	if !(createLoan.PaymentStatus == "pending" || createLoan.PaymentStatus == "paid") {
-		return nil, fmt.Errorf("cannot create a loan with invalid payment status")
+		return nil, fmt.Errorf("não é possível criar um empréstimo sem um válido tipo de pagamento")
 	}
 
 	if createLoan.AskValue == 0 {
@@ -101,7 +101,7 @@ func (c *createLoanUseCase) Execute(ctx context.Context, createLoan *inputLoan.C
 
 	err := c.loanRepository.CreateLoan(ctx, loanEntity)
 	if err != nil {
-		return nil, fmt.Errorf("cannot save loan at database: %v", err)
+		return nil, fmt.Errorf("não foi possível salvar o empréstimo: %v", err)
 	}
 
 	cardsInput := []inputCard.CreateCard{}

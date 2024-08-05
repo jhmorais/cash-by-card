@@ -51,7 +51,7 @@ func (c *updateLoanUseCase) Execute(ctx context.Context, updateLoan *input.Updat
 
 	errUpdate := c.loanRepository.UpdateLoan(ctx, loanEntity)
 	if errUpdate != nil {
-		return nil, fmt.Errorf("cannot update loan at database: %v", errUpdate)
+		return nil, fmt.Errorf("não foi possível atualizar o empréstimo: %v", errUpdate)
 	}
 
 	updateLoanOutput := &output.CreateLoan{

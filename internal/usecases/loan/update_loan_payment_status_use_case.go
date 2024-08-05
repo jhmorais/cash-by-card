@@ -28,7 +28,7 @@ func (c *updateLoanPaymentStatusUseCase) Execute(ctx context.Context, updateLoan
 
 	err := c.loanRepository.UpdateLoanPaymentStatus(ctx, updateLoanPaymentStatus.ID, updateLoanPaymentStatus.PaymentStatus)
 	if err != nil {
-		return fmt.Errorf("cannot update PaymentStatus: %v", err)
+		return fmt.Errorf("não foi possível atualizar o status do pagamento: %v", err)
 	}
 
 	return nil

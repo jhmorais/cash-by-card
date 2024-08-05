@@ -33,7 +33,7 @@ func (c *deleteLoanUseCase) Execute(ctx context.Context, loanID int) (*output.De
 
 	err = c.loanRepository.DeleteLoan(ctx, loanEntity)
 	if err != nil {
-		return nil, fmt.Errorf("failed to delete loan '%d'", loanEntity.ID)
+		return nil, fmt.Errorf("falha em deletar o empréstimo '%d'", loanEntity.ID)
 	}
 
 	output := &output.DeleteLoan{
