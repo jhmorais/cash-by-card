@@ -1,30 +1,33 @@
-FROM ubuntu:18.04
+FROM golang:1.23-alpine AS builder
 
-RUN apt-get update -y
-RUN apt-get install -y build-essential
-RUN apt-get install -y wget git
-RUN apt-get install -y curl
-RUN apt-get install -y zip
+RUN apk add --no-cache git ca-certificates tzdata gcc musl-dev
 
-RUN cd /tmp
-RUN wget https://go.dev/dl/go1.20.linux-amd64.tar.gz
-RUN tar -C /usr/lib -xzf go1.20.linux-amd64.tar.gz
-RUN rm -rf go1.20.linux-amd64.tar.gz
+WORKDIR /build
 
-ENV APP_HOME /cashbycard
-
-ENV PATH=/usr/lib/go/bin:$PATH
-
-WORKDIR $APP_HOME
-
-ADD . $APP_HOME
-
-RUN echo $PATH
+COPY go.mod go.sum ./
 RUN go mod download
 
-RUN go build -o cashbycard ./cmd/restserver
-RUN chmod +x cashbycard
+COPY . .
+RUN go mod tidy
+RUN go mod verify
 
-COPY . /cashbycard
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build \
+    -ldflags='-w -s -extldflags "-static"' \
+    -o cashbycard ./cmd/restserver
+
+FROM alpine:latest
+
+RUN apk --no-cache add ca-certificates tzdata
+
+RUN addgroup -g 1000 appuser && \
+    adduser -D -u 1000 -G appuser appuser
+
+WORKDIR /app
+
+COPY --from=builder /build/cashbycard .
+
+USER appuser
+
+EXPOSE 5000
 
 CMD ["./cashbycard"]
