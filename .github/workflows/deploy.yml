@@ -44,7 +44,7 @@ jobs:
             
             # Rebuild da imagen
             echo "🔨 Construindo imagem..."
-            docker build -t cashbycard:1.1 .
+            docker build -t cashbycard:1.2 .
             
             # Remove a imagem antiga
             docker image prune -f || true
