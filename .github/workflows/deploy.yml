@@ -11,7 +11,7 @@ jobs:
   deploy:
     name: Deploy via SSH
     runs-on: ubuntu-latest  # máquina virtual que executará o job
-    environment: TEST
+    environment: Production
     
     steps:
       # Passo 1: Fazer checkout do código (opcional, mas útil para validações)
