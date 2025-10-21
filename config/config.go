@@ -2,10 +2,9 @@ package config
 
 import (
 	"os"
-	"path"
 	"path/filepath"
-	"runtime"
 
+	"github.com/joho/godotenv"
 	"github.com/spf13/viper"
 )
 
@@ -17,20 +16,17 @@ func BuildConfigFilePath(configFileName string) string {
 }
 
 func LoadServerEnvironmentVars() error {
-	_, filename, _, _ := runtime.Caller(0)
-
-	viper.SetDefault(ServerEnvironment, "config")
-	viper.SetConfigType("json")
-	viper.SetConfigName(viper.GetString(ServerEnvironment))
-
-	viper.AddConfigPath(path.Dir(filename))
-
-	err := viper.ReadInConfig()
-	if err != nil {
-		viper.AutomaticEnv() // if config file is not found, it uses the automatic env
+	// envPath := "../../.env" // works only in debug
+	envPath := ".env"
+	if _, err := os.Stat(envPath); err == nil {
+		err := godotenv.Load(envPath)
+		if err != nil {
+			return err
+		}
 	}
 
-	return err
+	viper.AutomaticEnv()
+	return nil
 }
 
 func GetMysqlConnectionString() string {

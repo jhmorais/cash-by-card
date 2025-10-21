@@ -22,3 +22,4 @@ go.work
 .vercel
 /etc
 /config/config.json
+.env
