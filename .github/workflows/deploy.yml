@@ -42,12 +42,12 @@ jobs:
             echo "📥 Baixando alterações..."
             git pull origin main
             
-            # Remove a imagem antiga
-            docker rmi cashbycard:1.1 -f || true
-            
             # Rebuild da imagen
             echo "🔨 Construindo imagem..."
             docker build -t cashbycard:1.1 .
+            
+            # Remove a imagem antiga
+            docker image prune -f || true
 
             # Navega até a pasta do nginx
             cd ~/Documents
