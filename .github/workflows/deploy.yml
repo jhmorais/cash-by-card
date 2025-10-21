@@ -41,6 +41,14 @@ jobs:
             # Faz o pull das alterações
             echo "📥 Baixando alterações..."
             git pull origin main
+
+            # Cria/atualiza .env
+            cat > .env << EOF
+            SERVER_PORT=3000
+            MYSQL_USER=${{ secrets.MYSQL_USER }}
+            MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }}
+            MYSQL_CONNECTION_STRING=${{ secrets.MYSQL_CONNECTION_STRING }}
+            EOF
             
             # Rebuild da imagen
             echo "🔨 Construindo imagem..."
