@@ -1,0 +1,67 @@
+name: Deploy to Production
+
+# Define quando o workflow será executado
+on:
+  push:
+    branches:
+      - main  # executa quando houver push na branch main
+  workflow_dispatch:  # permite executar manualmente pela interface do GitHub
+
+jobs:
+  deploy:
+    name: Deploy via SSH
+    runs-on: ubuntu-latest  # máquina virtual que executará o job
+    environment: TEST
+    
+    steps:
+      # Passo 1: Fazer checkout do código (opcional, mas útil para validações)
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      # Passo 2: Conectar via SSH e executar comandos
+      - name: Execute deployment commands
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.SSH_HOST }}          # IP do servidor
+          username: ${{ secrets.SSH_USERNAME }}  # usuário SSH
+          key: ${{ secrets.SSH_PRIVATE_KEY }}    # chave privada
+          port: ${{ secrets.SSH_PORT }}          # porta (padrão 22)
+          timeout: 60s                           # timeout da conexão
+          command_timeout: 30m                   # timeout dos comandos
+          script: |
+            echo "🚀 Iniciando deploy..."
+            
+            # Navega até a pasta do projeto
+            cd ~/Download/cash-by-card
+            
+            # Mostra a branch atual
+            echo "📍 Branch atual:"
+            git branch
+            
+            # Faz o pull das alterações
+            echo "📥 Baixando alterações..."
+            git pull origin main
+            
+            # Remove a imagem antiga
+            docker rmi cashbycard:1.1 -f || true
+            
+            # Rebuild da imagen
+            echo "🔨 Construindo imagem..."
+            docker build -t cashbycard:1.1 .
+
+            # Navega até a pasta do nginx
+            cd ~/Documents
+            
+            # Para os containers
+            echo "🛑 Parando containers..."
+            docker compose down ${{ vars.SERVICE_NAME }}
+            
+            # Sobe os containers
+            echo "🚢 Subindo containers..."
+            docker compose up -d ${{ vars.SERVICE_NAME }}
+            
+            # Mostra o status
+            echo "✅ Status dos containers:"
+            docker compose ps
+            
+            echo "✨ Deploy concluído!"
