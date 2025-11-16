@@ -33,7 +33,7 @@ func (d *loanRepository) UpdateLoan(ctx context.Context, entity *entities.Loan) 
 
 func (d *loanRepository) DeleteLoan(ctx context.Context, entity *entities.Loan) error {
 	return d.db.
-		Session(&gorm.Session{FullSaveAssociations: false}).
+		Session(&gorm.Session{FullSaveAssociations: true}).
 		Delete(entity).
 		Error
 }
