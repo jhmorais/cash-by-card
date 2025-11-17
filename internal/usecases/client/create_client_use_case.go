@@ -66,6 +66,7 @@ func (c *createClientUseCase) Execute(ctx context.Context, createClient *input.C
 		Phone:     createClient.Phone,
 		Documents: createClient.Documents,
 		CreatedAt: time.Now(),
+		Partner:   nil,
 	}
 
 	err = c.clientRepository.CreateClient(ctx, clientEntity)
