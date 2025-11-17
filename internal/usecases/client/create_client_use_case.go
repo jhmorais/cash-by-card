@@ -52,11 +52,16 @@ func (c *createClientUseCase) Execute(ctx context.Context, createClient *input.C
 		return nil, &utils.RequestError{StatusCode: http.StatusBadRequest, Err: fmt.Errorf("falha, já existe um cliente com o mesmo cpf")}
 	}
 
+	var partnerID *int
+	if createClient.PartnerID != 0 {
+		partnerID = &createClient.PartnerID
+	}
+
 	clientEntity := &entities.Client{
 		Name:      createClient.Name,
 		PixType:   createClient.PixType,
 		PixKey:    createClient.PixKey,
-		PartnerID: &createClient.PartnerID,
+		PartnerID: partnerID,
 		CPF:       createClient.CPF,
 		Phone:     createClient.Phone,
 		Documents: createClient.Documents,

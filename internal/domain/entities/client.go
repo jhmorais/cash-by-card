@@ -13,5 +13,5 @@ type Client struct {
 	Documents string `json:"documents"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
-	Partner   *Partner `gorm:"foreignKey:PartnerID" json:"partner"`
+	Partner   Partner `gorm:"foreignKey:PartnerID" json:"partner"`
 }
