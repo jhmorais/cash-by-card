@@ -53,10 +53,11 @@ func (c *createClientUseCase) Execute(ctx context.Context, createClient *input.C
 	}
 
 	var partnerID *int
-	if createClient.PartnerID != 0 {
-		partnerID = &createClient.PartnerID
+	if createClient.PartnerID > 0 {
+		id := createClient.PartnerID
+		partnerID = &id // cria ponteiro para um valor válido
 	} else {
-		partnerID = nil
+		partnerID = nil // envia NULL
 	}
 
 	clientEntity := &entities.Client{
@@ -68,6 +69,7 @@ func (c *createClientUseCase) Execute(ctx context.Context, createClient *input.C
 		Phone:     createClient.Phone,
 		Documents: createClient.Documents,
 		CreatedAt: time.Now(),
+		Partner:   nil,
 	}
 
 	err = c.clientRepository.CreateClient(ctx, clientEntity)
