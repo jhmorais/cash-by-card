@@ -51,6 +51,8 @@ type Handler struct {
 	LoginUseCase                      contracts.LoginUseCase
 	FindUserByEmailAndPasswordUseCase contracts.FindUserByEmailAndPasswordUseCase
 	ListUserUseCase                   contracts.ListUserUseCase
+
+	DashboardUseCase contracts.DashboardUseCase
 }
 
 func NewHTTPRouterClient(
@@ -93,6 +95,7 @@ func NewHTTPRouterClient(
 		FindUserByEmailAndPasswordUseCase: useCases.FindUserByEmailAndPasswordUseCase,
 		CreateUserUseCase:                 useCases.CreateUserUseCase,
 		LoginUseCase:                      useCases.LoginUseCase,
+		DashboardUseCase:                  useCases.DashboardUseCase,
 	}
 	router.UseEncodedPath()
 	router.Use(utils.CommonMiddleware)
@@ -141,6 +144,7 @@ func NewHTTPRouterClient(
 	adminRouter.HandleFunc("/loans", handler.CreateLoan).Methods(http.MethodPost)
 	adminRouter.HandleFunc("/loans/{id}", handler.UpdateLoan).Methods(http.MethodPut)
 	adminRouter.HandleFunc("/loans/{id}/payment-status", handler.UpdateLoanPaymentStatus).Methods(http.MethodPatch)
+	adminRouter.HandleFunc("/dashboard", handler.GetDashboard).Methods(http.MethodGet)
 
 	adminRouter.HandleFunc("/users", handler.CreateUser).Methods(http.MethodPost) // Criar o service do usuario
 	adminRouter.HandleFunc("/users", handler.ListUsers).Methods(http.MethodGet)   // Criar o service do usuario

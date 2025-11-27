@@ -13,6 +13,7 @@ import (
 	"github.com/jhmorais/cash-by-card/internal/usecases/card"
 	"github.com/jhmorais/cash-by-card/internal/usecases/cardMachine"
 	"github.com/jhmorais/cash-by-card/internal/usecases/client"
+	"github.com/jhmorais/cash-by-card/internal/usecases/dashboard"
 	"github.com/jhmorais/cash-by-card/internal/usecases/loan"
 	"github.com/jhmorais/cash-by-card/internal/usecases/login"
 	"github.com/jhmorais/cash-by-card/internal/usecases/partner"
@@ -79,6 +80,8 @@ type Usecases struct {
 	LoginUseCase                      contracts.LoginUseCase
 	FindUserByEmailAndPasswordUseCase contracts.FindUserByEmailAndPasswordUseCase
 	ListUserUseCase                   contracts.ListUserUseCase
+
+	DashboardUseCase contracts.DashboardUseCase
 }
 
 func NewBuild() *DenpencyBuild {
@@ -155,6 +158,8 @@ func (d *DenpencyBuild) buildUseCases() *DenpencyBuild {
 	d.Usecases.CreateUserUseCase = user.NewCreateUserUseCase(d.Repositories.UserRepository)
 	d.Usecases.FindUserByEmailAndPasswordUseCase = user.NewFindUserByEmailAndPasswordUseCase(d.Repositories.UserRepository)
 	d.Usecases.LoginUseCase = login.NewLoginUseCase(d.Repositories.UserRepository)
+
+	d.Usecases.DashboardUseCase = dashboard.NewDashboardUseCase(d.Repositories.LoanRepository)
 
 	return d
 }
