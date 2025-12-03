@@ -133,7 +133,7 @@ func (d *loanRepository) GetBestPartners(ctx context.Context, month int, year in
             partner.name AS partner,
             COUNT(loan.id) AS qtt
         `).
-		Joins("LEFT JOIN partner ON partner.id = loan.partner_id").
+		Joins("INNER JOIN partner ON partner.id = loan.partner_id").
 		Where("EXTRACT(YEAR FROM loan.created_at) = ?", year).
 		Where("MONTH(loan.created_at) = ?", month).
 		Group("partner.name").
