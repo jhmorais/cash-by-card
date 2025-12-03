@@ -14,7 +14,7 @@ import (
 
 func (h *Handler) ListCards(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
-	response, err := h.ListCardUseCase.Execute(ctx)
+	response, err := h.Usecases.ListCardUseCase.Execute(ctx)
 	if err != nil {
 		utils.WriteErrModel(w, http.StatusNotFound,
 			utils.NewErrorResponse(fmt.Sprintf("failed to get cards, error: '%s'", err.Error())))
@@ -46,7 +46,7 @@ func (h *Handler) GetCardByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response, err := h.FindCardByIDUseCase.Execute(ctx, idInt)
+	response, err := h.Usecases.FindCardByIDUseCase.Execute(ctx, idInt)
 	if err != nil {
 		utils.WriteErrModel(w, http.StatusNotFound,
 			utils.NewErrorResponse(fmt.Sprintf("failed to find card, error: '%s'", err.Error())))
@@ -78,7 +78,7 @@ func (h *Handler) GetCardByLoanID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response, err := h.FindCardByLoanIDUseCase.Execute(ctx, idInt)
+	response, err := h.Usecases.FindCardByLoanIDUseCase.Execute(ctx, idInt)
 	if err != nil {
 		utils.WriteErrModel(w, http.StatusNotFound,
 			utils.NewErrorResponse(fmt.Sprintf("failed to find card, error: '%s'", err.Error())))
@@ -112,7 +112,7 @@ func (h *Handler) UpdateCard(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response, err := h.UpdateCardUseCase.Execute(ctx, cards)
+	response, err := h.Usecases.UpdateCardUseCase.Execute(ctx, cards)
 	if err != nil {
 		utils.WriteErrModel(w, http.StatusBadRequest,
 			utils.NewErrorResponse(fmt.Sprintf("failed to update card, error:'%s'", err.Error())))
@@ -144,7 +144,7 @@ func (h *Handler) DeleteCard(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response, err := h.DeleteCardUseCase.Execute(ctx, idInt)
+	response, err := h.Usecases.DeleteCardUseCase.Execute(ctx, idInt)
 	if err != nil {
 		utils.WriteErrModel(w, http.StatusBadRequest,
 			utils.NewErrorResponse(fmt.Sprintf("failed to delete card, error: '%s'", err.Error())))
@@ -179,7 +179,7 @@ func (h *Handler) CreateCard(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response, err := h.CreateCardUseCase.Execute(ctx, &card)
+	response, err := h.Usecases.CreateCardUseCase.Execute(ctx, &card)
 	if err != nil {
 		utils.WriteErrModel(w, http.StatusInternalServerError,
 			utils.NewErrorResponse(fmt.Sprintf("failed to create card, error: '%s'", err.Error())))

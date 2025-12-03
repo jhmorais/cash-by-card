@@ -13,7 +13,7 @@ import (
 
 // func (h *Handler) ListUsers(w http.ResponseWriter, r *http.Request) {
 // 	ctx := context.Background()
-// 	response, err := h.ListClientUseCase.Execute(ctx)
+// 	response, err := h.Usecases.ListClientUseCase.Execute(ctx)
 // 	if err != nil {
 // 		utils.WriteErrModel(w, http.StatusNotFound,
 // 			utils.NewErrorResponse(fmt.Sprintf("failed to get users, error: '%s'", err.Error())))
@@ -45,7 +45,7 @@ import (
 // 		return
 // 	}
 
-// 	response, err := h.FindClientByIDUseCase.Execute(ctx, idInt)
+// 	response, err := h.Usecases.FindClientByIDUseCase.Execute(ctx, idInt)
 // 	if err != nil {
 // 		utils.WriteErrModel(w, http.StatusNotFound,
 // 			utils.NewErrorResponse(fmt.Sprintf("failed to find user, error: '%s'", err.Error())))
@@ -71,7 +71,7 @@ import (
 // 		return
 // 	}
 
-// 	response, err := h.FindClientByNameUseCase.Execute(ctx, name)
+// 	response, err := h.Usecases.FindClientByNameUseCase.Execute(ctx, name)
 // 	if err != nil {
 // 		utils.WriteErrModel(w, http.StatusNotFound,
 // 			utils.NewErrorResponse(fmt.Sprintf("failed to find user, error: '%s'", err.Error())))
@@ -116,7 +116,7 @@ import (
 // 		return
 // 	}
 
-// 	response, err := h.UpdateClientUseCase.Execute(ctx, &user)
+// 	response, err := h.Usecases.UpdateClientUseCase.Execute(ctx, &user)
 // 	if err != nil {
 // 		utils.WriteErrModel(w, http.StatusBadRequest,
 // 			utils.NewErrorResponse(fmt.Sprintf("failed to update user, error:'%s'", err.Error())))
@@ -148,7 +148,7 @@ import (
 // 		return
 // 	}
 
-// 	response, err := h.DeleteClientUseCase.Execute(ctx, idInt)
+// 	response, err := h.Usecases.DeleteClientUseCase.Execute(ctx, idInt)
 // 	if err != nil {
 // 		utils.WriteErrModel(w, http.StatusBadRequest,
 // 			utils.NewErrorResponse(fmt.Sprintf("failed to delete user, error: '%s'", err.Error())))
@@ -183,7 +183,7 @@ func (h *Handler) LoginUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response, err := h.LoginUseCase.Execute(ctx, &user)
+	response, err := h.Usecases.LoginUseCase.Execute(ctx, &user)
 	if err != nil {
 		utils.WriteErrModel(w, http.StatusInternalServerError,
 			utils.NewErrorResponse(fmt.Sprintf("failed to login user, error: '%s'", err.Error())))

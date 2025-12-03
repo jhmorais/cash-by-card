@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"github.com/jhmorais/cash-by-card/internal/contracts"
+	"github.com/jhmorais/cash-by-card/internal/infra/mail"
 	repoCard "github.com/jhmorais/cash-by-card/internal/repositories/card"
 	repoCardMachine "github.com/jhmorais/cash-by-card/internal/repositories/cardMachine"
 	repoClient "github.com/jhmorais/cash-by-card/internal/repositories/client"
@@ -22,6 +23,7 @@ import (
 
 type DenpencyBuild struct {
 	DB           *gorm.DB
+	Mail         *mail.SMTPMailer
 	Repositories Repositories
 	Usecases     Usecases
 }
@@ -76,9 +78,11 @@ type Usecases struct {
 	UpdateLoanPaymentStatusUseCase contracts.UpdateLoanPaymentStatusUseCase
 
 	CreateUserUseCase                 contracts.CreateUserUseCase
+	UpdateUserUseCase                 contracts.UpdateUserUseCase
 	LoginUseCase                      contracts.LoginUseCase
 	FindUserByEmailAndPasswordUseCase contracts.FindUserByEmailAndPasswordUseCase
 	ListUserUseCase                   contracts.ListUserUseCase
+	SendUserCodeUseCase               contracts.SendUserCodeUseCase
 }
 
 func NewBuild() *DenpencyBuild {
@@ -86,6 +90,7 @@ func NewBuild() *DenpencyBuild {
 	builder := &DenpencyBuild{}
 
 	builder = builder.buildDB().
+		buildMailSender().
 		buildRepositories().
 		buildUseCases()
 
@@ -98,6 +103,16 @@ func (d *DenpencyBuild) buildDB() *DenpencyBuild {
 	if err != nil {
 		log.Fatal(err)
 	}
+	return d
+}
+
+func (d *DenpencyBuild) buildMailSender() *DenpencyBuild {
+	var err error
+	d.Mail, err = mail.NewSMTPMailer()
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	return d
 }
 
@@ -153,7 +168,9 @@ func (d *DenpencyBuild) buildUseCases() *DenpencyBuild {
 	d.Usecases.UpdateLoanPaymentStatusUseCase = loan.NewUpdateLoanPaymentStatusUseCase(d.Repositories.LoanRepository)
 
 	d.Usecases.CreateUserUseCase = user.NewCreateUserUseCase(d.Repositories.UserRepository)
+	d.Usecases.UpdateUserUseCase = user.NewUpdateUserUseCase(d.Repositories.UserRepository)
 	d.Usecases.FindUserByEmailAndPasswordUseCase = user.NewFindUserByEmailAndPasswordUseCase(d.Repositories.UserRepository)
+	d.Usecases.SendUserCodeUseCase = user.NewSendUserCodeUseCase(d.Repositories.UserRepository, d.Mail)
 	d.Usecases.LoginUseCase = login.NewLoginUseCase(d.Repositories.UserRepository)
 
 	return d

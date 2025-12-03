@@ -14,7 +14,7 @@ import (
 
 func (h *Handler) ListPartners(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
-	response, err := h.ListPartnerUseCase.Execute(ctx)
+	response, err := h.Usecases.ListPartnerUseCase.Execute(ctx)
 	if err != nil {
 		utils.WriteErrModel(w, http.StatusNotFound,
 			utils.NewErrorResponse(fmt.Sprintf("failed to get partners, error: '%s'", err.Error())))
@@ -46,7 +46,7 @@ func (h *Handler) GetPartnerByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response, err := h.FindPartnerByIDUseCase.Execute(ctx, idInt)
+	response, err := h.Usecases.FindPartnerByIDUseCase.Execute(ctx, idInt)
 	if err != nil {
 		utils.WriteErrModel(w, http.StatusNotFound,
 			utils.NewErrorResponse(fmt.Sprintf("failed to find partner, error: '%s'", err.Error())))
@@ -72,7 +72,7 @@ func (h *Handler) GetPartner(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response, err := h.FindPartnerByNameUseCase.Execute(ctx, name)
+	response, err := h.Usecases.FindPartnerByNameUseCase.Execute(ctx, name)
 	if err != nil {
 		utils.WriteErrModel(w, http.StatusNotFound,
 			utils.NewErrorResponse(fmt.Sprintf("failed to find partner, error: '%s'", err.Error())))
@@ -117,7 +117,7 @@ func (h *Handler) UpdatePartner(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response, err := h.UpdatePartnerUseCase.Execute(ctx, &partner)
+	response, err := h.Usecases.UpdatePartnerUseCase.Execute(ctx, &partner)
 	if err != nil {
 		utils.WriteErrModel(w, http.StatusBadRequest,
 			utils.NewErrorResponse(err.Error()))
@@ -149,7 +149,7 @@ func (h *Handler) DeletePartner(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response, err := h.DeletePartnerUseCase.Execute(ctx, idInt)
+	response, err := h.Usecases.DeletePartnerUseCase.Execute(ctx, idInt)
 	if err != nil {
 		utils.WriteErrModel(w, http.StatusBadRequest,
 			utils.NewErrorResponse(err.Error()))
@@ -184,7 +184,7 @@ func (h *Handler) CreatePartner(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response, err := h.CreatePartnerUseCase.Execute(ctx, &partner)
+	response, err := h.Usecases.CreatePartnerUseCase.Execute(ctx, &partner)
 	if err != nil {
 		utils.WriteErrModel(w, http.StatusNotFound,
 			utils.NewErrorResponse(err.Error()))

@@ -14,7 +14,7 @@ import (
 
 func (h *Handler) ListCardMachines(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
-	response, err := h.ListCardMachineUseCase.Execute(ctx)
+	response, err := h.Usecases.ListCardMachineUseCase.Execute(ctx)
 	if err != nil {
 		utils.WriteErrModel(w, http.StatusNotFound,
 			utils.NewErrorResponse(fmt.Sprintf("failed to get cardMarchines, error: '%s'", err.Error())))
@@ -51,7 +51,7 @@ func (h *Handler) GetCardMachineByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response, err := h.FindCardMachineByIDUseCase.Execute(ctx, idInt)
+	response, err := h.Usecases.FindCardMachineByIDUseCase.Execute(ctx, idInt)
 	if err != nil {
 		utils.WriteErrModel(w, http.StatusNotFound,
 			utils.NewErrorResponse(fmt.Sprintf("failed to find cardMarchine, error: '%s'", err.Error())))
@@ -96,7 +96,7 @@ func (h *Handler) UpdateCardMachine(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response, err := h.UpdateCardMachineUseCase.Execute(ctx, &cardMachine)
+	response, err := h.Usecases.UpdateCardMachineUseCase.Execute(ctx, &cardMachine)
 	if err != nil {
 		utils.WriteErrModel(w, http.StatusBadRequest,
 			utils.NewErrorResponse(fmt.Sprintf("failed to update cardMachine, error:'%s'", err.Error())))
@@ -128,7 +128,7 @@ func (h *Handler) DeleteCardMachine(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response, err := h.DeleteCardMachineUseCase.Execute(ctx, idInt)
+	response, err := h.Usecases.DeleteCardMachineUseCase.Execute(ctx, idInt)
 	if err != nil {
 		utils.WriteErrModel(w, http.StatusBadRequest,
 			utils.NewErrorResponse(err.Error()))
@@ -163,7 +163,7 @@ func (h *Handler) CreateCardMachine(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response, err := h.CreateCardMachineUseCase.Execute(ctx, &cardMachine)
+	response, err := h.Usecases.CreateCardMachineUseCase.Execute(ctx, &cardMachine)
 	if err != nil {
 		utils.WriteErrModel(w, http.StatusBadRequest,
 			utils.NewErrorResponse(err.Error()))

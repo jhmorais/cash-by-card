@@ -14,7 +14,7 @@ import (
 
 func (h *Handler) ListLoans(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
-	response, err := h.ListLoanUseCase.Execute(ctx)
+	response, err := h.Usecases.ListLoanUseCase.Execute(ctx)
 	if err != nil {
 		utils.WriteErrModel(w, http.StatusNotFound,
 			utils.NewErrorResponse(fmt.Sprintf("failed to get loans, error: '%s'", err.Error())))
@@ -46,7 +46,7 @@ func (h *Handler) GetLoanByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response, err := h.FindLoanByIDUseCase.Execute(ctx, idInt)
+	response, err := h.Usecases.FindLoanByIDUseCase.Execute(ctx, idInt)
 	if err != nil {
 		utils.WriteErrModel(w, http.StatusNotFound,
 			utils.NewErrorResponse(err.Error()))
@@ -78,7 +78,7 @@ func (h *Handler) GetLoanByClientID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response, err := h.FindLoanByClientIDUseCase.Execute(ctx, idInt)
+	response, err := h.Usecases.FindLoanByClientIDUseCase.Execute(ctx, idInt)
 	if err != nil {
 		utils.WriteErrModel(w, http.StatusNotFound,
 			utils.NewErrorResponse(err.Error()))
@@ -110,7 +110,7 @@ func (h *Handler) GetLoanByPartnerID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response, err := h.FindLoanByParnterIDUseCase.Execute(ctx, idInt)
+	response, err := h.Usecases.FindLoanByParnterIDUseCase.Execute(ctx, idInt)
 	if err != nil {
 		utils.WriteErrModel(w, http.StatusNotFound,
 			utils.NewErrorResponse(err.Error()))
@@ -156,14 +156,14 @@ func (h *Handler) UpdateLoan(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// TODO adicionar as duas atualizações na mesma transação
-	_, err = h.UpdateCardUseCase.Execute(ctx, loan.Cards)
+	_, err = h.Usecases.UpdateCardUseCase.Execute(ctx, loan.Cards)
 	if err != nil {
 		utils.WriteErrModel(w, http.StatusBadRequest,
 			utils.NewErrorResponse(err.Error()))
 		return
 	}
 
-	response, err := h.UpdateLoanUseCase.Execute(ctx, &loan)
+	response, err := h.Usecases.UpdateLoanUseCase.Execute(ctx, &loan)
 	if err != nil {
 		utils.WriteErrModel(w, http.StatusBadRequest,
 			utils.NewErrorResponse(err.Error()))
@@ -208,7 +208,7 @@ func (h *Handler) UpdateLoanPaymentStatus(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	err = h.UpdateLoanPaymentStatusUseCase.Execute(ctx, &loan)
+	err = h.Usecases.UpdateLoanPaymentStatusUseCase.Execute(ctx, &loan)
 	if err != nil {
 		utils.WriteErrModel(w, http.StatusBadRequest,
 			utils.NewErrorResponse(err.Error()))
@@ -233,7 +233,7 @@ func (h *Handler) DeleteLoan(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response, err := h.DeleteLoanUseCase.Execute(ctx, idInt)
+	response, err := h.Usecases.DeleteLoanUseCase.Execute(ctx, idInt)
 	if err != nil {
 		utils.WriteErrModel(w, http.StatusBadRequest,
 			utils.NewErrorResponse(err.Error()))
@@ -268,7 +268,7 @@ func (h *Handler) CreateLoan(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response, err := h.CreateLoanUseCase.Execute(ctx, &loan)
+	response, err := h.Usecases.CreateLoanUseCase.Execute(ctx, &loan)
 	if err != nil {
 		utils.WriteErrModel(w, http.StatusInternalServerError,
 			utils.NewErrorResponse(err.Error()))

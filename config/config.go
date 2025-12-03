@@ -44,3 +44,23 @@ func GetMysqlPassword() string {
 func GetServerPort() string {
 	return viper.GetString("SERVER_PORT")
 }
+
+func GetHostSMTP() string {
+	return viper.GetString("SMTP_HOST")
+}
+
+func GetPortSMTP() string {
+	return viper.GetString("SMTP_PORT")
+}
+
+func GetUserSMTP() string {
+	return viper.GetString("SMTP_USER")
+}
+
+func GetPasswordSMTP() string {
+	return viper.GetString("SMTP_PASS")
+}
+
+func GetFromSMTP() string {
+	return viper.GetString("SMTP_FROM")
+}
