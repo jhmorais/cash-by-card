@@ -109,7 +109,7 @@ func (d *loanRepository) GetTotals(ctx context.Context, month int, year int) (*d
 		Model(&entities.Loan{}).
 		Select(`
             COUNT(*) AS total_loans,
-            COALESCE(SUM(amount), 0) AS total_value,
+            COALESCE(SUM(client_amount), 0) AS total_value,
             COALESCE(SUM(gross_profit), 0) AS gross_profit,
             COALESCE(SUM(profit), 0) AS profit
         `).
@@ -169,7 +169,7 @@ func (d *loanRepository) GetMonthlyLoans(ctx context.Context, year int) (*dashbo
 		Table("loan").
 		Select(`
             MONTH(created_at) AS month,
-            COALESCE(SUM(amount), 0) AS total,
+            COALESCE(SUM(client_amount), 0) AS total,
             COALESCE(SUM(gross_profit), 0) AS gross,
             COALESCE(SUM(profit), 0) AS net
         `).
