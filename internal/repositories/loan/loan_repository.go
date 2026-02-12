@@ -111,7 +111,9 @@ func (d *loanRepository) GetTotals(ctx context.Context, month int, year int) (*d
             COUNT(*) AS total_loans,
             COALESCE(SUM(client_amount), 0) AS total_value,
             COALESCE(SUM(gross_profit), 0) AS gross_profit,
-            COALESCE(SUM(profit), 0) AS profit
+            COALESCE(SUM(profit), 0) AS profit,
+			COALESCE(SUM(partner_amount), 0) AS partner_profit,
+			COALESCE(SUM(amount), 0) AS machine_amount
         `).
 		Where("EXTRACT(YEAR FROM created_at) = ?", year).
 		Where("MONTH(created_at) = ?", month).
@@ -131,11 +133,13 @@ func (d *loanRepository) GetBestPartners(ctx context.Context, month int, year in
 		Table("loan").
 		Select(`
             partner.name AS partner,
-            COUNT(loan.id) AS qtt
+            COUNT(loan.id) AS qtt,
+			COALESCE(SUM(loan.partner_amount), 0) AS profit
         `).
 		Joins("INNER JOIN partner ON partner.id = loan.partner_id").
 		Where("EXTRACT(YEAR FROM loan.created_at) = ?", year).
-		Where("MONTH(loan.created_at) = ?", month).
+		Where("EXTRACT(MONTH FROM loan.created_at) = ?", month).
+		// Where("MONTH(loan.created_at) = ?", month).
 		Group("partner.name").
 		Order("qtt DESC").
 		Limit(5).
@@ -157,10 +161,12 @@ func (d *loanRepository) GetMonthlyLoans(ctx context.Context, year int) (*dashbo
 	}
 
 	type row struct {
-		Month int
-		Total float64
-		Gross float64
-		Net   float64
+		Month         int
+		Total         float64
+		Gross         float64
+		Net           float64
+		PartnerProfit float64
+		MachineAmount float64
 	}
 
 	var rows []row
@@ -171,7 +177,9 @@ func (d *loanRepository) GetMonthlyLoans(ctx context.Context, year int) (*dashbo
             MONTH(created_at) AS month,
             COALESCE(SUM(client_amount), 0) AS total,
             COALESCE(SUM(gross_profit), 0) AS gross,
-            COALESCE(SUM(profit), 0) AS net
+            COALESCE(SUM(profit), 0) AS net,
+			COALESCE(SUM(partner_amount), 0) AS partner_profit,
+			COALESCE(SUM(amount), 0) AS machine_amount
         `).
 		Where("EXTRACT(YEAR FROM created_at) = ?", year).
 		Group("month").
@@ -190,6 +198,8 @@ func (d *loanRepository) GetMonthlyLoans(ctx context.Context, year int) (*dashbo
 		loans.Total = append(loans.Total, r.Total)
 		loans.Gross = append(loans.Gross, r.Gross)
 		loans.Net = append(loans.Net, r.Net)
+		loans.PartnerProfit = append(loans.PartnerProfit, r.PartnerProfit)
+		loans.MachineAmount = append(loans.MachineAmount, r.MachineAmount)
 	}
 
 	return loans, nil

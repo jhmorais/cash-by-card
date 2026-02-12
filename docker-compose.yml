@@ -23,7 +23,7 @@ services:
         dockerfile: Dockerfile
     image: cashbycard
     environment:
-        MYSQL_CONNECTION_STRING: "tcp(localhost:3306)/cashbycard?charset=utf8&parseTime=True&loc=Local"
+        MYSQL_CONNECTION_STRING: "tcp(localhost:3306)/database?charset=utf8&parseTime=True&loc=Local"
         MYSQL_USER: "root"
         MYSQL_PASSWORD: "password"
     container_name: cashbycard

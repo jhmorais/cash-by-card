@@ -3,6 +3,7 @@ package dashboard
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/jhmorais/cash-by-card/internal/contracts"
 	output "github.com/jhmorais/cash-by-card/internal/ports/output/dashboard"
@@ -21,12 +22,14 @@ func NewDashboardUseCase(loanRepository repositories.LoanRepository) contracts.D
 }
 
 func (u *dashboardUseCase) Execute(ctx context.Context, month int, year int) (*output.DashboardResponse, error) {
-	totals, err := u.loanRepository.GetTotals(ctx, month, year)
+	currentYear := time.Now().Year()
+
+	totals, err := u.loanRepository.GetTotals(ctx, month, currentYear)
 	if err != nil {
 		return nil, fmt.Errorf("error fetching totals: %v", err)
 	}
 
-	partners, err := u.loanRepository.GetBestPartners(ctx, month, year)
+	partners, err := u.loanRepository.GetBestPartners(ctx, month, currentYear)
 	if err != nil {
 		return nil, fmt.Errorf("error fetching best partners: %v", err)
 	}
@@ -38,11 +41,13 @@ func (u *dashboardUseCase) Execute(ctx context.Context, month int, year int) (*o
 
 	response := &output.DashboardResponse{
 		Dashboard: output.Dashboard{
-			TotalLoans:   totals.TotalLoans,
-			TotalValue:   totals.TotalValue,
-			GrossProfit:  totals.GrossProfit,
-			Profit:       totals.Profit,
-			MonthlyLoans: *monthlyLoans,
+			TotalLoans:    totals.TotalLoans,
+			TotalValue:    totals.TotalValue,
+			GrossProfit:   totals.GrossProfit,
+			Profit:        totals.Profit,
+			PartnerProfit: totals.PartnerProfit,
+			MachineAmount: totals.MachineAmount,
+			MonthlyLoans:  *monthlyLoans,
 		},
 		BestPartners: partners,
 	}
