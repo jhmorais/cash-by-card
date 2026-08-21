@@ -125,15 +125,27 @@ func applyLoanFilters(db *gorm.DB, filter *input.ListLoanFilter) *gorm.DB {
 	if filter.Type != nil {
 		db = db.Where("loan.type = ?", *filter.Type)
 	}
+	clientFilter := (filter.ClientName != nil && *filter.ClientName != "") ||
+		(filter.ClientCPF != nil && *filter.ClientCPF != "")
+	if clientFilter {
+		db = db.Joins("JOIN client ON client.id = loan.client_id")
+	}
 	if filter.ClientName != nil && *filter.ClientName != "" {
-		db = db.
-			Joins("JOIN client ON client.id = loan.client_id").
-			Where("client.name LIKE ?", "%"+*filter.ClientName+"%")
+		db = db.Where("client.name LIKE ?", "%"+*filter.ClientName+"%")
+	}
+	if filter.ClientCPF != nil && *filter.ClientCPF != "" {
+		db = db.Where("client.cpf = ?", *filter.ClientCPF)
+	}
+	partnerFilter := (filter.PartnerName != nil && *filter.PartnerName != "") ||
+		(filter.PartnerCPF != nil && *filter.PartnerCPF != "")
+	if partnerFilter {
+		db = db.Joins("JOIN partner ON partner.id = loan.partner_id")
 	}
 	if filter.PartnerName != nil && *filter.PartnerName != "" {
-		db = db.
-			Joins("JOIN partner ON partner.id = loan.partner_id").
-			Where("partner.name LIKE ?", "%"+*filter.PartnerName+"%")
+		db = db.Where("partner.name LIKE ?", "%"+*filter.PartnerName+"%")
+	}
+	if filter.PartnerCPF != nil && *filter.PartnerCPF != "" {
+		db = db.Where("partner.cpf = ?", *filter.PartnerCPF)
 	}
 	if filter.AmountMin != nil {
 		db = db.Where("loan.amount >= ?", *filter.AmountMin)
