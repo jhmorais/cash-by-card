@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
 
 	input "github.com/jhmorais/cash-by-card/internal/ports/input/loan"
 )
@@ -19,6 +20,25 @@ func parseStringFilterParam(query url.Values, name string) *string {
 		return nil
 	}
 	return &value
+}
+
+// parseCpfFilterParam returns the param value reduced to digits only.
+// Returns nil when absent, empty, or containing no digits.
+func parseCpfFilterParam(query url.Values, name string) *string {
+	value := query.Get(name)
+	if value == "" {
+		return nil
+	}
+	digits := strings.Map(func(r rune) rune {
+		if r >= '0' && r <= '9' {
+			return r
+		}
+		return -1
+	}, value)
+	if digits == "" {
+		return nil
+	}
+	return &digits
 }
 
 func parseIntFilterParam(query url.Values, name string) (*int, error) {
@@ -85,6 +105,8 @@ func parseListLoansParams(r *http.Request) (*input.ListLoanFilter, *input.Pagina
 
 	filter.ClientName = parseStringFilterParam(query, "clientName")
 	filter.PartnerName = parseStringFilterParam(query, "partnerName")
+	filter.ClientCPF = parseCpfFilterParam(query, "clientCpf")
+	filter.PartnerCPF = parseCpfFilterParam(query, "partnerCpf")
 
 	floatRanges := []struct {
 		minName string

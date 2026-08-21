@@ -170,3 +170,40 @@ func TestListLoans_UseCaseErrorReturns404(t *testing.T) {
 		t.Fatalf("expected 404, got %d", rec.Code)
 	}
 }
+
+func TestListLoans_ParsesAndNormalizesCpfParams(t *testing.T) {
+	var gotFilter *input.ListLoanFilter
+
+	handler := listLoansHandler(&mockListLoanUseCase{
+		executeFunc: func(ctx context.Context, filter *input.ListLoanFilter, pagination *input.Pagination) (*output.ListLoan, error) {
+			gotFilter = filter
+			return &output.ListLoan{Loans: []*entities.Loan{}, Total: 0, Page: 1, Limit: 10, TotalPages: 0}, nil
+		},
+	})
+
+	req := httptest.NewRequest(http.MethodGet, "/admin/loans?clientCpf=123.456.789-00&partnerCpf=98765432100", nil)
+	rec := httptest.NewRecorder()
+	handler.ListLoans(rec, req)
+
+	if rec.Code != http.StatusOK {
+		t.Fatalf("expected 200, got %d, body: %s", rec.Code, rec.Body.String())
+	}
+	if gotFilter.ClientCPF == nil || *gotFilter.ClientCPF != "12345678900" {
+		t.Fatalf("expected ClientCPF '12345678900' (digits only), got %+v", gotFilter.ClientCPF)
+	}
+	if gotFilter.PartnerCPF == nil || *gotFilter.PartnerCPF != "98765432100" {
+		t.Fatalf("expected PartnerCPF '98765432100', got %+v", gotFilter.PartnerCPF)
+	}
+
+	// punctuation-only input has no digits -> nil filter
+	req2 := httptest.NewRequest(http.MethodGet, "/admin/loans?clientCpf=...---", nil)
+	rec2 := httptest.NewRecorder()
+	handler.ListLoans(rec2, req2)
+
+	if rec2.Code != http.StatusOK {
+		t.Fatalf("expected 200 for punctuation-only cpf, got %d, body: %s", rec2.Code, rec2.Body.String())
+	}
+	if gotFilter.ClientCPF != nil {
+		t.Fatalf("expected nil ClientCPF for punctuation-only input, got %+v", gotFilter.ClientCPF)
+	}
+}

@@ -13,6 +13,8 @@ type ListLoanFilter struct {
 	Type          *int
 	ClientName    *string
 	PartnerName   *string
+	ClientCPF     *string
+	PartnerCPF    *string
 
 	AmountMin        *float64
 	AmountMax        *float64
