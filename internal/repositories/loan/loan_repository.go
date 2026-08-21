@@ -89,6 +89,10 @@ func (d *loanRepository) ListLoan(ctx context.Context, filter *input.ListLoanFil
 	var loans []*entities.Loan
 	var total int64
 
+	if pagination == nil {
+		pagination = &input.Pagination{Page: 1, Limit: 10}
+	}
+
 	countQuery := applyLoanFilters(d.db.WithContext(ctx).Model(&entities.Loan{}), filter)
 	if err := countQuery.Count(&total).Error; err != nil {
 		return nil, 0, err
@@ -98,7 +102,7 @@ func (d *loanRepository) ListLoan(ctx context.Context, filter *input.ListLoanFil
 	offset := (pagination.Page - 1) * pagination.Limit
 	err := findQuery.
 		Preload(clause.Associations).
-		Order("loan.created_at desc").
+		Order("loan.created_at desc, loan.id desc").
 		Offset(offset).
 		Limit(pagination.Limit).
 		Find(&loans).Error
