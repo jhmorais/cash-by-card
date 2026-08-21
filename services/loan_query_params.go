@@ -41,30 +41,6 @@ func parseCpfFilterParam(query url.Values, name string) *string {
 	return &digits
 }
 
-func parseIntFilterParam(query url.Values, name string) (*int, error) {
-	value := query.Get(name)
-	if value == "" {
-		return nil, nil
-	}
-	parsed, err := strconv.Atoi(value)
-	if err != nil {
-		return nil, fmt.Errorf("invalid '%s' parameter, expected an integer", name)
-	}
-	return &parsed, nil
-}
-
-func parseFloatFilterParam(query url.Values, name string) (*float64, error) {
-	value := query.Get(name)
-	if value == "" {
-		return nil, nil
-	}
-	parsed, err := strconv.ParseFloat(value, 64)
-	if err != nil {
-		return nil, fmt.Errorf("invalid '%s' parameter, expected a number", name)
-	}
-	return &parsed, nil
-}
-
 // parseListLoansParams reads and validates the query params of GET /admin/loans.
 func parseListLoansParams(r *http.Request) (*input.ListLoanFilter, *input.Pagination, error) {
 	query := r.URL.Query()
@@ -94,56 +70,10 @@ func parseListLoansParams(r *http.Request) (*input.ListLoanFilter, *input.Pagina
 	}
 	filter.PaymentStatus = parseStringFilterParam(query, "paymentStatus")
 
-	loanType, err := parseIntFilterParam(query, "type")
-	if err != nil {
-		return nil, nil, err
-	}
-	if loanType != nil && *loanType != 1 && *loanType != 2 {
-		return nil, nil, fmt.Errorf("invalid 'type' parameter, expected 1 or 2")
-	}
-	filter.Type = loanType
-
 	filter.ClientName = parseStringFilterParam(query, "clientName")
 	filter.PartnerName = parseStringFilterParam(query, "partnerName")
 	filter.ClientCPF = parseCpfFilterParam(query, "clientCpf")
 	filter.PartnerCPF = parseCpfFilterParam(query, "partnerCpf")
-
-	floatRanges := []struct {
-		minName string
-		maxName string
-		minDst  **float64
-		maxDst  **float64
-	}{
-		{"amountMin", "amountMax", &filter.AmountMin, &filter.AmountMax},
-		{"askValueMin", "askValueMax", &filter.AskValueMin, &filter.AskValueMax},
-		{"clientAmountMin", "clientAmountMax", &filter.ClientAmountMin, &filter.ClientAmountMax},
-		{"grossProfitMin", "grossProfitMax", &filter.GrossProfitMin, &filter.GrossProfitMax},
-		{"profitMin", "profitMax", &filter.ProfitMin, &filter.ProfitMax},
-		{"partnerAmountMin", "partnerAmountMax", &filter.PartnerAmountMin, &filter.PartnerAmountMax},
-		{"operationPercentMin", "operationPercentMax", &filter.OperationPctMin, &filter.OperationPctMax},
-		{"partnerPercentMin", "partnerPercentMax", &filter.PartnerPctMin, &filter.PartnerPctMax},
-	}
-	for _, fr := range floatRanges {
-		minValue, err := parseFloatFilterParam(query, fr.minName)
-		if err != nil {
-			return nil, nil, err
-		}
-		maxValue, err := parseFloatFilterParam(query, fr.maxName)
-		if err != nil {
-			return nil, nil, err
-		}
-		*fr.minDst = minValue
-		*fr.maxDst = maxValue
-	}
-
-	filter.NumberCardsMin, err = parseIntFilterParam(query, "numberCardsMin")
-	if err != nil {
-		return nil, nil, err
-	}
-	filter.NumberCardsMax, err = parseIntFilterParam(query, "numberCardsMax")
-	if err != nil {
-		return nil, nil, err
-	}
 
 	return filter, pagination, nil
 }

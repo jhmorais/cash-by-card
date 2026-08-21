@@ -122,9 +122,6 @@ func applyLoanFilters(db *gorm.DB, filter *input.ListLoanFilter) *gorm.DB {
 	if filter.PaymentStatus != nil {
 		db = db.Where("loan.payment_status = ?", *filter.PaymentStatus)
 	}
-	if filter.Type != nil {
-		db = db.Where("loan.type = ?", *filter.Type)
-	}
 	clientFilter := (filter.ClientName != nil && *filter.ClientName != "") ||
 		(filter.ClientCPF != nil && *filter.ClientCPF != "")
 	if clientFilter {
@@ -146,60 +143,6 @@ func applyLoanFilters(db *gorm.DB, filter *input.ListLoanFilter) *gorm.DB {
 	}
 	if filter.PartnerCPF != nil && *filter.PartnerCPF != "" {
 		db = db.Where("partner.cpf = ?", *filter.PartnerCPF)
-	}
-	if filter.AmountMin != nil {
-		db = db.Where("loan.amount >= ?", *filter.AmountMin)
-	}
-	if filter.AmountMax != nil {
-		db = db.Where("loan.amount <= ?", *filter.AmountMax)
-	}
-	if filter.AskValueMin != nil {
-		db = db.Where("loan.ask_value >= ?", *filter.AskValueMin)
-	}
-	if filter.AskValueMax != nil {
-		db = db.Where("loan.ask_value <= ?", *filter.AskValueMax)
-	}
-	if filter.ClientAmountMin != nil {
-		db = db.Where("loan.client_amount >= ?", *filter.ClientAmountMin)
-	}
-	if filter.ClientAmountMax != nil {
-		db = db.Where("loan.client_amount <= ?", *filter.ClientAmountMax)
-	}
-	if filter.GrossProfitMin != nil {
-		db = db.Where("loan.gross_profit >= ?", *filter.GrossProfitMin)
-	}
-	if filter.GrossProfitMax != nil {
-		db = db.Where("loan.gross_profit <= ?", *filter.GrossProfitMax)
-	}
-	if filter.ProfitMin != nil {
-		db = db.Where("loan.profit >= ?", *filter.ProfitMin)
-	}
-	if filter.ProfitMax != nil {
-		db = db.Where("loan.profit <= ?", *filter.ProfitMax)
-	}
-	if filter.PartnerAmountMin != nil {
-		db = db.Where("loan.partner_amount >= ?", *filter.PartnerAmountMin)
-	}
-	if filter.PartnerAmountMax != nil {
-		db = db.Where("loan.partner_amount <= ?", *filter.PartnerAmountMax)
-	}
-	if filter.OperationPctMin != nil {
-		db = db.Where("loan.operation_percent >= ?", *filter.OperationPctMin)
-	}
-	if filter.OperationPctMax != nil {
-		db = db.Where("loan.operation_percent <= ?", *filter.OperationPctMax)
-	}
-	if filter.PartnerPctMin != nil {
-		db = db.Where("loan.partner_percent >= ?", *filter.PartnerPctMin)
-	}
-	if filter.PartnerPctMax != nil {
-		db = db.Where("loan.partner_percent <= ?", *filter.PartnerPctMax)
-	}
-	if filter.NumberCardsMin != nil {
-		db = db.Where("loan.number_cards >= ?", *filter.NumberCardsMin)
-	}
-	if filter.NumberCardsMax != nil {
-		db = db.Where("loan.number_cards <= ?", *filter.NumberCardsMax)
 	}
 
 	return db

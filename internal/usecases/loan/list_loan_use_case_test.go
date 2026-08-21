@@ -83,17 +83,13 @@ func TestListLoanUseCase_Execute_PassesFilterThrough(t *testing.T) {
 	})
 
 	paymentStatus := "pending"
-	loanType := 2
 	clientName := "joão"
-	amountMin := 100.5
-	numberCardsMin := 3
+	clientCPF := "12345678900"
 
 	filter := &input.ListLoanFilter{
-		PaymentStatus:  &paymentStatus,
-		Type:           &loanType,
-		ClientName:     &clientName,
-		AmountMin:      &amountMin,
-		NumberCardsMin: &numberCardsMin,
+		PaymentStatus: &paymentStatus,
+		ClientName:    &clientName,
+		ClientCPF:     &clientCPF,
 	}
 
 	_, err := useCase.Execute(context.Background(), filter, &input.Pagination{Page: 2, Limit: 25})
