@@ -7,7 +7,6 @@ import (
 
 	"github.com/jhmorais/cash-by-card/internal/domain/entities"
 	input "github.com/jhmorais/cash-by-card/internal/ports/input/loan"
-	output "github.com/jhmorais/cash-by-card/internal/ports/output/loan"
 	repositories "github.com/jhmorais/cash-by-card/internal/repositories/loan"
 )
 

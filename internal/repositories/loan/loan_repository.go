@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/jhmorais/cash-by-card/internal/domain/entities"
+	input "github.com/jhmorais/cash-by-card/internal/ports/input/loan"
 	dashboard "github.com/jhmorais/cash-by-card/internal/ports/output/dashboard"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -84,21 +85,108 @@ func (d *loanRepository) UpdateLoanPaymentStatus(ctx context.Context, LoanID int
 	return err
 }
 
-func (d *loanRepository) ListLoan(ctx context.Context) ([]*entities.Loan, error) {
-	//TODO impl pagination
-	var entities []*entities.Loan
+func (d *loanRepository) ListLoan(ctx context.Context, filter *input.ListLoanFilter, pagination *input.Pagination) ([]*entities.Loan, int64, error) {
+	var loans []*entities.Loan
+	var total int64
 
-	err := d.db.
-		Preload(clause.Associations).
-		Limit(100).
-		Order("created_at desc").
-		Find(&entities).Error
-
-	if err != nil {
-		return nil, err
+	countQuery := applyLoanFilters(d.db.WithContext(ctx).Model(&entities.Loan{}), filter)
+	if err := countQuery.Count(&total).Error; err != nil {
+		return nil, 0, err
 	}
 
-	return entities, nil
+	findQuery := applyLoanFilters(d.db.WithContext(ctx).Model(&entities.Loan{}), filter)
+	offset := (pagination.Page - 1) * pagination.Limit
+	err := findQuery.
+		Preload(clause.Associations).
+		Order("loan.created_at desc").
+		Offset(offset).
+		Limit(pagination.Limit).
+		Find(&loans).Error
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return loans, total, nil
+}
+
+// applyLoanFilters appends conditional WHERE/JOIN clauses based on non-nil filter fields.
+func applyLoanFilters(db *gorm.DB, filter *input.ListLoanFilter) *gorm.DB {
+	if filter == nil {
+		return db
+	}
+
+	if filter.PaymentStatus != nil {
+		db = db.Where("loan.payment_status = ?", *filter.PaymentStatus)
+	}
+	if filter.Type != nil {
+		db = db.Where("loan.type = ?", *filter.Type)
+	}
+	if filter.ClientName != nil && *filter.ClientName != "" {
+		db = db.
+			Joins("JOIN client ON client.id = loan.client_id").
+			Where("client.name LIKE ?", "%"+*filter.ClientName+"%")
+	}
+	if filter.PartnerName != nil && *filter.PartnerName != "" {
+		db = db.
+			Joins("JOIN partner ON partner.id = loan.partner_id").
+			Where("partner.name LIKE ?", "%"+*filter.PartnerName+"%")
+	}
+	if filter.AmountMin != nil {
+		db = db.Where("loan.amount >= ?", *filter.AmountMin)
+	}
+	if filter.AmountMax != nil {
+		db = db.Where("loan.amount <= ?", *filter.AmountMax)
+	}
+	if filter.AskValueMin != nil {
+		db = db.Where("loan.ask_value >= ?", *filter.AskValueMin)
+	}
+	if filter.AskValueMax != nil {
+		db = db.Where("loan.ask_value <= ?", *filter.AskValueMax)
+	}
+	if filter.ClientAmountMin != nil {
+		db = db.Where("loan.client_amount >= ?", *filter.ClientAmountMin)
+	}
+	if filter.ClientAmountMax != nil {
+		db = db.Where("loan.client_amount <= ?", *filter.ClientAmountMax)
+	}
+	if filter.GrossProfitMin != nil {
+		db = db.Where("loan.gross_profit >= ?", *filter.GrossProfitMin)
+	}
+	if filter.GrossProfitMax != nil {
+		db = db.Where("loan.gross_profit <= ?", *filter.GrossProfitMax)
+	}
+	if filter.ProfitMin != nil {
+		db = db.Where("loan.profit >= ?", *filter.ProfitMin)
+	}
+	if filter.ProfitMax != nil {
+		db = db.Where("loan.profit <= ?", *filter.ProfitMax)
+	}
+	if filter.PartnerAmountMin != nil {
+		db = db.Where("loan.partner_amount >= ?", *filter.PartnerAmountMin)
+	}
+	if filter.PartnerAmountMax != nil {
+		db = db.Where("loan.partner_amount <= ?", *filter.PartnerAmountMax)
+	}
+	if filter.OperationPctMin != nil {
+		db = db.Where("loan.operation_percent >= ?", *filter.OperationPctMin)
+	}
+	if filter.OperationPctMax != nil {
+		db = db.Where("loan.operation_percent <= ?", *filter.OperationPctMax)
+	}
+	if filter.PartnerPctMin != nil {
+		db = db.Where("loan.partner_percent >= ?", *filter.PartnerPctMin)
+	}
+	if filter.PartnerPctMax != nil {
+		db = db.Where("loan.partner_percent <= ?", *filter.PartnerPctMax)
+	}
+	if filter.NumberCardsMin != nil {
+		db = db.Where("loan.number_cards >= ?", *filter.NumberCardsMin)
+	}
+	if filter.NumberCardsMax != nil {
+		db = db.Where("loan.number_cards <= ?", *filter.NumberCardsMax)
+	}
+
+	return db
 }
 
 func (d *loanRepository) GetTotals(ctx context.Context, month int, year int) (*dashboard.Dashboard, error) {
