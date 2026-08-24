@@ -51,6 +51,13 @@ type Handler struct {
 	LoginUseCase                      contracts.LoginUseCase
 	FindUserByEmailAndPasswordUseCase contracts.FindUserByEmailAndPasswordUseCase
 	ListUserUseCase                   contracts.ListUserUseCase
+	ForgotPasswordUseCase             contracts.ForgotPasswordUseCase
+	ResetPasswordUseCase              contracts.ResetPasswordUseCase
+	ChangePasswordUseCase             contracts.ChangePasswordUseCase
+	GetUserUseCase                    contracts.GetUserUseCase
+	UpdateUserUseCase                 contracts.UpdateUserUseCase
+	DeleteUserUseCase                 contracts.DeleteUserUseCase
+	ClearPasswordUseCase              contracts.ClearPasswordUseCase
 
 	DashboardUseCase contracts.DashboardUseCase
 }
@@ -95,6 +102,13 @@ func NewHTTPRouterClient(
 		FindUserByEmailAndPasswordUseCase: useCases.FindUserByEmailAndPasswordUseCase,
 		CreateUserUseCase:                 useCases.CreateUserUseCase,
 		LoginUseCase:                      useCases.LoginUseCase,
+		ForgotPasswordUseCase:             useCases.ForgotPasswordUseCase,
+		ResetPasswordUseCase:              useCases.ResetPasswordUseCase,
+		ChangePasswordUseCase:             useCases.ChangePasswordUseCase,
+		GetUserUseCase:                    useCases.GetUserUseCase,
+		UpdateUserUseCase:                 useCases.UpdateUserUseCase,
+		DeleteUserUseCase:                 useCases.DeleteUserUseCase,
+		ClearPasswordUseCase:              useCases.ClearPasswordUseCase,
 		DashboardUseCase:                  useCases.DashboardUseCase,
 	}
 	router.UseEncodedPath()
@@ -146,9 +160,20 @@ func NewHTTPRouterClient(
 	adminRouter.HandleFunc("/loans/{id}/payment-status", handler.UpdateLoanPaymentStatus).Methods(http.MethodPatch)
 	adminRouter.HandleFunc("/dashboard", handler.GetDashboard).Methods(http.MethodGet)
 
-	adminRouter.HandleFunc("/users", handler.CreateUser).Methods(http.MethodPost) // Criar o service do usuario
-	adminRouter.HandleFunc("/users", handler.ListUsers).Methods(http.MethodGet)   // Criar o service do usuario
-	authRouter.HandleFunc("/login", handler.LoginUser).Methods(http.MethodPost)   // Criar o service do login
+	adminRouter.HandleFunc("/users", handler.ListUsers).Methods(http.MethodGet)
+	adminRouter.HandleFunc("/users", handler.CreateUser).Methods(http.MethodPost)
+	adminRouter.HandleFunc("/users/{id}", handler.UpdateUser).Methods(http.MethodPut)
+	adminRouter.HandleFunc("/users/{id}", handler.DeleteUser).Methods(http.MethodDelete)
+	adminRouter.HandleFunc("/users/{id}/clear-password", handler.ClearUserPassword).Methods(http.MethodPost)
+
+	authRouter.HandleFunc("/login", handler.LoginUser).Methods(http.MethodPost)
+	authRouter.HandleFunc("/forgot-password", handler.ForgotPassword).Methods(http.MethodPost)
+	authRouter.HandleFunc("/reset-password", handler.ResetPassword).Methods(http.MethodPost)
+
+	accountRouter := router.PathPrefix("/account").Subrouter()
+	accountRouter.Use(utils.ValidateJwtTokenMiddleware)
+	accountRouter.HandleFunc("/me", handler.GetMe).Methods(http.MethodGet)
+	accountRouter.HandleFunc("/change-password", handler.ChangePassword).Methods(http.MethodPost)
 
 	return router
 }
