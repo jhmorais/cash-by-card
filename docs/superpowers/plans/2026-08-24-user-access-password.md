@@ -678,7 +678,8 @@ git commit -m "feat: inputs e outputs de primeiro acesso e administracao de usua
 
 **Files:**
 - Create: `internal/contracts/iforgot_password_use_case.go`, `ireset_password_use_case.go`, `ichange_password_use_case.go`, `iget_user_use_case.go`, `iupdate_user_use_case.go`, `idelete_user_use_case.go`, `iclear_password_use_case.go`
-- Modify: `internal/contracts/ilist_user_use_case.go`, `icreate_user_use_case.go`
+
+Nota: os contratos existentes `icreate_user_use_case.go` e `ilist_user_use_case.go` NÃO são alterados aqui — isso quebraria o build até a Task 9. Eles são reescritos na Task 9 junto com os use cases.
 
 - [ ] **Step 1: Escrever os contratos**
 
@@ -797,45 +798,17 @@ type ClearPasswordUseCase interface {
 }
 ```
 
-- [ ] **Step 2: Ajustar contratos existentes**
-
-`icreate_user_use_case.go` (adiciona requesterEmail):
-
-```go
-package contracts
-
-import (
-	"context"
-
-	input "github.com/jhmorais/cash-by-card/internal/ports/input/user"
-	output "github.com/jhmorais/cash-by-card/internal/ports/output/user"
-)
-
-type CreateUserUseCase interface {
-	Execute(ctx context.Context, requesterEmail string, createUser *input.CreateUser) (*output.CreateUser, error)
-}
-```
-
-`ilist_user_use_case.go` (adiciona requesterEmail):
-
-```go
-package contracts
-
-import (
-	"context"
-
-	output "github.com/jhmorais/cash-by-card/internal/ports/output/user"
-)
-
-type ListUserUseCase interface {
-	Execute(ctx context.Context, requesterEmail string) (*output.ListUser, error)
-}
-```
-
-- [ ] **Step 3: Build**
+- [ ] **Step 2: Build permanece verde**
 
 Run: `go build ./...`
-Expected: quebra nos use cases existentes (create_user, list_user) e na DI — serão reescritos nas Tasks 7-9. Se preferir manter o build verde a cada commit, faça Task 6+7+8+9 antes do commit único final destas. Caso contrário, commit apenas dos contratos novos com os use cases ainda compilando é impossível — **commit apenas no fim da Task 9**.
+Expected: sem erro (contratos novos não referenciam nada inexistente; use cases antigos intactos)
+
+- [ ] **Step 3: Commit**
+
+```bash
+git add internal/contracts/
+git commit -m "feat: contratos dos use cases de conta e administracao de usuarios"
+```
 
 ---
 
@@ -1373,8 +1346,45 @@ git commit -m "feat: login informa usuario pendente de primeiro acesso"
 ### Task 9: Use cases de administração — list, create, update, delete, clear, get (TDD)
 
 **Files:**
-- Create: `internal/usecases/user/get_user_use_case.go` (+_test), `update_user_use_case.go` (+_test), `delete_user_use_case.go` (+_test), `clear_password_use_case.go` (+_test)
+- Create: `internal/usecases/user/get_user_use_case.go` (+_test), `update_user_use_case.go` (+_test), `delete_user_use_case.go` (+_test), `clear_password_use_case.go` (+_test), `internal/usecases/user/permissions.go`
 - Modify: `internal/usecases/user/create_user_use_case.go` (+_test), `list_user_use_case.go` (+_test)
+- Modify: `internal/contracts/icreate_user_use_case.go`, `internal/contracts/ilist_user_use_case.go` (assinaturas ganham requesterEmail)
+- Modify: `services/user.go` (apenas os call sites de `Execute` de ListUsers/CreateUser passam `utils.EmailFromContext(r.Context())` para manter o build verde; a reescrita completa dos handlers é a Task 11)
+
+**Contratos existentes — reescrever:**
+
+`internal/contracts/icreate_user_use_case.go`:
+
+```go
+package contracts
+
+import (
+	"context"
+
+	input "github.com/jhmorais/cash-by-card/internal/ports/input/user"
+	output "github.com/jhmorais/cash-by-card/internal/ports/output/user"
+)
+
+type CreateUserUseCase interface {
+	Execute(ctx context.Context, requesterEmail string, createUser *input.CreateUser) (*output.CreateUser, error)
+}
+```
+
+`internal/contracts/ilist_user_use_case.go`:
+
+```go
+package contracts
+
+import (
+	"context"
+
+	output "github.com/jhmorais/cash-by-card/internal/ports/output/user"
+)
+
+type ListUserUseCase interface {
+	Execute(ctx context.Context, requesterEmail string) (*output.ListUser, error)
+}
+```
 
 **Regra de permissão compartilhada** (usar em todos os use cases deste task — colocar no arquivo `internal/usecases/user/permissions.go`):
 
@@ -2190,10 +2200,27 @@ func (g *getUserUseCase) Execute(ctx context.Context, email string) (*output.Get
 
 Run: `go test ./internal/usecases/user/ -v` → todos PASS
 
-- [ ] **Step 11: Commit (Tasks 6+7+8+9 juntos — contratos só compilam com os use cases)**
+- [ ] **Step 11: Call sites em services/user.go (manter build verde)**
+
+Nos handlers `ListUsers` e `CreateUser` existentes de `services/user.go`, trocar as chamadas:
+
+```go
+	// antes: response, err := h.ListUserUseCase.Execute(ctx)
+	response, err := h.ListUserUseCase.Execute(ctx, utils.EmailFromContext(r.Context()))
+
+	// antes: response, err := h.CreateUserUseCase.Execute(ctx, &createUser)
+	response, err := h.CreateUserUseCase.Execute(ctx, utils.EmailFromContext(r.Context()), &createUser)
+```
+
+(import `"github.com/jhmorais/cash-by-card/utils"` se ainda não existir; a reescrita completa desses handlers é a Task 11.)
+
+Run: `go build ./... && go test ./...`
+Expected: sem erro
+
+- [ ] **Step 12: Commit**
 
 ```bash
-git add internal/contracts/ internal/usecases/ internal/repositories/user/user_repository.go
+git add internal/contracts/ internal/usecases/ services/user.go
 git commit -m "feat: use cases de administracao de usuarios com matriz de permissoes"
 ```
 
