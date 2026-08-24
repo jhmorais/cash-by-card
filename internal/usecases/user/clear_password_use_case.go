@@ -47,10 +47,8 @@ func (c *clearPasswordUseCase) Execute(ctx context.Context, requesterEmail strin
 		return nil, err
 	}
 
-	if err := c.userRepository.ClearUserPassword(ctx, target.ID); err != nil {
-		return nil, err
-	}
-
+	// token ANTES de limpar a senha: se a criação do token falhar, a senha fica
+	// intacta e o usuário não fica trancado fora da conta.
 	plain, hash, err := utils.GenerateResetToken()
 	if err != nil {
 		return nil, err
@@ -64,6 +62,11 @@ func (c *clearPasswordUseCase) Execute(ctx context.Context, requesterEmail strin
 	if err := c.tokenRepository.CreateToken(ctx, token); err != nil {
 		return nil, err
 	}
+
+	if err := c.userRepository.ClearUserPassword(ctx, target.ID); err != nil {
+		return nil, err
+	}
+
 	link := strings.TrimSuffix(config.GetFrontURL(), "/") + "/primeiro-acesso?token=" + plain
 	if err := c.emailSender.SendPasswordResetEmail(ctx, target.Email, link); err != nil {
 		log.Printf("senha limpa mas falhou envio do email: %v", err)

@@ -14,6 +14,9 @@ const (
 
 // canListUsers: organization e admin acessam a administração de usuários.
 func canListUsers(requester *entities.User) error {
+	if requester == nil || requester.Email == "" {
+		return fmt.Errorf("sem permissão para acessar a administração de usuários")
+	}
 	if requester.Role != RoleOrganization && requester.Role != RoleAdmin {
 		return fmt.Errorf("sem permissão para acessar a administração de usuários")
 	}

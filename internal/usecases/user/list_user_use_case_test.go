@@ -54,3 +54,13 @@ func TestListUser_AdminOk(t *testing.T) {
 		t.Fatal("usuário com password definido deve vir PendingFirstAccess=false")
 	}
 }
+
+func TestListUser_RequesterInexistenteNaoParanica(t *testing.T) {
+	uc := NewListUserUseCase(&mockUserRepo{findByEmail: func(ctx context.Context, email string) (*entities.User, error) {
+		return nil, nil // gorm Find: usuário deletado com JWT ainda válido
+	}})
+	_, err := uc.Execute(context.Background(), "fantasma@x.com")
+	if err == nil {
+		t.Fatal("requester inexistente deve retornar erro, não pânico")
+	}
+}
