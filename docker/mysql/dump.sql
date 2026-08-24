@@ -1,0 +1,108 @@
+-- Schema inicial do cash-by-card (estrutura de db/data.txt, tabelas
+-- reordenadas para respeitar as FKs: partner -> client -> card_machine -> loan -> card)
+CREATE DATABASE IF NOT EXISTS `database` DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;
+USE `database`;
+
+SET FOREIGN_KEY_CHECKS = 0;
+
+CREATE TABLE `partner` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `name` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `cpf` varchar(15) COLLATE utf8_unicode_ci NOT NULL,
+  `pix_key` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `phone` varchar(15) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `address` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `email` varchar(120) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `pix_type` int(11) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+CREATE TABLE `client` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `name` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `pix_type` int(11) NOT NULL,
+  `pix_key` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `partner_id` bigint(20) DEFAULT NULL,
+  `documents` varchar(512) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `cpf` varchar(15) COLLATE utf8_unicode_ci NOT NULL,
+  `phone` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `partner_id` (`partner_id`),
+  CONSTRAINT `client_ibfk_1` FOREIGN KEY (`partner_id`) REFERENCES `partner` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+CREATE TABLE `card_machine` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `brand` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `presential_tax` json NOT NULL,
+  `online_tax` json NOT NULL,
+  `installments` int(11) NOT NULL,
+  `name` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+CREATE TABLE `loan` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `client_id` bigint(20) NOT NULL,
+  `ask_value` float NOT NULL,
+  `number_cards` int(11) NOT NULL,
+  `amount` float NOT NULL,
+  `partner_id` bigint(20) DEFAULT NULL,
+  `gross_profit` float NOT NULL,
+  `profit` float NOT NULL,
+  `type` int(11) NOT NULL,
+  `client_amount` float NOT NULL,
+  `payment_status` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `partner_percent` float DEFAULT NULL,
+  `partner_amount` float DEFAULT NULL,
+  `operation_percent` float DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `client_id` (`client_id`),
+  KEY `partner_id` (`partner_id`),
+  CONSTRAINT `loan_ibfk_1` FOREIGN KEY (`client_id`) REFERENCES `client` (`id`),
+  CONSTRAINT `loan_ibfk_2` FOREIGN KEY (`partner_id`) REFERENCES `partner` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+CREATE TABLE `card` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `payment_type` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `value` float NOT NULL,
+  `brand` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `installments` int(11) DEFAULT NULL,
+  `loan_id` bigint(20) NOT NULL,
+  `card_machine_id` bigint(20) NOT NULL,
+  `installments_value` float NOT NULL,
+  `card_machine_name` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `client_amount` float NOT NULL,
+  `gross_profit` float NOT NULL,
+  `machine_value` float DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `card_machine_id` (`card_machine_id`),
+  KEY `card_ibfk_1` (`loan_id`),
+  CONSTRAINT `card_ibfk_1` FOREIGN KEY (`loan_id`) REFERENCES `loan` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `card_ibfk_2` FOREIGN KEY (`card_machine_id`) REFERENCES `card_machine` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+CREATE TABLE `user` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `email` varchar(100) NOT NULL,
+  `name` varchar(100) NOT NULL,
+  `password` varchar(100) NOT NULL,
+  `role` varchar(100) NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `user_unique` (`email`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+SET FOREIGN_KEY_CHECKS = 1;

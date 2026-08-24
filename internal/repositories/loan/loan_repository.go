@@ -131,7 +131,8 @@ func applyLoanFilters(db *gorm.DB, filter *input.ListLoanFilter) *gorm.DB {
 		db = db.Where("client.name LIKE ?", "%"+*filter.ClientName+"%")
 	}
 	if filter.ClientCPF != nil && *filter.ClientCPF != "" {
-		db = db.Where("client.cpf = ?", *filter.ClientCPF)
+		// CPF chega normalizado em dígitos; o banco pode guardar formatado (000.000.000-00)
+		db = db.Where("REPLACE(REPLACE(client.cpf, '.', ''), '-', '') = ?", *filter.ClientCPF)
 	}
 	partnerFilter := (filter.PartnerName != nil && *filter.PartnerName != "") ||
 		(filter.PartnerCPF != nil && *filter.PartnerCPF != "")
@@ -142,7 +143,8 @@ func applyLoanFilters(db *gorm.DB, filter *input.ListLoanFilter) *gorm.DB {
 		db = db.Where("partner.name LIKE ?", "%"+*filter.PartnerName+"%")
 	}
 	if filter.PartnerCPF != nil && *filter.PartnerCPF != "" {
-		db = db.Where("partner.cpf = ?", *filter.PartnerCPF)
+		// CPF chega normalizado em dígitos; o banco pode guardar formatado (000.000.000-00)
+		db = db.Where("REPLACE(REPLACE(partner.cpf, '.', ''), '-', '') = ?", *filter.PartnerCPF)
 	}
 
 	return db

@@ -10,9 +10,6 @@ compose-up:
 compose-stop:
 	docker compose stop
 
-docker-exec:
-	docker exec -it cashbycard /bin/bash
-
 mockary:
 	~/go/bin/mockery --all
 
