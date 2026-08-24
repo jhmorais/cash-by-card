@@ -34,9 +34,17 @@ func (c *loginUseCase) Execute(ctx context.Context, loginUser *input.UserLogin) 
 		return "", fmt.Errorf("não é possível logar sem email")
 	}
 
+	user, err := c.userRepository.FindUserByEmail(ctx, loginUser.Email)
+	if err != nil {
+		return "", fmt.Errorf("failed to get user: %v", err)
+	}
+	if user != nil && user.Email != "" && user.Password == "" {
+		return "", fmt.Errorf("usuário pendente de primeiro acesso: solicite um novo link em \"Primeiro acesso\" na tela de login")
+	}
+
 	hashUser := utils.EncryptPassword(loginUser.Password)
 
-	user, err := c.userRepository.FindUserByEmailandPassword(ctx, loginUser.Email, hashUser)
+	user, err = c.userRepository.FindUserByEmailandPassword(ctx, loginUser.Email, hashUser)
 	if err != nil {
 		return "", fmt.Errorf("failed to get user: %v", err)
 	}
