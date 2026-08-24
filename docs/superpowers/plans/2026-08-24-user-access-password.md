@@ -1349,7 +1349,34 @@ git commit -m "feat: login informa usuario pendente de primeiro acesso"
 - Create: `internal/usecases/user/get_user_use_case.go` (+_test), `update_user_use_case.go` (+_test), `delete_user_use_case.go` (+_test), `clear_password_use_case.go` (+_test), `internal/usecases/user/permissions.go`
 - Modify: `internal/usecases/user/create_user_use_case.go` (+_test), `list_user_use_case.go` (+_test)
 - Modify: `internal/contracts/icreate_user_use_case.go`, `internal/contracts/ilist_user_use_case.go` (assinaturas ganham requesterEmail)
+- Modify: `internal/repositories/token/ipassword_reset_token_repository.go` + `password_reset_token_repository.go` (novo método `DeleteTokensByUser` — necessário porque a FK `password_reset_token.user_id` faz o DELETE de user com histórico de token falhar com erro 1451; todo user criado pelo fluxo novo tem token)
 - Modify: `services/user.go` (apenas os call sites de `Execute` de ListUsers/CreateUser passam `utils.EmailFromContext(r.Context())` para manter o build verde; a reescrita completa dos handlers é a Task 11)
+
+**Pré-step 0: DeleteTokensByUser no token repo + índice token_hash**
+
+Interface (`ipassword_reset_token_repository.go`) — adicionar:
+
+```go
+	// DeleteTokensByUser remove o histórico de tokens do usuário (chamar ANTES de
+	// deletar o user, senão a FK user_id falha com erro 1451).
+	DeleteTokensByUser(ctx context.Context, userID int) error
+```
+
+Impl (`password_reset_token_repository.go`):
+
+```go
+func (r *passwordResetTokenRepository) DeleteTokensByUser(ctx context.Context, userID int) error {
+	return r.db.WithContext(ctx).
+		Where("user_id = ?", userID).
+		Delete(&entities.PasswordResetToken{}).Error
+}
+```
+
+E aplicar o índice da coluna de busca (hot path do reset), no banco vivo E no arquivo de migration (adicionar a linha `KEY \`password_reset_token_token_hash\` (\`token_hash\`),` na CREATE TABLE — tanto no migration quanto no dump.sql, mantendo os três consistentes):
+
+```bash
+sg docker -c "docker exec mysqlcontainer mysql -uroot -ppassword database -e 'ALTER TABLE password_reset_token ADD KEY password_reset_token_token_hash (token_hash);'"
+```
 
 **Contratos existentes — reescrever:**
 
@@ -1908,8 +1935,17 @@ func (m *mockUserRepoDelete) DeleteUser(ctx context.Context, entity *entities.Us
 	return m.deletef(ctx, entity)
 }
 
+type mockTokenRepoDelete struct {
+	mockTokenRepo
+	deleteByUserFunc func(ctx context.Context, userID int) error
+}
+
+func (m *mockTokenRepoDelete) DeleteTokensByUser(ctx context.Context, userID int) error {
+	return m.deleteByUserFunc(ctx, userID)
+}
+
 func TestDeleteUser_NaoPodeExcluirASiMesmo(t *testing.T) {
-	uc := NewDeleteUserUseCase(requesterRepo(RoleOrganization, 1))
+	uc := NewDeleteUserUseCase(requesterRepo(RoleOrganization, 1), nil)
 	_, err := uc.Execute(context.Background(), "o@x.com", 1)
 	if err == nil {
 		t.Fatal("não pode excluir a si mesmo")
@@ -1923,25 +1959,41 @@ func TestDeleteUser_AdminNaoExcluiAdmin(t *testing.T) {
 			return &entities.User{ID: 5, Role: "admin", Email: "t@x.com"}, nil
 		},
 		deletef: func(ctx context.Context, e *entities.User) error { return nil },
-	})
+	}, nil)
 	_, err := uc.Execute(context.Background(), "a@x.com", 5)
 	if err == nil {
 		t.Fatal("admin não pode excluir admin")
 	}
 }
 
-func TestDeleteUser_OrganizationExcluiPartner(t *testing.T) {
+func TestDeleteUser_OrganizationExcluiPartnerApagandoTokensPrimeiro(t *testing.T) {
 	deleted := false
+	tokensDeletedFor := 0
+	order := []string{}
 	uc := NewDeleteUserUseCase(&mockUserRepoDelete{
 		mockUserRepo: *requesterRepo(RoleOrganization, 1),
 		byID: func(ctx context.Context, id int) (*entities.User, error) {
 			return &entities.User{ID: 6, Role: "partner", Email: "p@x.com"}, nil
 		},
-		deletef: func(ctx context.Context, e *entities.User) error { deleted = true; return nil },
-	})
+		deletef: func(ctx context.Context, e *entities.User) error {
+			deleted = true
+			order = append(order, "user")
+			return nil
+		},
+	}, &mockTokenRepoDelete{deleteByUserFunc: func(ctx context.Context, userID int) error {
+		tokensDeletedFor = userID
+		order = append(order, "tokens")
+		return nil
+	}})
 	out, err := uc.Execute(context.Background(), "o@x.com", 6)
 	if err != nil || !out.Success || !deleted {
 		t.Fatalf("esperado sucesso, err='%v' success=%v deleted=%v", err, out.Success, deleted)
+	}
+	if tokensDeletedFor != 6 {
+		t.Fatalf("esperado apagar tokens do user 6, got %d", tokensDeletedFor)
+	}
+	if len(order) != 2 || order[0] != "tokens" || order[1] != "user" {
+		t.Fatalf("tokens devem ser apagados ANTES do user, ordem=%v", order)
 	}
 }
 ```
@@ -1957,15 +2009,20 @@ import (
 
 	"github.com/jhmorais/cash-by-card/internal/contracts"
 	output "github.com/jhmorais/cash-by-card/internal/ports/output/user"
+	repoToken "github.com/jhmorais/cash-by-card/internal/repositories/token"
 	repositories "github.com/jhmorais/cash-by-card/internal/repositories/user"
 )
 
 type deleteUserUseCase struct {
-	userRepository repositories.UserRepository
+	userRepository  repositories.UserRepository
+	tokenRepository repoToken.PasswordResetTokenRepository
 }
 
-func NewDeleteUserUseCase(userRepository repositories.UserRepository) contracts.DeleteUserUseCase {
-	return &deleteUserUseCase{userRepository: userRepository}
+func NewDeleteUserUseCase(
+	userRepository repositories.UserRepository,
+	tokenRepository repoToken.PasswordResetTokenRepository,
+) contracts.DeleteUserUseCase {
+	return &deleteUserUseCase{userRepository: userRepository, tokenRepository: tokenRepository}
 }
 
 func (d *deleteUserUseCase) Execute(ctx context.Context, requesterEmail string, id int) (*output.DeleteUser, error) {
@@ -1979,6 +2036,12 @@ func (d *deleteUserUseCase) Execute(ctx context.Context, requesterEmail string, 
 	}
 	if err := canManageTarget(requester, target); err != nil {
 		return nil, err
+	}
+	// tokens ANTES do user: a FK password_reset_token.user_id impediria o DELETE (erro 1451)
+	if d.tokenRepository != nil {
+		if err := d.tokenRepository.DeleteTokensByUser(ctx, target.ID); err != nil {
+			return nil, err
+		}
 	}
 	if err := d.userRepository.DeleteUser(ctx, target); err != nil {
 		return nil, err
@@ -2325,7 +2388,7 @@ E as atribuições de use case (seguindo o padrão existente):
 	ChangePasswordUseCase:  user.NewChangePasswordUseCase(builder.Repositories.UserRepository),
 	GetUserUseCase:         user.NewGetUserUseCase(builder.Repositories.UserRepository),
 	UpdateUserUseCase:      user.NewUpdateUserUseCase(builder.Repositories.UserRepository),
-	DeleteUserUseCase:      user.NewDeleteUserUseCase(builder.Repositories.UserRepository),
+	DeleteUserUseCase:      user.NewDeleteUserUseCase(builder.Repositories.UserRepository, tokenRepository),
 	ClearPasswordUseCase:   user.NewClearPasswordUseCase(builder.Repositories.UserRepository, tokenRepository, emailSender),
 	CreateUserUseCase:      user.NewCreateUserUseCase(builder.Repositories.UserRepository, tokenRepository, emailSender),
 	ListUserUseCase:        user.NewListUserUseCase(builder.Repositories.UserRepository),
