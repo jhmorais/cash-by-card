@@ -91,3 +91,17 @@ func (d *userRepository) ListUser(ctx context.Context) ([]*entities.User, error)
 
 	return entities, nil
 }
+
+func (d *userRepository) SetUserPassword(ctx context.Context, id int, hashedPassword string) error {
+	return d.db.WithContext(ctx).
+		Model(&entities.User{}).
+		Where("id = ?", id).
+		Update("password", hashedPassword).Error
+}
+
+func (d *userRepository) ClearUserPassword(ctx context.Context, id int) error {
+	return d.db.WithContext(ctx).
+		Model(&entities.User{}).
+		Where("id = ?", id).
+		Update("password", gorm.Expr("NULL")).Error
+}
