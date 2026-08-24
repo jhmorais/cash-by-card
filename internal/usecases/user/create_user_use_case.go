@@ -18,7 +18,6 @@ import (
 	input "github.com/jhmorais/cash-by-card/internal/ports/input/user"
 	output "github.com/jhmorais/cash-by-card/internal/ports/output/user"
 	repositories "github.com/jhmorais/cash-by-card/internal/repositories/user"
-	"github.com/jhmorais/cash-by-card/utils"
 )
 
 type createUserUseCase struct {
@@ -42,12 +41,8 @@ func (c *createUserUseCase) Execute(ctx context.Context, createUser *input.Creat
 		return nil, fmt.Errorf("cannot create a client without email")
 	}
 
-	if createUser.Role != "admin" && createUser.Role != "regular" {
-		return nil, fmt.Errorf("cannot create a client without valid role")
-	}
-
-	if len(createUser.Password) < 6 {
-		return nil, fmt.Errorf("cannot create a client without valid password")
+	if createUser.Role != "organization" && createUser.Role != "admin" && createUser.Role != "partner" {
+		return nil, fmt.Errorf("cannot create a user without valid role")
 	}
 
 	user, err := c.userRepository.FindUserByEmail(ctx, createUser.Email)
@@ -59,13 +54,10 @@ func (c *createUserUseCase) Execute(ctx context.Context, createUser *input.Creat
 		return nil, fmt.Errorf("failed, already exists user with the same email")
 	}
 
-	hashUser := utils.EncryptPassword(createUser.Password)
-
 	userEntity := &entities.User{
 		Name:      createUser.Name,
 		Email:     createUser.Email,
 		Role:      createUser.Role,
-		Password:  hashUser,
 		CreatedAt: time.Now(),
 	}
 

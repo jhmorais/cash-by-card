@@ -1,5 +1,5 @@
 package output
 
 type DeleteUser struct {
-	UserID int
+	Success bool `json:"success"`
 }

@@ -1,9 +1,7 @@
 package input
 
 type UpdateUser struct {
-	ID       int    `json:"id,omitempty"`
-	Email    string `json:"email"`
-	Name     string `json:"name"`
-	Password string `json:"-"`
-	// Role     string `json:"role"`
+	ID   int    `json:"id"`
+	Name string `json:"name"`
+	Role string `json:"role"`
 }
