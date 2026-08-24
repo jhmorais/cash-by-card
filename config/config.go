@@ -44,3 +44,11 @@ func GetMysqlPassword() string {
 func GetServerPort() string {
 	return viper.GetString("SERVER_PORT")
 }
+
+func GetFrontURL() string {
+	url := viper.GetString("FRONT_URL")
+	if url == "" {
+		return "http://localhost:5173"
+	}
+	return url
+}
