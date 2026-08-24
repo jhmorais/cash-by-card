@@ -14,7 +14,15 @@ import (
 
 func (h *Handler) ListLoans(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
-	response, err := h.ListLoanUseCase.Execute(ctx)
+
+	filter, pagination, err := parseListLoansParams(r)
+	if err != nil {
+		utils.WriteErrModel(w, http.StatusBadRequest,
+			utils.NewErrorResponse(err.Error()))
+		return
+	}
+
+	response, err := h.ListLoanUseCase.Execute(ctx, filter, pagination)
 	if err != nil {
 		utils.WriteErrModel(w, http.StatusNotFound,
 			utils.NewErrorResponse(fmt.Sprintf("failed to get loans, error: '%s'", err.Error())))

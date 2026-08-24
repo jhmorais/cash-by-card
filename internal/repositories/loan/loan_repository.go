@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/jhmorais/cash-by-card/internal/domain/entities"
+	input "github.com/jhmorais/cash-by-card/internal/ports/input/loan"
 	dashboard "github.com/jhmorais/cash-by-card/internal/ports/output/dashboard"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -84,21 +85,69 @@ func (d *loanRepository) UpdateLoanPaymentStatus(ctx context.Context, LoanID int
 	return err
 }
 
-func (d *loanRepository) ListLoan(ctx context.Context) ([]*entities.Loan, error) {
-	//TODO impl pagination
-	var entities []*entities.Loan
+func (d *loanRepository) ListLoan(ctx context.Context, filter *input.ListLoanFilter, pagination *input.Pagination) ([]*entities.Loan, int64, error) {
+	var loans []*entities.Loan
+	var total int64
 
-	err := d.db.
-		Preload(clause.Associations).
-		Limit(100).
-		Order("created_at desc").
-		Find(&entities).Error
-
-	if err != nil {
-		return nil, err
+	if pagination == nil {
+		pagination = &input.Pagination{Page: 1, Limit: 10}
 	}
 
-	return entities, nil
+	countQuery := applyLoanFilters(d.db.WithContext(ctx).Model(&entities.Loan{}), filter)
+	if err := countQuery.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
+	findQuery := applyLoanFilters(d.db.WithContext(ctx).Model(&entities.Loan{}), filter)
+	offset := (pagination.Page - 1) * pagination.Limit
+	err := findQuery.
+		Preload(clause.Associations).
+		Order("loan.created_at desc, loan.id desc").
+		Offset(offset).
+		Limit(pagination.Limit).
+		Find(&loans).Error
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return loans, total, nil
+}
+
+// applyLoanFilters appends conditional WHERE/JOIN clauses based on non-nil filter fields.
+func applyLoanFilters(db *gorm.DB, filter *input.ListLoanFilter) *gorm.DB {
+	if filter == nil {
+		return db
+	}
+
+	if filter.PaymentStatus != nil {
+		db = db.Where("loan.payment_status = ?", *filter.PaymentStatus)
+	}
+	clientFilter := (filter.ClientName != nil && *filter.ClientName != "") ||
+		(filter.ClientCPF != nil && *filter.ClientCPF != "")
+	if clientFilter {
+		db = db.Joins("JOIN client ON client.id = loan.client_id")
+	}
+	if filter.ClientName != nil && *filter.ClientName != "" {
+		db = db.Where("client.name LIKE ?", "%"+*filter.ClientName+"%")
+	}
+	if filter.ClientCPF != nil && *filter.ClientCPF != "" {
+		// CPF chega normalizado em dígitos; o banco pode guardar formatado (000.000.000-00)
+		db = db.Where("REPLACE(REPLACE(client.cpf, '.', ''), '-', '') = ?", *filter.ClientCPF)
+	}
+	partnerFilter := (filter.PartnerName != nil && *filter.PartnerName != "") ||
+		(filter.PartnerCPF != nil && *filter.PartnerCPF != "")
+	if partnerFilter {
+		db = db.Joins("JOIN partner ON partner.id = loan.partner_id")
+	}
+	if filter.PartnerName != nil && *filter.PartnerName != "" {
+		db = db.Where("partner.name LIKE ?", "%"+*filter.PartnerName+"%")
+	}
+	if filter.PartnerCPF != nil && *filter.PartnerCPF != "" {
+		// CPF chega normalizado em dígitos; o banco pode guardar formatado (000.000.000-00)
+		db = db.Where("REPLACE(REPLACE(partner.cpf, '.', ''), '-', '') = ?", *filter.PartnerCPF)
+	}
+
+	return db
 }
 
 func (d *loanRepository) GetTotals(ctx context.Context, month int, year int) (*dashboard.Dashboard, error) {

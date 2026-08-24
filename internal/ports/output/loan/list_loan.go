@@ -5,5 +5,9 @@ import (
 )
 
 type ListLoan struct {
-	Loans []*entities.Loan
+	Loans      []*entities.Loan `json:"loans"`
+	Total      int64            `json:"total"`
+	Page       int              `json:"page"`
+	Limit      int              `json:"limit"`
+	TotalPages int              `json:"totalPages"`
 }

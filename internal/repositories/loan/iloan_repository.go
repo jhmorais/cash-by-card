@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/jhmorais/cash-by-card/internal/domain/entities"
+	input "github.com/jhmorais/cash-by-card/internal/ports/input/loan"
 	dashboard "github.com/jhmorais/cash-by-card/internal/ports/output/dashboard"
 )
 
@@ -14,7 +15,7 @@ type LoanRepository interface {
 	FindLoanByID(ctx context.Context, id int) (*entities.Loan, error)
 	FindLoanByClientID(ctx context.Context, ClientID int) ([]*entities.Loan, error)
 	FindLoanByPartnerID(ctx context.Context, PartnerID int) ([]*entities.Loan, error)
-	ListLoan(ctx context.Context) ([]*entities.Loan, error)
+	ListLoan(ctx context.Context, filter *input.ListLoanFilter, pagination *input.Pagination) ([]*entities.Loan, int64, error)
 	UpdateLoanPaymentStatus(ctx context.Context, LoanID int, paymentStatus string) error
 	GetTotals(ctx context.Context, month int, year int) (*dashboard.Dashboard, error)
 	GetBestPartners(ctx context.Context, month int, year int) ([]dashboard.BestPartner, error)
