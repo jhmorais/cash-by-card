@@ -132,3 +132,11 @@ func ValidJSON(p interface{}) io.Reader {
 	}
 	return bytes.NewReader(data)
 }
+
+// EmailFromContext devolve o email autenticado pelo ValidateJwtTokenMiddleware.
+func EmailFromContext(ctx context.Context) string {
+	if v, ok := ctx.Value(emailKey).(string); ok {
+		return v
+	}
+	return ""
+}
