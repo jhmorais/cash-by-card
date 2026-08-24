@@ -988,7 +988,7 @@ func (f *forgotPasswordUseCase) Execute(ctx context.Context, forgotPassword *inp
 		return err
 	}
 
-	link := config.GetFrontURL() + "/primeiro-acesso?token=" + plain
+	link := strings.TrimSuffix(config.GetFrontURL(), "/") + "/primeiro-acesso?token=" + plain
 	if err := f.emailSender.SendPasswordResetEmail(ctx, user.Email, link); err != nil {
 		log.Printf("falha ao enviar email de reset para %s: %v", user.Email, err)
 	}
@@ -1788,7 +1788,7 @@ func (c *createUserUseCase) sendFirstAccessEmail(ctx context.Context, user *enti
 	if err := c.tokenRepository.CreateToken(ctx, token); err != nil {
 		return err
 	}
-	link := config.GetFrontURL() + "/primeiro-acesso?token=" + plain
+	link := strings.TrimSuffix(config.GetFrontURL(), "/") + "/primeiro-acesso?token=" + plain
 	return c.emailSender.SendPasswordResetEmail(ctx, user.Email, link)
 }
 ```
@@ -2192,7 +2192,7 @@ func (c *clearPasswordUseCase) Execute(ctx context.Context, requesterEmail strin
 	if err := c.tokenRepository.CreateToken(ctx, token); err != nil {
 		return nil, err
 	}
-	link := config.GetFrontURL() + "/primeiro-acesso?token=" + plain
+	link := strings.TrimSuffix(config.GetFrontURL(), "/") + "/primeiro-acesso?token=" + plain
 	if err := c.emailSender.SendPasswordResetEmail(ctx, target.Email, link); err != nil {
 		log.Printf("senha limpa mas falhou envio do email: %v", err)
 	}
