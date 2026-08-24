@@ -74,10 +74,15 @@ func ValidateJwtTokenMiddleware(next http.Handler) http.Handler {
 	})
 }
 
-func RoleMiddleware(requiredRole string, userRepo repositories.UserRepository) func(http.Handler) http.Handler {
+func RoleMiddleware(userRepo repositories.UserRepository, roles ...string) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			email := r.Context().Value(emailKey).(string)
+			email, ok := r.Context().Value(emailKey).(string)
+			if !ok || email == "" {
+				WriteErrModel(w, http.StatusUnauthorized,
+					NewErrorResponse("unauthenticated"))
+				return
+			}
 			ctx := context.Background()
 
 			user, err := userRepo.FindUserByEmail(ctx, email)
@@ -87,13 +92,14 @@ func RoleMiddleware(requiredRole string, userRepo repositories.UserRepository) f
 				return
 			}
 
-			if user.Role != requiredRole {
-				WriteErrModel(w, http.StatusForbidden,
-					NewErrorResponse("forbidden"))
-				return
+			for _, role := range roles {
+				if user.Role == role {
+					next.ServeHTTP(w, r)
+					return
+				}
 			}
-
-			next.ServeHTTP(w, r)
+			WriteErrModel(w, http.StatusForbidden,
+				NewErrorResponse("forbidden"))
 		})
 	}
 }

@@ -106,7 +106,7 @@ func NewHTTPRouterClient(
 
 	publicRouter.Use(utils.ValidateJwtTokenMiddleware)
 	adminRouter.Use(utils.ValidateJwtTokenMiddleware)
-	adminRouter.Use(utils.RoleMiddleware("admin", userRepo.UserRepository))
+	adminRouter.Use(utils.RoleMiddleware(userRepo.UserRepository, "organization", "admin"))
 
 	adminRouter.HandleFunc("/clients", handler.ListClients).Methods(http.MethodGet, http.MethodOptions)
 	adminRouter.HandleFunc("/clients/{id}", handler.GetClientByID).Methods(http.MethodGet)
