@@ -24,8 +24,13 @@ func NewSenderFromEnv() contracts.EmailSender {
 	if host == "" {
 		return &logSender{}
 	}
+
+	if os.Getenv("SMTP_USER") == "" || os.Getenv("SMTP_PASSWORD") == "" {
+		log.Printf("[WARN] SMTP_HOST configurado mas SMTP_USER/SMTP_PASSWORD vazio — envio de email vai falhar em runtime")
+	}
+
 	return &smtpSender{
-		host:     host,
+		// SMTP_PORT: use 587 (STARTTLS). 465 (TLS implícito) não é suportado pelo net/smtp — trava esperando banner plaintext.
 		port:     envOr("SMTP_PORT", "587"),
 		user:     os.Getenv("SMTP_USER"),
 		password: os.Getenv("SMTP_PASSWORD"),
@@ -41,6 +46,10 @@ func envOr(key, fallback string) string {
 }
 
 func (s *smtpSender) SendPasswordResetEmail(ctx context.Context, to, resetLink string) error {
+	if strings.ContainsAny(to, "\r\n") {
+		return fmt.Errorf("invalid recipient address")
+	}
+
 	subject := "Cash By Card - definicao de senha"
 	body := fmt.Sprintf(
 		"Ola,\n\nUse o link abaixo para definir sua senha. Ele expira em 30 minutos e pode ser usado uma unica vez:\n\n%s\n\nSe voce nao solicitou, ignore este email.\n",
@@ -62,6 +71,10 @@ func (s *smtpSender) SendPasswordResetEmail(ctx context.Context, to, resetLink s
 }
 
 func (s *logSender) SendPasswordResetEmail(ctx context.Context, to, resetLink string) error {
+	if strings.ContainsAny(to, "\r\n") {
+		return fmt.Errorf("invalid recipient address")
+	}
+
 	log.Printf("[DEV-EMAIL] para=%s link=%s", to, resetLink)
 	return nil
 }
