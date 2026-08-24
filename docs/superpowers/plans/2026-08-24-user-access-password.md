@@ -1380,6 +1380,8 @@ sg docker -c "docker exec mysqlcontainer mysql -uroot -ppassword database -e 'AL
 
 **Contratos existentes — reescrever:**
 
+Detalhe extra (review Task 5): ao reescrever o create, adicionar tag `json:"userId"` ao `UserID` em `internal/ports/output/user/create_user.go` (hoje sem tag, marshala como "UserID" — fora do padrão camelCase dos demais outputs).
+
 `internal/contracts/icreate_user_use_case.go`:
 
 ```go
