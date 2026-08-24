@@ -77,8 +77,8 @@ O usuário volta ao estado de primeiro acesso.
 |---|---|---|
 | `POST /auth/forgot-password` | pública | sempre 200 genérico |
 | `POST /auth/reset-password` | pública | valida token |
-| `POST /auth/change-password` | JWT | qualquer role (a própria senha) |
-| `GET /auth/me` | JWT | qualquer role — `{email, name, role}` para o frontend montar a nav |
+| `POST /auth/change-password` | JWT | qualquer role (a própria senha) — rota física: `POST /account/change-password` |
+| `GET /auth/me` | JWT | qualquer role — `{email, name, role}` para o frontend montar a nav — rota física: `GET /account/me` |
 | `GET /admin/users` | JWT | organization + admin |
 | `POST /admin/users` | JWT | org: role `admin` ou `partner`; admin: só `partner` |
 | `PUT /admin/users/{id}` | JWT | org: qualquer user; admin: só partner — edita `name`/`role`; **email não é editável** |
@@ -86,7 +86,10 @@ O usuário volta ao estado de primeiro acesso.
 | `POST /admin/users/{id}/clear-password` | JWT | org: qualquer user; admin: só partner — nunca a si mesmo |
 
 O `RoleMiddleware("admin")` atual passa a aceitar `organization` e `admin` nas rotas
-`/admin` existentes. `partner` só acessa `/auth/*`.
+`/admin` existentes. `partner` só acessa `/auth/*` (públicas) e `/account/*` (JWT,
+próprias do usuário). As rotas autenticadas de conta ficam sob o prefixo `/account`
+(subrouter com `ValidateJwtTokenMiddleware`) porque o prefixo `/auth` é público —
+daí `GET /account/me` e `POST /account/change-password`.
 
 ## Matriz de permissões
 
