@@ -1,5 +1,10 @@
 -- 2026-08-24: primeiro acesso e administracao de usuarios
 -- password NULL = usuario pendente de primeiro acesso
+--
+-- BOOTSTRAP OBRIGATORIO EM PRODUCAO (apos rodar este script):
+-- ninguem pode criar/atribuir o role 'organization' pela API (por design),
+-- entao promova manualmente a conta da organizacao ANTES do primeiro uso:
+--   UPDATE `user` SET role='organization' WHERE email='<email-do-dono>';
 ALTER TABLE `user` MODIFY `password` VARCHAR(100) NULL;
 
 CREATE TABLE `password_reset_token` (
