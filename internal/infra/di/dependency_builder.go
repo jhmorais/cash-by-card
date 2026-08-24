@@ -4,11 +4,13 @@ import (
 	"log"
 
 	"github.com/jhmorais/cash-by-card/internal/contracts"
+	"github.com/jhmorais/cash-by-card/internal/infra/email"
 	repoCard "github.com/jhmorais/cash-by-card/internal/repositories/card"
 	repoCardMachine "github.com/jhmorais/cash-by-card/internal/repositories/cardMachine"
 	repoClient "github.com/jhmorais/cash-by-card/internal/repositories/client"
 	repoLoan "github.com/jhmorais/cash-by-card/internal/repositories/loan"
 	repoPartner "github.com/jhmorais/cash-by-card/internal/repositories/partner"
+	repoToken "github.com/jhmorais/cash-by-card/internal/repositories/token"
 	repoUser "github.com/jhmorais/cash-by-card/internal/repositories/user"
 	"github.com/jhmorais/cash-by-card/internal/usecases/card"
 	"github.com/jhmorais/cash-by-card/internal/usecases/cardMachine"
@@ -28,12 +30,13 @@ type DenpencyBuild struct {
 }
 
 type Repositories struct {
-	ClientRepository      repoClient.ClientRepository
-	PartnerRepository     repoPartner.PartnerRepository
-	CardRepository        repoCard.CardRepository
-	CardMachineRepository repoCardMachine.CardMachineRepository
-	LoanRepository        repoLoan.LoanRepository
-	UserRepository        repoUser.UserRepository
+	ClientRepository             repoClient.ClientRepository
+	PartnerRepository            repoPartner.PartnerRepository
+	CardRepository               repoCard.CardRepository
+	CardMachineRepository        repoCardMachine.CardMachineRepository
+	LoanRepository               repoLoan.LoanRepository
+	UserRepository               repoUser.UserRepository
+	PasswordResetTokenRepository repoToken.PasswordResetTokenRepository
 }
 
 type Usecases struct {
@@ -80,6 +83,13 @@ type Usecases struct {
 	LoginUseCase                      contracts.LoginUseCase
 	FindUserByEmailAndPasswordUseCase contracts.FindUserByEmailAndPasswordUseCase
 	ListUserUseCase                   contracts.ListUserUseCase
+	GetUserUseCase                    contracts.GetUserUseCase
+	UpdateUserUseCase                 contracts.UpdateUserUseCase
+	DeleteUserUseCase                 contracts.DeleteUserUseCase
+	ClearPasswordUseCase              contracts.ClearPasswordUseCase
+	ForgotPasswordUseCase             contracts.ForgotPasswordUseCase
+	ResetPasswordUseCase              contracts.ResetPasswordUseCase
+	ChangePasswordUseCase             contracts.ChangePasswordUseCase
 
 	DashboardUseCase contracts.DashboardUseCase
 }
@@ -111,6 +121,7 @@ func (d *DenpencyBuild) buildRepositories() *DenpencyBuild {
 	d.Repositories.CardMachineRepository = repoCardMachine.NewCardMachineRepository(d.DB)
 	d.Repositories.LoanRepository = repoLoan.NewLoanRepository(d.DB)
 	d.Repositories.UserRepository = repoUser.NewUserRepository(d.DB)
+	d.Repositories.PasswordResetTokenRepository = repoToken.NewPasswordResetTokenRepository(d.DB)
 
 	return d
 }
@@ -155,9 +166,19 @@ func (d *DenpencyBuild) buildUseCases() *DenpencyBuild {
 	d.Usecases.CreateLoanUseCase = loan.NewCreateLoanUseCase(d.Repositories.LoanRepository, d.Usecases.CreateCardUseCase)
 	d.Usecases.UpdateLoanPaymentStatusUseCase = loan.NewUpdateLoanPaymentStatusUseCase(d.Repositories.LoanRepository)
 
-	d.Usecases.CreateUserUseCase = user.NewCreateUserUseCase(d.Repositories.UserRepository)
+	tokenRepository := d.Repositories.PasswordResetTokenRepository
+	emailSender := email.NewSenderFromEnv()
+	d.Usecases.CreateUserUseCase = user.NewCreateUserUseCase(d.Repositories.UserRepository, tokenRepository, emailSender)
 	d.Usecases.FindUserByEmailAndPasswordUseCase = user.NewFindUserByEmailAndPasswordUseCase(d.Repositories.UserRepository)
 	d.Usecases.LoginUseCase = login.NewLoginUseCase(d.Repositories.UserRepository)
+	d.Usecases.ListUserUseCase = user.NewListUserUseCase(d.Repositories.UserRepository)
+	d.Usecases.GetUserUseCase = user.NewGetUserUseCase(d.Repositories.UserRepository)
+	d.Usecases.UpdateUserUseCase = user.NewUpdateUserUseCase(d.Repositories.UserRepository)
+	d.Usecases.DeleteUserUseCase = user.NewDeleteUserUseCase(d.Repositories.UserRepository, tokenRepository)
+	d.Usecases.ClearPasswordUseCase = user.NewClearPasswordUseCase(d.Repositories.UserRepository, tokenRepository, emailSender)
+	d.Usecases.ForgotPasswordUseCase = user.NewForgotPasswordUseCase(d.Repositories.UserRepository, tokenRepository, emailSender)
+	d.Usecases.ResetPasswordUseCase = user.NewResetPasswordUseCase(tokenRepository, d.Repositories.UserRepository)
+	d.Usecases.ChangePasswordUseCase = user.NewChangePasswordUseCase(d.Repositories.UserRepository)
 
 	d.Usecases.DashboardUseCase = dashboard.NewDashboardUseCase(d.Repositories.LoanRepository)
 

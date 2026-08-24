@@ -8,5 +8,5 @@ import (
 )
 
 type CreateUserUseCase interface {
-	Execute(ctx context.Context, createUser *input.CreateUser) (*output.CreateUser, error)
+	Execute(ctx context.Context, requesterEmail string, createUser *input.CreateUser) (*output.CreateUser, error)
 }

@@ -2,7 +2,6 @@ package user
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/jhmorais/cash-by-card/internal/contracts"
 	output "github.com/jhmorais/cash-by-card/internal/ports/output/user"
@@ -13,31 +12,33 @@ type listUserUseCase struct {
 	userRepository repositories.UserRepository
 }
 
-func NewListUsertUseCase(userRepository repositories.UserRepository) contracts.ListUserUseCase {
-
-	return &listUserUseCase{
-		userRepository: userRepository,
-	}
+func NewListUserUseCase(userRepository repositories.UserRepository) contracts.ListUserUseCase {
+	return &listUserUseCase{userRepository: userRepository}
 }
 
-func (l *listUserUseCase) Execute(ctx context.Context) ([]*output.FindUser, error) {
-	var err error
-
-	result, err := l.userRepository.ListUser(ctx)
+func (l *listUserUseCase) Execute(ctx context.Context, requesterEmail string) (*output.ListUser, error) {
+	requester, err := l.userRepository.FindUserByEmail(ctx, requesterEmail)
 	if err != nil {
-		return nil, fmt.Errorf("error when list users on database: %v", err)
+		return nil, err
+	}
+	if err := canListUsers(requester); err != nil {
+		return nil, err
 	}
 
-	var listUser []*output.FindUser
-	for _, entity := range result {
-		user := &output.FindUser{
-			ID:    entity.ID,
-			Name:  entity.Name,
-			Email: entity.Email,
-			Role:  entity.Role,
-		}
-		listUser = append(listUser, user)
+	users, err := l.userRepository.ListUser(ctx)
+	if err != nil {
+		return nil, err
 	}
 
-	return listUser, nil
+	items := make([]output.UserItem, 0, len(users))
+	for _, u := range users {
+		items = append(items, output.UserItem{
+			ID:                 u.ID,
+			Name:               u.Name,
+			Email:              u.Email,
+			Role:               u.Role,
+			PendingFirstAccess: u.Password == "",
+		})
+	}
+	return &output.ListUser{Users: items}, nil
 }

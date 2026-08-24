@@ -1,57 +1,65 @@
 package user
 
-// Vai receber um input com os dados do usuario: nome, senha, email, role
-
-// Vai chamar o use case para pesquisar se ja existe um usuario com o mesmo email
-// Vai chamar o util para criar um hash da senha do input
-//		https://github.com/HunCoding/meu-primeiro-crud-go/blob/main/src/model/user_domain_password.go
-
-// Vai chamar um repository para salvar no banco o usuario
-
 import (
 	"context"
 	"fmt"
+	"log"
+	"strings"
 	"time"
 
+	"github.com/jhmorais/cash-by-card/config"
 	"github.com/jhmorais/cash-by-card/internal/contracts"
 	"github.com/jhmorais/cash-by-card/internal/domain/entities"
 	input "github.com/jhmorais/cash-by-card/internal/ports/input/user"
 	output "github.com/jhmorais/cash-by-card/internal/ports/output/user"
+	repoToken "github.com/jhmorais/cash-by-card/internal/repositories/token"
 	repositories "github.com/jhmorais/cash-by-card/internal/repositories/user"
+	"github.com/jhmorais/cash-by-card/utils"
 )
 
 type createUserUseCase struct {
-	userRepository repositories.UserRepository
+	userRepository  repositories.UserRepository
+	tokenRepository repoToken.PasswordResetTokenRepository
+	emailSender     contracts.EmailSender
 }
 
-func NewCreateUserUseCase(userRepository repositories.UserRepository) contracts.CreateUserUseCase {
-
+func NewCreateUserUseCase(
+	userRepository repositories.UserRepository,
+	tokenRepository repoToken.PasswordResetTokenRepository,
+	emailSender contracts.EmailSender,
+) contracts.CreateUserUseCase {
 	return &createUserUseCase{
-		userRepository: userRepository,
+		userRepository:  userRepository,
+		tokenRepository: tokenRepository,
+		emailSender:     emailSender,
 	}
 }
 
-func (c *createUserUseCase) Execute(ctx context.Context, createUser *input.CreateUser) (*output.CreateUser, error) {
-
+func (c *createUserUseCase) Execute(ctx context.Context, requesterEmail string, createUser *input.CreateUser) (*output.CreateUser, error) {
 	if len(createUser.Name) > 250 {
 		createUser.Name = createUser.Name[:250]
 	}
-
 	if createUser.Email == "" {
-		return nil, fmt.Errorf("cannot create a client without email")
+		return nil, fmt.Errorf("email é obrigatório")
+	}
+	if createUser.Name == "" {
+		return nil, fmt.Errorf("nome é obrigatório")
 	}
 
-	if createUser.Role != "organization" && createUser.Role != "admin" && createUser.Role != "partner" {
-		return nil, fmt.Errorf("cannot create a user without valid role")
-	}
-
-	user, err := c.userRepository.FindUserByEmail(ctx, createUser.Email)
+	requester, err := c.userRepository.FindUserByEmail(ctx, requesterEmail)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get client: %v", err)
+		return nil, err
+	}
+	if err := canAssignRole(requester, createUser.Role); err != nil {
+		return nil, err
 	}
 
-	if user.Email != "" {
-		return nil, fmt.Errorf("failed, already exists user with the same email")
+	existing, err := c.userRepository.FindUserByEmail(ctx, createUser.Email)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get user: %v", err)
+	}
+	if existing != nil && existing.Email != "" {
+		return nil, fmt.Errorf("já existe usuário com o mesmo email")
 	}
 
 	userEntity := &entities.User{
@@ -59,16 +67,34 @@ func (c *createUserUseCase) Execute(ctx context.Context, createUser *input.Creat
 		Email:     createUser.Email,
 		Role:      createUser.Role,
 		CreatedAt: time.Now(),
+	} // Password fica vazio (NULL) => pendente de primeiro acesso
+
+	if err := c.userRepository.CreateUser(ctx, userEntity); err != nil {
+		return nil, fmt.Errorf("failed to create user: %v", err)
 	}
 
-	err = c.userRepository.CreateUser(ctx, userEntity)
+	if err := c.sendFirstAccessEmail(ctx, userEntity); err != nil {
+		log.Printf("usuario criado mas falhou envio de primeiro acesso: %v", err)
+	}
+
+	return &output.CreateUser{UserID: userEntity.ID}, nil
+}
+
+// sendFirstAccessEmail gera o token e envia o link de definicao de senha.
+func (c *createUserUseCase) sendFirstAccessEmail(ctx context.Context, user *entities.User) error {
+	plain, hash, err := utils.GenerateResetToken()
 	if err != nil {
-		return nil, fmt.Errorf("cannot save user at database: %v", err)
+		return err
 	}
-
-	createUserOutput := &output.CreateUser{
-		UserID: userEntity.ID,
+	token := &entities.PasswordResetToken{
+		UserID:    user.ID,
+		TokenHash: hash,
+		ExpiresAt: time.Now().Add(30 * time.Minute),
+		CreatedAt: time.Now(),
 	}
-
-	return createUserOutput, nil
+	if err := c.tokenRepository.CreateToken(ctx, token); err != nil {
+		return err
+	}
+	link := strings.TrimSuffix(config.GetFrontURL(), "/") + "/primeiro-acesso?token=" + plain
+	return c.emailSender.SendPasswordResetEmail(ctx, user.Email, link)
 }

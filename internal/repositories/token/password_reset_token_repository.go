@@ -41,3 +41,9 @@ func (r *passwordResetTokenRepository) MarkTokenUsed(ctx context.Context, id int
 		Where("id = ?", id).
 		Update("used_at", time.Now()).Error
 }
+
+func (r *passwordResetTokenRepository) DeleteTokensByUser(ctx context.Context, userID int) error {
+	return r.db.WithContext(ctx).
+		Where("user_id = ?", userID).
+		Delete(&entities.PasswordResetToken{}).Error
+}

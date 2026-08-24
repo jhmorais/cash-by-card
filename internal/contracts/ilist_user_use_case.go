@@ -7,5 +7,5 @@ import (
 )
 
 type ListUserUseCase interface {
-	Execute(ctx context.Context) ([]*output.FindUser, error)
+	Execute(ctx context.Context, requesterEmail string) (*output.ListUser, error)
 }

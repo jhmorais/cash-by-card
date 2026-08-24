@@ -81,7 +81,6 @@ func (d *userRepository) ListUser(ctx context.Context) ([]*entities.User, error)
 	err := d.db.
 		Preload(clause.Associations).
 		Limit(100).
-		Select("id", "email", "name", "role").
 		Order("created_at desc").
 		Find(&entities).Error
 

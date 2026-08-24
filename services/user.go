@@ -13,7 +13,7 @@ import (
 
 func (h *Handler) ListUsers(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
-	response, err := h.ListClientUseCase.Execute(ctx)
+	response, err := h.ListUserUseCase.Execute(ctx, utils.EmailFromContext(r.Context()))
 	if err != nil {
 		utils.WriteErrModel(w, http.StatusNotFound,
 			utils.NewErrorResponse(fmt.Sprintf("failed to get users, error: '%s'", err.Error())))
@@ -183,7 +183,7 @@ func (h *Handler) CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response, err := h.CreateUserUseCase.Execute(ctx, &user)
+	response, err := h.CreateUserUseCase.Execute(ctx, utils.EmailFromContext(r.Context()), &user)
 	if err != nil {
 		utils.WriteErrModel(w, http.StatusInternalServerError,
 			utils.NewErrorResponse(fmt.Sprintf("failed to create user, error: '%s'", err.Error())))

@@ -11,4 +11,7 @@ type PasswordResetTokenRepository interface {
 	// FindValidTokenByHash devolve nil, nil quando não há token válido (hash inexistente, expirado ou já usado).
 	FindValidTokenByHash(ctx context.Context, tokenHash string) (*entities.PasswordResetToken, error)
 	MarkTokenUsed(ctx context.Context, id int64) error
+	// DeleteTokensByUser remove o histórico de tokens do usuário (chamar ANTES de
+	// deletar o user, senão a FK user_id falha com erro 1451).
+	DeleteTokensByUser(ctx context.Context, userID int) error
 }
