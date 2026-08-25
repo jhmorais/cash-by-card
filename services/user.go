@@ -16,7 +16,7 @@ import (
 // writeUserError mapeia erros de permissao dos use cases para 403; demais para 400.
 func writeUserError(w http.ResponseWriter, err error) {
 	msg := err.Error()
-	if strings.Contains(msg, "permiss") || strings.Contains(msg, "só pode") || strings.Contains(msg, "próprio") {
+	if strings.Contains(msg, "permiss") || strings.Contains(msg, "só pode") || strings.Contains(msg, "próprio") || strings.Contains(msg, "24h") {
 		utils.WriteErrModel(w, http.StatusForbidden, utils.NewErrorResponse(msg))
 		return
 	}

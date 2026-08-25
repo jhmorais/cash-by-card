@@ -25,6 +25,9 @@ type Handler struct {
 	ListPartnerUseCase       contracts.ListPartnerUseCase
 	UpdatePartnerUseCase     contracts.UpdatePartnerUseCase
 
+	PartnerClientsUseCase contracts.PartnerClientsUseCase
+	PartnerReportUseCase  contracts.PartnerReportUseCase
+
 	CreateCardUseCase       contracts.CreateCardUseCase
 	DeleteCardUseCase       contracts.DeleteCardUseCase
 	FindCardByIDUseCase     contracts.FindCardByIDUseCase
@@ -80,6 +83,8 @@ func NewHTTPRouterClient(
 		FindPartnerByNameUseCase:          useCases.FindPartnerByNameUseCase,
 		ListPartnerUseCase:                useCases.ListPartnerUseCase,
 		UpdatePartnerUseCase:              useCases.UpdatePartnerUseCase,
+		PartnerClientsUseCase:             useCases.PartnerClientsUseCase,
+		PartnerReportUseCase:              useCases.PartnerReportUseCase,
 		CreateCardUseCase:                 useCases.CreateCardUseCase,
 		DeleteCardUseCase:                 useCases.DeleteCardUseCase,
 		FindCardByIDUseCase:               useCases.FindCardByIDUseCase,
@@ -174,6 +179,15 @@ func NewHTTPRouterClient(
 	accountRouter.Use(utils.ValidateJwtTokenMiddleware)
 	accountRouter.HandleFunc("/me", handler.GetMe).Methods(http.MethodGet)
 	accountRouter.HandleFunc("/change-password", handler.ChangePassword).Methods(http.MethodPost)
+
+	partnerRouter := router.PathPrefix("/partner").Subrouter()
+	partnerRouter.Use(utils.ValidateJwtTokenMiddleware)
+	partnerRouter.Use(utils.RoleMiddleware(userRepo.UserRepository, "partner"))
+	partnerRouter.HandleFunc("/clients", handler.PartnerListClients).Methods(http.MethodGet)
+	partnerRouter.HandleFunc("/clients", handler.PartnerCreateClient).Methods(http.MethodPost)
+	partnerRouter.HandleFunc("/clients/{id}", handler.PartnerUpdateClient).Methods(http.MethodPut)
+	partnerRouter.HandleFunc("/card-machines", handler.PartnerCardMachines).Methods(http.MethodGet)
+	partnerRouter.HandleFunc("/report", handler.PartnerReport).Methods(http.MethodGet)
 
 	return router
 }

@@ -57,6 +57,9 @@ type Usecases struct {
 	ListPartnerUseCase        contracts.ListPartnerUseCase
 	UpdatePartnerUseCase      contracts.UpdatePartnerUseCase
 
+	PartnerClientsUseCase contracts.PartnerClientsUseCase
+	PartnerReportUseCase  contracts.PartnerReportUseCase
+
 	CreateCardUseCase       contracts.CreateCardUseCase
 	DeleteCardUseCase       contracts.DeleteCardUseCase
 	FindCardByIDUseCase     contracts.FindCardByIDUseCase
@@ -143,6 +146,8 @@ func (d *DenpencyBuild) buildUseCases() *DenpencyBuild {
 	d.Usecases.FindPartnerByIDUseCase = partner.NewFindPartnerByIDUseCase(d.Repositories.PartnerRepository)
 	d.Usecases.ListPartnerUseCase = partner.NewListPartnerUseCase(d.Repositories.PartnerRepository)
 	d.Usecases.UpdatePartnerUseCase = partner.NewUpdatePartnerUseCase(d.Repositories.PartnerRepository)
+	d.Usecases.PartnerClientsUseCase = partner.NewPartnerClientsUseCase(d.Repositories.ClientRepository, d.Repositories.PartnerRepository)
+	d.Usecases.PartnerReportUseCase = partner.NewPartnerReportUseCase(d.Repositories.LoanRepository, d.Repositories.PartnerRepository)
 
 	d.Usecases.CreateCardUseCase = card.NewCreateCardUseCase(d.Repositories.CardRepository)
 	d.Usecases.DeleteCardUseCase = card.NewDeleteCardUseCase(d.Repositories.CardRepository)
