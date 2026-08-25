@@ -57,7 +57,12 @@ func (f *forgotPasswordUseCase) Execute(ctx context.Context, forgotPassword *inp
 		return err
 	}
 
-	link := strings.TrimSuffix(config.GetFrontURL(), "/") + "/primeiro-acesso?token=" + plain
+	// usuário sem senha => primeiro acesso; com senha => recuperação
+	path := "/primeiro-acesso"
+	if user.Password != "" {
+		path = "/recuperar-senha"
+	}
+	link := strings.TrimSuffix(config.GetFrontURL(), "/") + path + "?token=" + plain
 	if err := f.emailSender.SendPasswordResetEmail(ctx, user.Email, link); err != nil {
 		log.Printf("falha ao enviar email de reset para %s: %v", user.Email, err)
 	}

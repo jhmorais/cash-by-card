@@ -91,4 +91,25 @@ func TestForgotPassword_EmailValidoGeraTokenEEnvia(t *testing.T) {
 	if strings.Contains(sender.sentLink, saved.TokenHash) {
 		t.Fatal("o link não deve conter o hash; deve conter o token em texto puro")
 	}
+	// usuário SEM senha (password vazio) => primeiro acesso
+	if !strings.Contains(sender.sentLink, "/primeiro-acesso?token=") {
+		t.Fatalf("usuário sem senha deve receber link de primeiro acesso, got %s", sender.sentLink)
+	}
+}
+
+func TestForgotPassword_UsuarioComSenhaRecebeLinkDeRecuperacao(t *testing.T) {
+	sender := &mockEmailSender{}
+	uc := NewForgotPasswordUseCase(
+		&mockUserRepo{findByEmail: func(ctx context.Context, email string) (*entities.User, error) {
+			return &entities.User{ID: 8, Email: email, Password: "hash-existente"}, nil
+		}},
+		&mockTokenRepo{createFunc: func(ctx context.Context, e *entities.PasswordResetToken) error { return nil }},
+		sender,
+	)
+	if err := uc.Execute(context.Background(), &input.ForgotPassword{Email: "a@b.com"}); err != nil {
+		t.Fatalf("expected no error, got '%v'", err)
+	}
+	if !strings.Contains(sender.sentLink, "/recuperar-senha?token=") {
+		t.Fatalf("usuário com senha deve receber link de recuperação, got %s", sender.sentLink)
+	}
 }
