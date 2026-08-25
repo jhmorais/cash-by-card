@@ -32,6 +32,10 @@ func (l *listUserUseCase) Execute(ctx context.Context, requesterEmail string) (*
 
 	items := make([]output.UserItem, 0, len(users))
 	for _, u := range users {
+		// admin não enxerga roles acima da sua: vê apenas parceiros
+		if requester.Role == RoleAdmin && u.Role != RolePartner {
+			continue
+		}
 		items = append(items, output.UserItem{
 			ID:                 u.ID,
 			Name:               u.Name,
