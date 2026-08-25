@@ -16,17 +16,17 @@ import (
 
 type mockClientRepoPartnerClients struct {
 	repoClient.ClientRepository
-	findByPartnerID func(ctx context.Context, partnerID int, name string) ([]*entities.Client, error)
+	listByPartnerID func(ctx context.Context, partnerID int) ([]*entities.Client, error)
 	findByID        func(ctx context.Context, id int) (*entities.Client, error)
 	create          func(ctx context.Context, entity *entities.Client) error
 	update          func(ctx context.Context, entity *entities.Client) error
 }
 
-func (m *mockClientRepoPartnerClients) FindClientByPartnerID(ctx context.Context, partnerID int, name string) ([]*entities.Client, error) {
-	if m.findByPartnerID == nil {
+func (m *mockClientRepoPartnerClients) ListClientsByPartnerID(ctx context.Context, partnerID int) ([]*entities.Client, error) {
+	if m.listByPartnerID == nil {
 		return nil, nil
 	}
-	return m.findByPartnerID(ctx, partnerID, name)
+	return m.listByPartnerID(ctx, partnerID)
 }
 
 func (m *mockClientRepoPartnerClients) FindClientByID(ctx context.Context, id int) (*entities.Client, error) {
@@ -84,7 +84,7 @@ func TestListClients_Escopo(t *testing.T) {
 	t.Run("busca clientes pelo ID da entidade do parceiro resolvido pelo email", func(t *testing.T) {
 		var gotPartnerID int
 		clientRepo := &mockClientRepoPartnerClients{
-			findByPartnerID: func(ctx context.Context, partnerID int, name string) ([]*entities.Client, error) {
+			listByPartnerID: func(ctx context.Context, partnerID int) ([]*entities.Client, error) {
 				gotPartnerID = partnerID
 				return []*entities.Client{{ID: 1, Name: "João"}}, nil
 			},
@@ -106,7 +106,7 @@ func TestListClients_Escopo(t *testing.T) {
 	t.Run("email sem entidade parceira devolve lista vazia e não consulta clientes", func(t *testing.T) {
 		clientRepoCalled := false
 		clientRepo := &mockClientRepoPartnerClients{
-			findByPartnerID: func(ctx context.Context, partnerID int, name string) ([]*entities.Client, error) {
+			listByPartnerID: func(ctx context.Context, partnerID int) ([]*entities.Client, error) {
 				clientRepoCalled = true
 				return nil, nil
 			},

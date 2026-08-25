@@ -14,5 +14,7 @@ type ClientRepository interface {
 	FindClientByName(ctx context.Context, name string) ([]*entities.Client, error)
 	FindClientByCPF(ctx context.Context, cpf string) ([]*entities.Client, error)
 	FindClientByPartnerID(ctx context.Context, partnerID int, name string) ([]*entities.Client, error)
+	// ListClientsByPartnerID lista TODOS os clientes do parceiro (sem filtro de nome).
+	ListClientsByPartnerID(ctx context.Context, partnerID int) ([]*entities.Client, error)
 	ListClient(ctx context.Context) ([]*entities.Client, error)
 }

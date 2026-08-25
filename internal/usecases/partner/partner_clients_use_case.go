@@ -44,7 +44,7 @@ func (p *partnerClientsUseCase) ListClients(ctx context.Context, partnerUserEmai
 	if partner == nil {
 		return &output.PartnerClients{Clients: []*entities.Client{}}, nil
 	}
-	clients, err := p.clientRepository.FindClientByPartnerID(ctx, partner.ID, "")
+	clients, err := p.clientRepository.ListClientsByPartnerID(ctx, partner.ID)
 	if err != nil {
 		return nil, err
 	}

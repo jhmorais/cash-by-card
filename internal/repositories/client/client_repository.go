@@ -87,6 +87,22 @@ func (d *clientRepository) FindClientByPartnerID(ctx context.Context, partnerID 
 	return entity, err
 }
 
+func (d *clientRepository) ListClientsByPartnerID(ctx context.Context, partnerID int) ([]*entities.Client, error) {
+	var entities []*entities.Client
+
+	err := d.db.
+		Preload(clause.Associations).
+		Where("partner_id = ?", partnerID).
+		Order("created_at desc").
+		Limit(100).
+		Find(&entities).Error
+
+	if err != nil {
+		return nil, err
+	}
+	return entities, nil
+}
+
 func (d *clientRepository) ListClient(ctx context.Context) ([]*entities.Client, error) {
 	//TODO impl pagination
 	var entities []*entities.Client
