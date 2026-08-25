@@ -19,8 +19,8 @@ func NewChangePasswordUseCase(userRepository repositories.UserRepository) contra
 }
 
 func (c *changePasswordUseCase) Execute(ctx context.Context, email string, changePassword *input.ChangePassword) error {
-	if len(changePassword.NewPassword) < 6 {
-		return fmt.Errorf("a nova senha deve ter pelo menos 6 caracteres")
+	if err := utils.ValidatePasswordPolicy(changePassword.NewPassword); err != nil {
+		return err
 	}
 	user, err := c.userRepository.FindUserByEmail(ctx, email)
 	if err != nil || user == nil || user.Email == "" {

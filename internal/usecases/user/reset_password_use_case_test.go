@@ -39,7 +39,7 @@ func TestResetPassword_TokenInvalido(t *testing.T) {
 		}},
 		&mockUserRepoWithSet{},
 	)
-	err := uc.Execute(context.Background(), &input.ResetPassword{Token: "x", NewPassword: "123456"})
+	err := uc.Execute(context.Background(), &input.ResetPassword{Token: "x", NewPassword: "NovaSenha@1"})
 	if err == nil {
 		t.Fatal("token invalido deve retornar erro")
 	}
@@ -50,6 +50,14 @@ func TestResetPassword_SenhaCurta(t *testing.T) {
 	err := uc.Execute(context.Background(), &input.ResetPassword{Token: "x", NewPassword: "123"})
 	if err == nil {
 		t.Fatal("senha curta deve retornar erro")
+	}
+}
+
+func TestResetPassword_SenhaFraca(t *testing.T) {
+	uc := NewResetPasswordUseCase(&mockTokenRepoFull{}, &mockUserRepoWithSet{})
+	err := uc.Execute(context.Background(), &input.ResetPassword{Token: "x", NewPassword: "novasenha"})
+	if err == nil {
+		t.Fatal("senha sem maiuscula, numero e caractere especial deve retornar erro")
 	}
 }
 
@@ -71,13 +79,13 @@ func TestResetPassword_Sucesso(t *testing.T) {
 			return nil
 		}},
 	)
-	if err := uc.Execute(context.Background(), &input.ResetPassword{Token: "plain-token", NewPassword: "novasenha"}); err != nil {
+	if err := uc.Execute(context.Background(), &input.ResetPassword{Token: "plain-token", NewPassword: "NovaSenha@1"}); err != nil {
 		t.Fatalf("expected no error, got '%v'", err)
 	}
 	if markedID != 55 {
 		t.Fatalf("esperado marcar token 55 como usado, got %d", markedID)
 	}
-	if savedID != 9 || savedHash != utils.EncryptPassword("novasenha") {
+	if savedID != 9 || savedHash != utils.EncryptPassword("NovaSenha@1") {
 		t.Fatalf("senha não salva corretamente: id=%d hash=%s", savedID, savedHash)
 	}
 }

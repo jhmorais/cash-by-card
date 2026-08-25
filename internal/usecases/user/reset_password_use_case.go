@@ -27,8 +27,8 @@ func (r *resetPasswordUseCase) Execute(ctx context.Context, resetPassword *input
 	if resetPassword.Token == "" {
 		return fmt.Errorf("token é obrigatório")
 	}
-	if len(resetPassword.NewPassword) < 6 {
-		return fmt.Errorf("a nova senha deve ter pelo menos 6 caracteres")
+	if err := utils.ValidatePasswordPolicy(resetPassword.NewPassword); err != nil {
+		return err
 	}
 
 	hash := utils.HashResetToken(resetPassword.Token)
