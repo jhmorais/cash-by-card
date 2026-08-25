@@ -18,6 +18,7 @@ type mockClientRepoPartnerClients struct {
 	repoClient.ClientRepository
 	listByPartnerID func(ctx context.Context, partnerID int) ([]*entities.Client, error)
 	findByID        func(ctx context.Context, id int) (*entities.Client, error)
+	findByCPF       func(ctx context.Context, cpf string) ([]*entities.Client, error)
 	create          func(ctx context.Context, entity *entities.Client) error
 	update          func(ctx context.Context, entity *entities.Client) error
 }
@@ -34,6 +35,13 @@ func (m *mockClientRepoPartnerClients) FindClientByID(ctx context.Context, id in
 		return nil, nil
 	}
 	return m.findByID(ctx, id)
+}
+
+func (m *mockClientRepoPartnerClients) FindClientByCPF(ctx context.Context, cpf string) ([]*entities.Client, error) {
+	if m.findByCPF == nil {
+		return []*entities.Client{}, nil
+	}
+	return m.findByCPF(ctx, cpf)
 }
 
 func (m *mockClientRepoPartnerClients) CreateClient(ctx context.Context, entity *entities.Client) error {
@@ -182,6 +190,92 @@ func TestCreateClient_VinculoAutomatico(t *testing.T) {
 		}
 		if createCalled {
 			t.Fatal("repositório de clientes não deveria ser chamado sem entidade parceira")
+		}
+	})
+}
+
+func TestCreateClient_ValidacoesParidadeAdmin(t *testing.T) {
+	cases := []struct {
+		name      string
+		payload   *input.CreateClient
+		findByCPF func(ctx context.Context, cpf string) ([]*entities.Client, error)
+		wantErr   string
+	}{
+		{
+			name:    "sem telefone retorna erro",
+			payload: &input.CreateClient{Name: "Maria", CPF: "98765432100", Documents: "rg"},
+			wantErr: "cannot create a client without phone",
+		},
+		{
+			name:    "sem cpf retorna erro",
+			payload: &input.CreateClient{Name: "Maria", Phone: "11999887766", Documents: "rg"},
+			wantErr: "cannot create a client without cpf",
+		},
+		{
+			name: "cpf duplicado retorna erro",
+			payload: &input.CreateClient{Name: "Maria", Phone: "11999887766", CPF: "98765432100", Documents: "rg"},
+			findByCPF: func(ctx context.Context, cpf string) ([]*entities.Client, error) {
+				return []*entities.Client{{ID: 55, CPF: cpf}}, nil // já existe
+			},
+			wantErr: "falha, já existe um cliente com o mesmo cpf",
+		},
+		{
+			name:    "documentos acima de 100 caracteres retorna erro",
+			payload: &input.CreateClient{Name: "Maria", Phone: "11999887766", CPF: "98765432100", Documents: strings.Repeat("d", 101)},
+			wantErr: "cannot have documents greater than 100 characters",
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			createCalled := false
+			clientRepo := &mockClientRepoPartnerClients{
+				findByCPF: tc.findByCPF,
+				create: func(ctx context.Context, entity *entities.Client) error {
+					createCalled = true
+					return nil
+				},
+			}
+			uc := NewPartnerClientsUseCase(clientRepo, partnerRepoByEmail(7))
+
+			_, err := uc.CreateClient(context.Background(), "user@x.com", tc.payload)
+			if err == nil || !strings.Contains(err.Error(), tc.wantErr) {
+				t.Fatalf("esperado erro contendo '%s', got '%v'", tc.wantErr, err)
+			}
+			if createCalled {
+				t.Fatal("repositório não deveria persistir cliente com payload inválido")
+			}
+		})
+	}
+
+	t.Run("nome acima de 250 caracteres é truncado como no admin", func(t *testing.T) {
+		longName := strings.Repeat("n", 300)
+		var captured *entities.Client
+		clientRepo := &mockClientRepoPartnerClients{
+			create: func(ctx context.Context, entity *entities.Client) error {
+				captured = entity
+				return nil
+			},
+		}
+		uc := NewPartnerClientsUseCase(clientRepo, partnerRepoByEmail(7))
+
+		_, err := uc.CreateClient(context.Background(), "user@x.com", &input.CreateClient{
+			Name:      longName,
+			Phone:     "11999887766",
+			CPF:       "98765432101",
+			Documents: "rg",
+		})
+		if err != nil {
+			t.Fatalf("expected no error, got '%v'", err)
+		}
+		if captured == nil {
+			t.Fatal("CreateClient do repositório não foi chamado")
+		}
+		if len(captured.Name) != 250 {
+			t.Fatalf("esperado nome truncado para 250 caracteres, got %d", len(captured.Name))
+		}
+		if captured.Name != longName[:250] {
+			t.Fatal("nome truncado deve ser prefixo do original")
 		}
 	})
 }

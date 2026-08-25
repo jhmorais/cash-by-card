@@ -3,6 +3,7 @@ package partner
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"time"
 
 	"github.com/jhmorais/cash-by-card/internal/contracts"
@@ -11,6 +12,7 @@ import (
 	output "github.com/jhmorais/cash-by-card/internal/ports/output/partner"
 	repoClient "github.com/jhmorais/cash-by-card/internal/repositories/client"
 	repoPartner "github.com/jhmorais/cash-by-card/internal/repositories/partner"
+	"github.com/jhmorais/cash-by-card/utils"
 )
 
 const partnerEditWindow = 24 * time.Hour
@@ -62,6 +64,32 @@ func (p *partnerClientsUseCase) CreateClient(ctx context.Context, partnerUserEma
 	if partner == nil {
 		return nil, fmt.Errorf("nenhum parceiro vinculado a este usuário")
 	}
+
+	// paridade com o use case admin (internal/usecases/client/create_client_use_case.go)
+	if len(createClient.Name) > 250 {
+		createClient.Name = createClient.Name[:250]
+	}
+
+	if createClient.Phone == "" {
+		return nil, fmt.Errorf("cannot create a client without phone")
+	}
+
+	if createClient.CPF == "" {
+		return nil, fmt.Errorf("cannot create a client without cpf")
+	}
+
+	if len(createClient.Documents) > 100 {
+		return nil, fmt.Errorf("cannot have documents greater than 100 characters")
+	}
+
+	existingClients, err := p.clientRepository.FindClientByCPF(ctx, createClient.CPF)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get client: %v", err)
+	}
+	if len(existingClients) > 0 {
+		return nil, &utils.RequestError{StatusCode: http.StatusBadRequest, Err: fmt.Errorf("falha, já existe um cliente com o mesmo cpf")}
+	}
+
 	// vínculo automático: o cliente nasce ligado à entidade do parceiro logado
 	partnerID := partner.ID
 	entity := &entities.Client{
