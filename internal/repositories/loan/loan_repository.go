@@ -151,7 +151,17 @@ func applyLoanFilters(db *gorm.DB, filter *input.ListLoanFilter) *gorm.DB {
 }
 
 func (d *loanRepository) GetTotals(ctx context.Context, month int, year int) (*dashboard.Dashboard, error) {
-	var result dashboard.Dashboard
+	// destino só de escalares: o Dashboard de output embute MonthlyLoans (slices),
+	// que o parser de schema do gorm não suporta como destino de Scan — gerava
+	// "[error] unsupported data type: &[]" no log a cada chamada.
+	var row struct {
+		TotalLoans    int     `gorm:"total_loans"`
+		TotalValue    float64 `gorm:"total_value"`
+		GrossProfit   float64 `gorm:"gross_profit"`
+		Profit        float64 `gorm:"profit"`
+		PartnerProfit float64 `gorm:"partner_profit"`
+		MachineAmount float64 `gorm:"machine_amount"`
+	}
 
 	err := d.db.
 		WithContext(ctx).
@@ -166,13 +176,20 @@ func (d *loanRepository) GetTotals(ctx context.Context, month int, year int) (*d
         `).
 		Where("EXTRACT(YEAR FROM created_at) = ?", year).
 		Where("MONTH(created_at) = ?", month).
-		Scan(&result).Error
+		Scan(&row).Error
 
 	if err != nil {
 		return nil, err
 	}
 
-	return &result, nil
+	return &dashboard.Dashboard{
+		TotalLoans:    row.TotalLoans,
+		TotalValue:    row.TotalValue,
+		GrossProfit:   row.GrossProfit,
+		Profit:        row.Profit,
+		MachineAmount: row.MachineAmount,
+		PartnerProfit: row.PartnerProfit,
+	}, nil
 }
 
 func (d *loanRepository) GetBestPartners(ctx context.Context, month int, year int) ([]dashboard.BestPartner, error) {
