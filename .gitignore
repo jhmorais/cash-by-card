@@ -23,3 +23,7 @@ go.work
 /etc
 /config/config.json
 .env
+# documentos de clientes enviados em runtime (DOCS_DIR default ./docs)
+docs/*.pdf
+docs/*.jpeg
+docs/*.png
