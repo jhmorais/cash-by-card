@@ -5,7 +5,9 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/jhmorais/cash-by-card/internal/contracts"
+	"github.com/jhmorais/cash-by-card/internal/documents"
 	"github.com/jhmorais/cash-by-card/internal/infra/di"
+	repoClient "github.com/jhmorais/cash-by-card/internal/repositories/client"
 	"github.com/jhmorais/cash-by-card/utils"
 )
 
@@ -17,6 +19,11 @@ type Handler struct {
 	FindClientByIDUseCase   contracts.FindClientByIDUseCase
 	ListClientUseCase       contracts.ListClientUseCase
 	UpdateClientUseCase     contracts.UpdateClientUseCase
+
+	// ClientRepository dá acesso direto ao cliente por CPF e ao update dos
+	// metadados do documento; Documents guarda os arquivos em DOCS_DIR.
+	ClientRepository repoClient.ClientRepository
+	Documents        *documents.Store
 
 	CreatePartnerUseCase     contracts.CreatePartnerUseCase
 	DeletePartnerUseCase     contracts.DeletePartnerUseCase
@@ -77,6 +84,8 @@ func NewHTTPRouterClient(
 		FindClientByNameUseCase:           useCases.FindClientByNameUseCase,
 		ListClientUseCase:                 useCases.ListClientUseCase,
 		UpdateClientUseCase:               useCases.UpdateClientUseCase,
+		ClientRepository:                  userRepo.ClientRepository,
+		Documents:                         documents.NewStore(),
 		CreatePartnerUseCase:              useCases.CreatePartnerUseCase,
 		DeletePartnerUseCase:              useCases.DeletePartnerUseCase,
 		FindPartnerByIDUseCase:            useCases.FindPartnerByIDUseCase,
@@ -133,6 +142,8 @@ func NewHTTPRouterClient(
 	adminRouter.HandleFunc("/clients/{id}", handler.DeleteClient).Methods(http.MethodDelete)
 	adminRouter.HandleFunc("/clients", handler.CreateClient).Methods(http.MethodPost)
 	adminRouter.HandleFunc("/clients/files/{cpf}", handler.CreateClientDocuments).Methods(http.MethodPost)
+	adminRouter.HandleFunc("/clients/{id}/document", handler.GetClientDocument).Methods(http.MethodGet)
+	adminRouter.HandleFunc("/clients/{id}/document", handler.DeleteClientDocument).Methods(http.MethodDelete)
 	adminRouter.HandleFunc("/clients/{id}", handler.UpdateClient).Methods(http.MethodPut)
 
 	publicRouter.HandleFunc("/partners", handler.ListPartners).Methods(http.MethodGet, http.MethodOptions)

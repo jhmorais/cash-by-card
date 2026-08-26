@@ -38,6 +38,17 @@ func (d *clientRepository) DeleteClient(ctx context.Context, entity *entities.Cl
 		Error
 }
 
+func (d *clientRepository) UpdateClientDocument(ctx context.Context, id int, name, docType string, size int) error {
+	return d.db.WithContext(ctx).
+		Model(&entities.Client{}).
+		Where("id = ?", id).
+		Updates(map[string]interface{}{
+			"document_name": name,
+			"document_type": docType,
+			"document_size": size,
+		}).Error
+}
+
 func (d *clientRepository) FindClientByID(ctx context.Context, id int) (*entities.Client, error) {
 	var entity *entities.Client
 
